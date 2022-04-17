@@ -3,9 +3,30 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{DA7096ED-DC1C-4FD9-A873-39C7119E8BC0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{0F56A811-A9C9-47C3-B336-620ED7B65C60}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{F5590D68-A82C-490F-974E-C484B25B5FDE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Domain.Entities", "APSS.Domain.Entities\APSS.Domain.Entities.csproj", "{41D29AF2-01FB-42A1-A30D-1C6CADDBE682}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{41D29AF2-01FB-42A1-A30D-1C6CADDBE682}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41D29AF2-01FB-42A1-A30D-1C6CADDBE682}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41D29AF2-01FB-42A1-A30D-1C6CADDBE682}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41D29AF2-01FB-42A1-A30D-1C6CADDBE682}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{41D29AF2-01FB-42A1-A30D-1C6CADDBE682} = {DA7096ED-DC1C-4FD9-A873-39C7119E8BC0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B2B0F7A8-9934-4C8D-B364-40D94C5AAB64}
