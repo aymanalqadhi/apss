@@ -11,7 +11,7 @@ public sealed class TakenSurvey : AuditableEntity
     public User TakenBy { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the
+    /// Gets or sets the survey 
     /// </summary>
     public Survey Survey { get; set; } = null!;
 
