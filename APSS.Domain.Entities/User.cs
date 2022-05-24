@@ -43,7 +43,7 @@ public sealed class User : AuditableEntity
     /// <summary>
     /// Gets or sets the access level of the user 
     /// </summary>
-    public int AccessLevel { get; set; }
+    public AccessLevel AccessLevel { get; set; }
 
     /// <summary>
     /// Gets or sets wether the user is a supervisor or not
@@ -51,8 +51,20 @@ public sealed class User : AuditableEntity
     public bool IsSupervisor { get; set; } = false;
 
     /// <summary>
-    /// Gets ot sets the supervisor
+    /// Gets or sets the supervisor
     /// </summary>
-    public User SupervisedBy { get; set; } = null!;
+    public User? SupervisedBy { get; set; } 
 }
-
+/// <summary>
+/// An enum to represent the access level
+/// </summary>
+public enum AccessLevel
+{
+    Presedint,
+    CityAdmin,
+    DirectorateAdmin,
+    DistrictAdmin,
+    GroupAdmin,
+    VillageAdmin,
+    Farmer,
+}
