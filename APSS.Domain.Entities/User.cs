@@ -28,7 +28,7 @@ public sealed class User : AuditableEntity
     /// <summary>
     /// Gets or sets the phone number of the user 
     /// </summary>
-    public long PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the social status of the user 
