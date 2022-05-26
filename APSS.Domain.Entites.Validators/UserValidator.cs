@@ -1,11 +1,13 @@
-﻿using FluentValidation;
+﻿using APSS.Domain.Entities;
+
+using FluentValidation;
 
 namespace APSS.Domain.Entites.Validators;
 
 /// <summary>
-/// A validator for the entity <see cref="Entities.User"/>
+/// A validator for the entity <see cref="User"/>
 /// </summary>
-public sealed class UserValidator : Validator<Entities.User>
+public sealed class UserValidator : Validator<User>
 {
     /// <summary>
     /// Default constructor
@@ -20,10 +22,13 @@ public sealed class UserValidator : Validator<Entities.User>
             .NotEmpty()
             .WithMessage("national ID is required");
 
-        RuleFor(user => user.IsSupervisor)
-            .Equal(false)
-            .When(user => user.AccessLevel == Entities.AccessLevel.Farmer);
+        RuleFor(u => u.SupervisedBy)
+            .Equal(null as User)
+            .When(u => u.AccessLevel == AccessLevel.Root);
 
-
+        RuleFor(u => u.AccessLevel)
+            .Equal(AccessLevel.Farmer)
+            .When(u => u.SupervisedBy!.AccessLevel == AccessLevel.Group)
+            .WithMessage("a farmer must be supervied by a group superviosr");
     }
 }
