@@ -44,4 +44,9 @@ public sealed class Land : Confirmable
     /// Gets or sets the owner of the land
     /// </summary>
     public User OwnedBy { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the collection of products produced by this land
+    /// </summary>
+    public ICollection<LandProduct> Products { get; set; } = new List<LandProduct>();
 }
