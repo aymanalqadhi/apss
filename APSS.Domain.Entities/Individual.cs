@@ -13,7 +13,7 @@ public sealed class Individual : AuditableEntity
     /// <summary>
     /// Gets or sets the sex of the individual
     /// </summary>
-    public string Sex { get; set; } = null!;
+    public IndividualSex Sex { get; set; }
 
     /// <summary>
     /// Gets or sets the datebirth of the individual
@@ -61,3 +61,11 @@ public sealed class Individual : AuditableEntity
     public ICollection<Voluntary> Voluntary { get; set; } = new List<Voluntary>();
 }
 
+/// <summary>
+/// An enum to represnt the sex of the individuals
+/// </summary>
+public enum IndividualSex : int
+{
+    Male = 0,
+    Female = 1,
+}
