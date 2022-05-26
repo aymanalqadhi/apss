@@ -95,6 +95,27 @@ public sealed class ApssDbContext : DbContext
     public DbSet<TextQuestion> TextQuestions => Set<TextQuestion>();
 
     /// <summary>
+    /// Gets the questions answers table
+    /// </summary>
+    public DbSet<QuestionAnswer> QuestionAnswers => Set<QuestionAnswer>();
+
+    /// <summary>
+    /// Gets the multiple-choice answers table
+    /// </summary>
+    public DbSet<MultipleChoiceQuestionAnswer> MultipleChoiceQuestionAnswers
+        => Set<MultipleChoiceQuestionAnswer>();
+
+    /// <summary>
+    /// Gets the logical question answers table
+    /// </summary>
+    public DbSet<LogicalQuestionAnswer> LogicalQuestionAnswers => Set<LogicalQuestionAnswer>();
+
+    /// <summary>
+    /// Gets the text question answers table
+    /// </summary>
+    public DbSet<TextQuestionAnswer> TextQuestionAnswers => Set<TextQuestionAnswer>();
+
+    /// <summary>
     /// Gets the survey entries repository
     /// </summary>
     public DbSet<SurveyEntry> SurveyEntries => Set<SurveyEntry>();
