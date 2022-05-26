@@ -29,4 +29,3 @@ public sealed class AnimalGroupValidator : Validator<AnimalGroup>
 
     }
 }
-

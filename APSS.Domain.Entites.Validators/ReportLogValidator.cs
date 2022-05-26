@@ -15,6 +15,5 @@ public sealed class ReportLogValidator : Validator<ReportLog>
         RuleFor(r => r.Name)
             .NotEmpty()
             .WithMessage("name is required");
-
     }
 }

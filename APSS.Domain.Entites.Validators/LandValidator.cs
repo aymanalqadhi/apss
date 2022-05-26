@@ -19,6 +19,5 @@ public sealed class LandValidator : Validator<Land>
         RuleFor(l => l.OwnedBy.AccessLevel)
             .Equal(AccessLevel.Farmer)
             .WithMessage("a land must be owned by a farmer");
-
     }
 }

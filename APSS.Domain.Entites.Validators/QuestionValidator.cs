@@ -12,8 +12,8 @@ public sealed class QuestionValidator : Validator<Question>
     /// </summary>
     public QuestionValidator()
     {
-       RuleFor(q => q.Text)
-            .NotEmpty()
-            .WithMessage("the question cannot be empty")
+        RuleFor(q => q.Text)
+             .NotEmpty()
+             .WithMessage("the question cannot be empty");
     }
 }

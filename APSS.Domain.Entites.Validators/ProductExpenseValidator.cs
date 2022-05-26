@@ -15,6 +15,5 @@ public sealed class ProductExpenseValidator : Validator<ProductExpense>
         RuleFor(a => a.Price)
             .GreaterThanOrEqualTo(0)
             .WithMessage("price must be higher or equal to 0");
-
     }
 }

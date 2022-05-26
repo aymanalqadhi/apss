@@ -20,4 +20,3 @@ public sealed class SurveyValidator : Validator<Survey>
             .NotEqual(AccessLevel.Farmer);
     }
 }
-

@@ -19,6 +19,5 @@ public sealed class IndividualValidator : Validator<Individual>
         RuleFor(i => i.AddedBy.AccessLevel)
             .Equal(AccessLevel.Group)
             .WithMessage("only a group supervisor can add an individual");
-
     }
 }

@@ -19,6 +19,5 @@ public sealed class AnimalProductValidator : Validator<AnimalProduct>
         RuleFor(a => a.Quantity)
             .GreaterThan(0)
             .WithMessage("quantity must be higher than 0");
-
     }
 }

@@ -16,10 +16,8 @@ public sealed class LandProductValidator : Validator<LandProduct>
             .NotEmpty()
             .WithMessage("name is required");
 
-
         RuleFor(l => l.Quantity)
             .GreaterThan(0)
             .WithMessage("quantity must be higher than 0");
-
     }
 }
