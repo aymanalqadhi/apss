@@ -11,7 +11,7 @@ public sealed class Land : Confirmable
     public string Name { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the area of the land
+    /// Gets or sets the area of the land in meters
     /// </summary>
     public long Area { get; set; }
 
