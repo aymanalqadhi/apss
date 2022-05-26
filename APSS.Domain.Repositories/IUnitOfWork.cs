@@ -129,7 +129,7 @@ public interface IUnitOfWork
     /// <summary>
     /// Gets the family individuals repository
     /// </summary>
-    IRepository<FamilyIndividual> FamiliesIndividuals { get; }
+    IRepository<FamilyIndividual> FamilyIndividuals { get; }
 
     /// <summary>
     /// Gets the logs repository

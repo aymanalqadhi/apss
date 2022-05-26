@@ -143,7 +143,7 @@ public sealed class ApssDbContext : DbContext
     /// <summary>
     /// Gets the family individuals repository
     /// </summary>
-    public DbSet<FamilyIndividual> FamiliesIndividuals => Set<FamilyIndividual>();
+    public DbSet<FamilyIndividual> FamilyIndividuals => Set<FamilyIndividual>();
 
     /// <summary>
     /// Gets the logs repository
