@@ -13,7 +13,7 @@ public sealed class AnimalProduct : Confirmable
     /// <summary>
     /// Gets or sets the unit of the animal's product
     /// </summary>
-    public string Unit { get; set; } = null!;
+    public AnimalProductUnit Unit { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the quantity of the animal's product
