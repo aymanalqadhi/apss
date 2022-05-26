@@ -66,9 +66,10 @@ public sealed class LandProduct : Confirmable
     public string Insecticide { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the insecticide of the land's product
+    /// Gets or sets whether the production of this product was funded
+    /// by the government
     /// </summary>
-    public string FundingType { get; set; } = null!;
+    public bool IsGovernmentFunded { get; set; }
 
     /// <summary>
     /// Gets or sets the land of the land's product
