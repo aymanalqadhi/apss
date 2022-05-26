@@ -82,6 +82,26 @@ public interface IUnitOfWork
     IRepository<TextQuestion> TextQuestions { get; }
 
     /// <summary>
+    /// Gets the question answers repository
+    /// </summary>
+    IRepository<QuestionAnswer> QuestionAnswers { get; }
+
+    /// <summary>
+    /// Gets the multiple-choice question answers repository
+    /// </summary>
+    IRepository<MultipleChoiceQuestionAnswer> MultipleChoiceQuestionAnswers { get; }
+
+    /// <summary>
+    /// Gets the logical question answers repository
+    /// </summary>
+    IRepository<LogicalQuestionAnswer> LogicalQuestionAnswers { get; }
+
+    /// <summary>
+    /// Gets the text question answers repository
+    /// </summary>
+    IRepository<TextQuestionAnswer> TextQuestionAnswers { get; }
+
+    /// <summary>
     /// Gets the survey entries repository
     /// </summary>
     IRepository<SurveyEntry> SurveyEntries { get; }
