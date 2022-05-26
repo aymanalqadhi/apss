@@ -11,11 +11,6 @@ public sealed class Voluntary : AuditableEntity
     public string Name { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the type of the voluntary
-    /// </summary>
-    public string Type { get; set; } = null!;
-
-    /// <summary>
     /// Gets or sets the field of the voluntary
     /// </summary>
     public string Field { get; set; } = null!;
