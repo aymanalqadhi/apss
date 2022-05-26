@@ -18,8 +18,8 @@ public sealed class LandProductValidator : Validator<LandProduct>
 
 
         RuleFor(l => l.Quantity)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("quantity must be higher or equal to 0");
+            .GreaterThan(0)
+            .WithMessage("quantity must be higher than 0");
 
     }
 }
