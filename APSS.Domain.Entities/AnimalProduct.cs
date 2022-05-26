@@ -30,4 +30,3 @@ public sealed class AnimalProduct : Confirmable
     /// </summary>
     public AnimalGroup Producer { get; set; } = null!;
 }
-
