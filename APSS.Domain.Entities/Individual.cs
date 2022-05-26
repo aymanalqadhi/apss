@@ -18,12 +18,12 @@ public sealed class Individual : AuditableEntity
     /// <summary>
     /// Gets or sets the datebirth of the individual
     /// </summary>
-    public DateTime DateBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
 
     /// <summary>
     /// Gets or sets the national id of the individual
     /// </summary>
-    public long NationalId { get; set; }
+    public string? NationalId { get; set; }
 
     /// <summary>
     /// Gets or sets the phone number of the individual
