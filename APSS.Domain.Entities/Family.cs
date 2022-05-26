@@ -19,4 +19,9 @@ public sealed class Family : AuditableEntity
     /// Gets or sets the user associated with the family
     /// </summary>
     public User AddedBy { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the collection of individuals who belong to this family
+    /// </summary>
+    public ICollection<FamilyIndividual> Individuals { get; set; } = new List<FamilyIndividual>();
 }
