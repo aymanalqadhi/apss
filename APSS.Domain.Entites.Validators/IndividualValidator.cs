@@ -16,5 +16,9 @@ public sealed class IndividualValidator : Validator<Individual>
             .NotEmpty()
             .WithMessage("name is required");
 
+        RuleFor(i => i.AddedBy.AccessLevel)
+            .Equal(AccessLevel.Group)
+            .WithMessage("only a group supervisor can add an individual");
+
     }
 }
