@@ -16,13 +16,12 @@ public sealed class FamilyIndividual : AuditableEntity
     public Family Family { get; set; } = null!;
 
     /// <summary>
-    /// Gets or stes the role of the individual in the family
+    /// Gets or sets whether the individual is a parent of the family
     /// </summary>
-    public string Role { get; set; } = null!;
+    public bool IsParent { get; set; }
 
     /// <summary>
     /// Gets or sets wether the individual is a provider in the family or not
     /// </summary>
     public bool IsProvider { get; set; } = false;
 }
-
