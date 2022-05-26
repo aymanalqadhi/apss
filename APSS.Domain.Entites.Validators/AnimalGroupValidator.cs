@@ -3,9 +3,9 @@
 namespace APSS.Domain.Entities.Validators;
 
 /// <summary>
-/// A validator for the entity <see cref="Entities.AnimalGroup"/>
+/// A validator for the entity <see cref="AnimalGroup"/>
 /// </summary>
-public sealed class AnimalGroupValidator : Validator<Entities.AnimalGroup>
+public sealed class AnimalGroupValidator : Validator<AnimalGroup>
 {
     /// <summary>
     /// Default constuctor
@@ -25,7 +25,7 @@ public sealed class AnimalGroupValidator : Validator<Entities.AnimalGroup>
             .WithMessage("animal group quantity must be greater then or equal to 0");
 
         RuleFor(g => g.OwnedBy.AccessLevel)
-            .Equal(Entities.AccessLevel.Farmer);
+            .Equal(AccessLevel.Farmer);
 
     }
 }

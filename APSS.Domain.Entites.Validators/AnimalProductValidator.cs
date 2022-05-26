@@ -3,9 +3,9 @@
 namespace APSS.Domain.Entities.Validators;
 
 /// <summary>
-/// A validator for the entity <see cref="Entities.AnimalProduct"/>
+/// A validator for the entity <see cref="AnimalProduct"/>
 /// </summary>
-public sealed class AnimalProductValidator : Validator<Entities.AnimalProduct>
+public sealed class AnimalProductValidator : Validator<AnimalProduct>
 {
     /// <summary>
     /// Default constructor

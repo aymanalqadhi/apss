@@ -3,9 +3,9 @@
 namespace APSS.Domain.Entities.Validators;
 
 /// <summary>
-/// A validator for the entity <see cref="Entities.Season"/>
+/// A validator for the entity <see cref="Season"/>
 /// </summary>
-public sealed class SeasonValidator : Validator<Entities.Season>
+public sealed class SeasonValidator : Validator<Season>
 {
     /// <summary>
     /// Default constructor

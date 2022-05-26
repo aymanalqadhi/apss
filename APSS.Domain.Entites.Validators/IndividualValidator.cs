@@ -3,9 +3,9 @@
 namespace APSS.Domain.Entities.Validators;
 
 /// <summary>
-/// A validator for the entity <see cref="Entities.Individual"/>
+/// A validator for the entity <see cref="Individual"/>
 /// </summary>
-public sealed class IndividualValidator : Validator<Entities.Individual>
+public sealed class IndividualValidator : Validator<Individual>
 {
     /// <summary>
     /// Default constructor

@@ -3,9 +3,9 @@
 namespace APSS.Domain.Entities.Validators;
 
 /// <summary>
-/// A validator for the entity <see cref="Entities.Survey"/>
+/// A validator for the entity <see cref="Survey"/>
 /// </summary>
-public sealed class SurveyValidator : Validator<Entities.Survey>
+public sealed class SurveyValidator : Validator<Survey>
 {
     /// <summary>
     /// Default constructor

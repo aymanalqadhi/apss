@@ -3,9 +3,9 @@
 namespace APSS.Domain.Entities.Validators;
 
 /// <summary>
-/// A validator for the entity <see cref="Entities.Family"/>
+/// A validator for the entity <see cref="Family"/>
 /// </summary>
-public sealed class FamilyValidator : Validator<Entities.Family>
+public sealed class FamilyValidator : Validator<Family>
 {
     /// <summary>
     /// Default constructor

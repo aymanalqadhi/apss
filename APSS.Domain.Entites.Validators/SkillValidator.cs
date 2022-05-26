@@ -1,6 +1,4 @@
-﻿using APSS.Domain.Entities;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace APSS.Domain.Entities.Validators;
 
