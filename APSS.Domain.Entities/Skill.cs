@@ -13,7 +13,7 @@ public sealed class Skill : AuditableEntity
     /// <summary>
     /// Gets or sets the description of the skill
     /// </summary>
-    public string Description { get; set; } = null!;
+    public string? Description { get; set; }
 
     /// <summary>
     /// Gets or sets the field of the skill
