@@ -3,14 +3,14 @@
 namespace APSS.Domain.Entities.Validators;
 
 /// <summary>
-/// A validator for the entity <see cref="AnimalProductExpens"/>
+/// A validator for the entity <see cref="ProductExpense"/>
 /// </summary>
-public sealed class AnimalProductExpenseValidator : Validator<AnimalProductExpens>
+public sealed class ProductExpenseValidator : Validator<ProductExpense>
 {
     /// <summary>
     /// Default constructor
     /// </summary>
-    public AnimalProductExpenseValidator()
+    public ProductExpenseValidator()
     {
         RuleFor(a => a.Price)
             .GreaterThanOrEqualTo(0)
