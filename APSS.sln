@@ -9,19 +9,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{F5590D68-A82C-490F-974E-C484B25B5FDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Domain.Entities", "APSS.Domain.Entities\APSS.Domain.Entities.csproj", "{41D29AF2-01FB-42A1-A30D-1C6CADDBE682}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Domain.Entities", "APSS.Domain.Entities\APSS.Domain.Entities.csproj", "{41D29AF2-01FB-42A1-A30D-1C6CADDBE682}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Domain.Repositories", "APSS.Domain.Repositories\APSS.Domain.Repositories.csproj", "{5F5EC808-B33E-4B3C-AC1F-8449EAD41F57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Domain.Repositories", "APSS.Domain.Repositories\APSS.Domain.Repositories.csproj", "{5F5EC808-B33E-4B3C-AC1F-8449EAD41F57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Domain.Services", "APSS.Domain.Services\APSS.Domain.Services.csproj", "{8DDCEA99-5161-4DFA-9BB4-CD9D8E0A5BD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Domain.Services", "APSS.Domain.Services\APSS.Domain.Services.csproj", "{8DDCEA99-5161-4DFA-9BB4-CD9D8E0A5BD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Domain.Entites.Validators", "APSS.Domain.Entites.Validators\APSS.Domain.Entites.Validators.csproj", "{122708A7-FD7D-4716-8B6D-40E5B611DAEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Domain.Entities.Validators", "APSS.Domain.Entites.Validators\APSS.Domain.Entities.Validators.csproj", "{122708A7-FD7D-4716-8B6D-40E5B611DAEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Domain.App", "APSS.Domain.App\APSS.Domain.App.csproj", "{D9B345BF-9BB0-4E8F-AEC1-B64DDA4DD14F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Domain.App", "APSS.Domain.App\APSS.Domain.App.csproj", "{D9B345BF-9BB0-4E8F-AEC1-B64DDA4DD14F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Infrastructure.Repositores.EntityFramework", "APSS.Infrastructure.Repositores.EntityFramework\APSS.Infrastructure.Repositores.EntityFramework.csproj", "{75A11CCD-69A1-48BC-92FC-B2202892BDD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Infrastructure.Repositores.EntityFramework", "APSS.Infrastructure.Repositores.EntityFramework\APSS.Infrastructure.Repositores.EntityFramework.csproj", "{75A11CCD-69A1-48BC-92FC-B2202892BDD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Infrastructure.Services", "APSS.Infrastructure.Services\APSS.Infrastructure.Services.csproj", "{9D513705-CE0B-4C1D-9028-4972E5507D63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Infrastructure.Services", "APSS.Infrastructure.Services\APSS.Infrastructure.Services.csproj", "{9D513705-CE0B-4C1D-9028-4972E5507D63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
