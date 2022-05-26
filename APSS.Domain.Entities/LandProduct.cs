@@ -3,7 +3,7 @@
 /// <summary>
 /// A class to represent the products of the land
 /// </summary>
-public sealed class LandProduct : Confirmable
+public sealed class LandProduct : Product
 {
     /// <summary>
     /// Gets or sets the storing method of the land's product

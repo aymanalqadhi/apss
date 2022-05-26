@@ -3,7 +3,7 @@
 /// <summary>
 /// A class to represent an animal product
 /// </summary>
-public sealed class AnimalProduct : Confirmable
+public sealed class AnimalProduct : Product
 {
     /// <summary>
     /// Gets or sets the name of the animal's product
