@@ -46,14 +46,14 @@ public sealed class LandProduct : Confirmable
     public double IrrigationCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the irrigation energy source of the land's product
-    /// </summary>
-    public string IrrigationEnergySource { get; set; } = null!;
-
-    /// <summary>
     /// Gets or sets the irrigation water source of the land's product
     /// </summary>
     public IrrigationWaterSource IrrigationWaterSource { get; set; }
+
+    /// <summary>
+    /// Gets or sets the irrigation energy source of the land's product
+    /// </summary>
+    public IrrigationPowerSource IrrigationPowerSource { get; set; }
 
     /// <summary>
     /// Gets or sets the fertilizer of the land's product
@@ -89,4 +89,15 @@ public enum IrrigationWaterSource
     Natural,
     HumanStored,
     OnDemand,
+}
+
+
+/// <summary>
+/// An enum that represents the sorts of energy sources
+/// </summary>
+public enum IrrigationPowerSource
+{
+    None,
+    Renewable,
+    FossileFuel,
 }
