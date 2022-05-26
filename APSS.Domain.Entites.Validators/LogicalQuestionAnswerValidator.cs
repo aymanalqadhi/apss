@@ -12,7 +12,11 @@ public sealed class LogicalQuestionAnswerValidator : Validator<LogicalQuestionAn
     /// </summary>
     public LogicalQuestionAnswerValidator()
     {
-        RuleFor(t => t.Answer)
+        RuleFor(a => a.Question)
+            .Must(q => q is LogicalQuestion)
+            .WithMessage("invalid question type");
+
+        RuleFor(a => a.Answer)
             .NotNull()
             .When(a => a.Question.IsRequired)
             .WithMessage("an answer is required");
