@@ -11,6 +11,11 @@ public sealed class User : AuditableEntity
     public string Name { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the name of the peron who holds this account
+    /// </summary>
+    public string? HolderName { get; set; }
+
+    /// <summary>
     /// Gets or sets the password hash of the user 
     /// </summary>
     public string PasswordHash { get; set; } = null!;
