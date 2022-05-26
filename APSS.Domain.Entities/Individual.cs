@@ -28,7 +28,7 @@ public sealed class Individual : AuditableEntity
     /// <summary>
     /// Gets or sets the phone number of the individual
     /// </summary>
-    public long PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
     /// <summary>
     /// Gets or sets the job of the individual
