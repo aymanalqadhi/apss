@@ -18,6 +18,5 @@ public sealed class Log : AuditableEntity
     /// <summary>
     /// Gets or sets the tags of the log
     /// </summary>
-    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+    public string Tags { get; set; } = string.Empty;
 }
-
