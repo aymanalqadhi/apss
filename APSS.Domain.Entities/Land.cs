@@ -13,7 +13,7 @@ public sealed class Land : Confirmable
     /// <summary>
     /// Gets or sets the area of the land
     /// </summary>
-    public string Area { get; set; } = null!;
+    public long Area { get; set; }
 
     /// <summary>
     /// Gets or sets the longitude of the land
