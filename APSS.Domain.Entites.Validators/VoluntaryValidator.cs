@@ -16,10 +16,6 @@ public sealed class VoluntaryValidator : Validator<Voluntary>
             .NotEmpty()
             .WithMessage("name is required");
 
-        RuleFor(v => v.Type)
-            .NotEmpty()
-            .WithMessage("type is required");
-
         RuleFor(v => v.Field)
            .NotEmpty()
            .WithMessage("field is required");
