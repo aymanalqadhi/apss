@@ -1,6 +1,6 @@
 ﻿namespace APSS.Domain.Entities;
 
-public sealed class MultipleChoiceAnswer
+public sealed class MultipleChoiceAnswerItem : AuditableEntity
 {
     /// <summary>
     /// Gets or sets the value of the answer
