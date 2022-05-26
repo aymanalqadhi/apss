@@ -78,6 +78,18 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     public IRepository<TextQuestion> TextQuestions { get; }
 
     /// <inheritdoc/>
+    public IRepository<QuestionAnswer> QuestionAnswers { get; }
+
+    /// <inheritdoc/>
+    public IRepository<MultipleChoiceQuestionAnswer> MultipleChoiceQuestionAnswers { get; }
+
+    /// <inheritdoc/>
+    public IRepository<LogicalQuestionAnswer> LogicalQuestionAnswers { get; }
+
+    /// <inheritdoc/>
+    public IRepository<TextQuestionAnswer> TextQuestionAnswers { get; }
+
+    /// <inheritdoc/>
     public IRepository<SurveyEntry> SurveyEntries =>
         new Repository<SurveyEntry, Validator<SurveyEntry>>(_ctx.SurveyEntries);
 
