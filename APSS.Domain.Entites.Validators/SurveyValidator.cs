@@ -16,6 +16,8 @@ public sealed class SurveyValidator : Validator<Survey>
             .NotEmpty()
             .WithMessage("survey name cannot be empty");
 
+        RuleFor(s => s.CreatedBy.AccessLevel)
+            .NotEqual(AccessLevel.Farmer);
     }
 }
 
