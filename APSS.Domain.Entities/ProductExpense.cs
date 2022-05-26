@@ -16,7 +16,7 @@ public sealed class ProductExpense : AuditableEntity
     public decimal Price { get; set; }
 
     /// <summary>
-    /// Gets or sets the item that the expense was spent on
+    /// Gets or sets the product that the expense was spent on
     /// </summary>
-    public Ownable SpentOn { get; set; } = null!;
+    public Product SpentOn { get; set; } = null!;
 }
