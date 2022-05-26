@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\APSS.Domain.Repositories\APSS.Domain.Repositories.csproj" />
+  </ItemGroup>
+
 </Project>
