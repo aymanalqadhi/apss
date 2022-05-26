@@ -53,7 +53,7 @@ public sealed class LandProduct : Confirmable
     /// <summary>
     /// Gets or sets the irrigation water source of the land's product
     /// </summary>
-    public string IrrigationWaterSource { get; set; } = null!;
+    public IrrigationWaterSource IrrigationWaterSource { get; set; }
 
     /// <summary>
     /// Gets or sets the fertilizer of the land's product
@@ -81,3 +81,12 @@ public sealed class LandProduct : Confirmable
     public Season ProducedIn { get; set; } = null!;
 }
 
+/// <summary>
+/// An enum that represents the sorts of water sources
+/// </summary>
+public enum IrrigationWaterSource
+{
+    Natural,
+    HumanStored,
+    OnDemand,
+}
