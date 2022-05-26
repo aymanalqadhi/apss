@@ -8,5 +8,5 @@ public sealed class LogicalQuestionAnswer : QuestionAnswer
     /// <summary>
     /// Gets or sets the answer of the logical question answer
     /// </summary>
-    public LogicalQuestion Answer { get; set; } = null!;
+    public bool Answer { get; set; } = false;
 }
