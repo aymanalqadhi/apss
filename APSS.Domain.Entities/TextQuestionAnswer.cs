@@ -8,5 +8,5 @@ public sealed class TextQuestionAnswer : QuestionAnswer
     /// <summary>
     /// Gets or sets the answer of the text question
     /// </summary>
-    public TextQuestion Answer { get; set; } = null!;
+    public String Answer { get; set; } = null!;
 }
