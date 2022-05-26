@@ -4,6 +4,8 @@ namespace APSS.Domain.Repositories;
 
 public interface IUnitOfWork
 {
+    #region Properties
+
     /// <summary>
     /// Gets the users repository
     /// </summary>
@@ -114,22 +116,30 @@ public interface IUnitOfWork
     /// </summary>
     IRepository<Log> Logs { get; }
 
-    /// <summary>
-    /// Asynchronously commits changes to data backend
-    /// </summary>
-    /// <returns>The affected records count</returns>
-    Task<int> CommitAsync();
+    #endregion
+
+    #region Methods
 
     /// <summary>
     /// Asynchronously commits changes to data backend
     /// </summary>
+    /// <param name="cancellationToken">The task cancellation token</param>
+    /// <returns>The affected records count</returns>
+    Task<int> CommitAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Asynchronously commits changes to data backend
+    /// </summary>
+    /// <param name="cancellationToken">The task cancellation token</param>
     /// <returns>The affected records count</returns>
     Task<int> CommitAsync(IDatabaseTransaction transaction, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Asynchronously begins a transaction
     /// </summary>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">The task cancellation token</param>
     /// <returns></returns>
     Task<IDatabaseTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+
+    #endregion
 }
