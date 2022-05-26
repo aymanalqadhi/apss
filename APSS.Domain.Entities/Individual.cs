@@ -33,7 +33,7 @@ public sealed class Individual : AuditableEntity
     /// <summary>
     /// Gets or sets the job of the individual
     /// </summary>
-    public string Job { get; set; } = null!;
+    public string? Job { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the social status of the individual
