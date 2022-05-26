@@ -46,14 +46,14 @@ public sealed class LandProduct : Confirmable
     public double IrrigationCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the irrigation source of the land's product
+    /// Gets or sets the irrigation energy source of the land's product
     /// </summary>
-    public string IrrigationSource { get; set; } = null!;
+    public string IrrigationEnergySource { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the irrigation water source of the land's product
     /// </summary>
-    public string irrigationWaterSource { get; set; } = null!;
+    public string IrrigationWaterSource { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the fertilizer of the land's product
