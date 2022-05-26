@@ -33,7 +33,7 @@ public sealed class User : AuditableEntity
     /// <summary>
     /// Gets or sets the social status of the user 
     /// </summary>
-    public string SocialStatus { get; set; } = null!;
+    public SocialStatus SocialStatus { get; set; }
 
     /// <summary>
     /// Gets or sets the job of the user 
@@ -69,4 +69,15 @@ public enum AccessLevel : int
     Village = 5,
     Group = 6,
     Farmer = 7,
+}
+
+/// <summary>
+/// An enum to represent social status
+/// </summary>
+public enum SocialStatus
+{
+    Unmarried,
+    Married,
+    Divorced,
+    Widowed,
 }

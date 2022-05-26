@@ -38,7 +38,7 @@ public sealed class Individual : AuditableEntity
     /// <summary>
     /// Gets or sets the social status of the individual
     /// </summary>
-    public string SocialStatus { get; set; } = null!;
+    public SocialStatus SocialStatus { get; set; }
 
     /// <summary>
     /// Gets or sets the address of the individual
