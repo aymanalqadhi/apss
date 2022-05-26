@@ -51,9 +51,8 @@ public interface IQueryBuilder<T> where T : AuditableEntity
     /// <summary>
     /// Asynchronously gets all items in the query
     /// </summary>
-    /// <param name="token">The task cancellation token</param>
     /// <returns>The IAsyncEnumerable item of the items in query</returns>
-    IAsyncEnumerable<T> AsAsyncEnumerable(CancellationToken token = default);
+    IAsyncEnumerable<T> AsAsyncEnumerable();
 
     /// <summary>
     /// Asynchronously gets the count of the items in the query
@@ -74,7 +73,7 @@ public interface IQueryBuilder<T> where T : AuditableEntity
     /// </summary>
     /// <param name="token">The task cancellation token</param>
     /// <returns>True if no items are in the qurey, false othersie</returns>
-    Task<bool> IsEmptyAsync(CancellationToken token = default);
+    Task<bool> HasItemsAsync(CancellationToken token = default);
 
     /// <summary>
     /// Asynchronously gets whether any of the items in the query match the
