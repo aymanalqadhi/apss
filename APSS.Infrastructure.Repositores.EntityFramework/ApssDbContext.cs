@@ -95,23 +95,23 @@ public sealed class ApssDbContext : DbContext
     public DbSet<TextQuestion> TextQuestions => Set<TextQuestion>();
 
     /// <summary>
-    /// Gets the questions answers table
+    /// Gets the questions answers set
     /// </summary>
     public DbSet<QuestionAnswer> QuestionAnswers => Set<QuestionAnswer>();
 
     /// <summary>
-    /// Gets the multiple-choice answers table
+    /// Gets the multiple-choice answers set
     /// </summary>
     public DbSet<MultipleChoiceQuestionAnswer> MultipleChoiceQuestionAnswers
         => Set<MultipleChoiceQuestionAnswer>();
 
     /// <summary>
-    /// Gets the logical question answers table
+    /// Gets the logical question answers set
     /// </summary>
     public DbSet<LogicalQuestionAnswer> LogicalQuestionAnswers => Set<LogicalQuestionAnswer>();
 
     /// <summary>
-    /// Gets the text question answers table
+    /// Gets the text question answers set
     /// </summary>
     public DbSet<TextQuestionAnswer> TextQuestionAnswers => Set<TextQuestionAnswer>();
 
