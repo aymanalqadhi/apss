@@ -82,7 +82,7 @@ public interface IQueryBuilder<T> where T : AuditableEntity
     /// <param name="pred">the expression used for filering</param>
     /// <param name="token">The task cancellation token</param>
     /// <returns>True if any of items in the query match, false otherise</returns>
-    Task<bool> AnyAsync(Expression<Func<T, object>> pred, CancellationToken token = default);
+    Task<bool> AnyAsync(Expression<Func<T, bool>> pred, CancellationToken token = default);
 
     /// <summary>
     /// Asynchronously gets whether all items in the query match the
@@ -91,5 +91,5 @@ public interface IQueryBuilder<T> where T : AuditableEntity
     /// <param name="pred">the expression used for filering</param>
     /// <param name="token">The task cancellation token</param>
     /// <returns>True if all items in the query match, false otherise</returns>
-    Task<bool> AllAsync(Expression<Func<T, object>> pred, CancellationToken token = default);
+    Task<bool> AllAsync(Expression<Func<T, bool>> pred, CancellationToken token = default);
 }
