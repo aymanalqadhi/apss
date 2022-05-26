@@ -18,7 +18,7 @@ public sealed class User : AuditableEntity
     /// <summary>
     /// Gets or sets the national id of the user 
     /// </summary>
-    public long NationalId { get; set; }
+    public string NationalId { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the phone number of the user 
@@ -50,6 +50,7 @@ public sealed class User : AuditableEntity
     /// </summary>
     public ICollection<User> SubUsers { get;set; } = new List<User>();
 }
+
 /// <summary>
 /// An enum to represent the access level
 /// </summary>
