@@ -66,28 +66,36 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     public IRepository<Question> Questions => new Repository<Question, QuestionValidator>(_ctx.Questions);
 
     /// <inheritdoc/>
-    public IRepository<MultipleChoiceQuestion> MultipleChoiceQuestions { get; }
+    public IRepository<MultipleChoiceQuestion> MultipleChoiceQuestions =>
+        new Repository<MultipleChoiceQuestion, MultipleChoiceQuestionValidator>(_ctx.MultipleChoiceQuestions);
 
     /// <inheritdoc/>
-    public IRepository<MultipleChoiceAnswerItem> MultipleChoiceAnswerItems { get; }
+    public IRepository<MultipleChoiceAnswerItem> MultipleChoiceAnswerItems =>
+        new Repository<MultipleChoiceAnswerItem, MultipleChoiceAnswerItemValidator>(_ctx.MultipleChoiceAnswerItems);
 
     /// <inheritdoc/>
-    public IRepository<LogicalQuestion> LogicalQuestions { get; }
+    public IRepository<LogicalQuestion> LogicalQuestions =>
+        new Repository<LogicalQuestion, Validator<LogicalQuestion>>(_ctx.LogicalQuestions);
 
     /// <inheritdoc/>
-    public IRepository<TextQuestion> TextQuestions { get; }
+    public IRepository<TextQuestion> TextQuestions =>
+        new Repository<TextQuestion, Validator<TextQuestion>>(_ctx.TextQuestions);
 
     /// <inheritdoc/>
-    public IRepository<QuestionAnswer> QuestionAnswers { get; }
+    public IRepository<QuestionAnswer> QuestionAnswers =>
+        new Repository<QuestionAnswer, Validator<QuestionAnswer>>(_ctx.QuestionAnswers);
 
     /// <inheritdoc/>
-    public IRepository<MultipleChoiceQuestionAnswer> MultipleChoiceQuestionAnswers { get; }
+    public IRepository<MultipleChoiceQuestionAnswer> MultipleChoiceQuestionAnswers =>
+        new Repository<MultipleChoiceQuestionAnswer, MultipleChoiceQuestionAnswerValidator>(_ctx.MultipleChoiceQuestionAnswers);
 
     /// <inheritdoc/>
-    public IRepository<LogicalQuestionAnswer> LogicalQuestionAnswers { get; }
+    public IRepository<LogicalQuestionAnswer> LogicalQuestionAnswers
+        => new Repository<LogicalQuestionAnswer, Validator<LogicalQuestionAnswer>>(_ctx.LogicalQuestionAnswers);
 
     /// <inheritdoc/>
-    public IRepository<TextQuestionAnswer> TextQuestionAnswers { get; }
+    public IRepository<TextQuestionAnswer> TextQuestionAnswers =>
+        new Repository<TextQuestionAnswer, TextQuestionAnswerValidator>(_ctx.TextQuestionAnswers);
 
     /// <inheritdoc/>
     public IRepository<SurveyEntry> SurveyEntries =>
@@ -108,10 +116,11 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     public IRepository<Family> Families => new Repository<Family, FamilyValidator>(_ctx.Families);
 
     /// <inheritdoc/>
-    public IRepository<FamilyIndividual> FamiliesIndividuals { get; }
+    public IRepository<FamilyIndividual> FamilyIndividuals =>
+        new Repository<FamilyIndividual, Validator<FamilyIndividual>>(_ctx.FamilyIndividuals);
 
     /// <inheritdoc/>
-    public IRepository<Log> Logs { get; }
+    public IRepository<Log> Logs => new Repository<Log, LogValidator>(_ctx.Logs);
 
     #endregion
 
