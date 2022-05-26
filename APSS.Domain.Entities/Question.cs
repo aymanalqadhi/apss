@@ -8,7 +8,7 @@ public abstract class Question : AuditableEntity
     /// <summary>
     /// Gets or sers the index of the question
     /// </summary>
-    public int Index { get; set; }
+    public uint Index { get; set; }
 
     /// <summary>
     /// Gets or sets the text of the question
