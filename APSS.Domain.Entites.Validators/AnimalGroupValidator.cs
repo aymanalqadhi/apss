@@ -21,7 +21,7 @@ public sealed class AnimalGroupValidator : Validator<AnimalGroup>
             .WithMessage("animal group type cannot be empty");
 
         RuleFor(g => g.Quantity)
-            .GreaterThanOrEqualTo(0)
+            .GreaterThan(0)
             .WithMessage("animal group quantity must be greater then or equal to 0");
 
         RuleFor(g => g.OwnedBy.AccessLevel)
