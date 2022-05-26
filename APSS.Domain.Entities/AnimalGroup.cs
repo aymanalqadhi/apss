@@ -3,13 +3,8 @@
 /// <summary>
 /// A class to represent an animal group
 /// </summary>
-public sealed class AnimalGroup : Confirmable
+public sealed class AnimalGroup : Ownable
 {
-    /// <summary>
-    /// Gets or sets the name of the animal group
-    /// </summary>
-    public string Name { get; set; } = null!;
-
     /// <summary>
     /// Gets or sets the type of the animal group
     /// </summary>
@@ -29,11 +24,6 @@ public sealed class AnimalGroup : Confirmable
     /// Gets or sets the products of the animal
     /// </summary>
     public ICollection<AnimalProduct> Products { get; set; } = new List<AnimalProduct>();
-
-    /// <summary>
-    /// Gets or sets the owner of the animal group
-    /// </summary>
-    public User OwnedBy { get; set; } = null!;
 }
 
 /// <summary>
