@@ -16,11 +16,6 @@ public sealed class User : AuditableEntity
     public string PasswordHash { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the password salt of the user 
-    /// </summary>
-    public string PasswordSalt { get; set; } = null!;
-
-    /// <summary>
     /// Gets or sets the national id of the user 
     /// </summary>
     public long NationalId { get; set; }
