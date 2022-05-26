@@ -23,7 +23,7 @@ public sealed class AnimalProduct : Confirmable
     /// <summary>
     /// Gets or sets the period taken to produce the animal's product 
     /// </summary>
-    public string PeriodTaken { get; set; } = null!;
+    public TimeSpan PeriodTaken { get; set; }
 
     /// <summary>
     /// Gets or sets the animal of the animal's product
