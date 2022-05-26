@@ -31,13 +31,17 @@ public sealed class Land : Confirmable
     public string Address { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the state of the land
+    /// Gets or sets whether the land can be used or not
     /// </summary>
-    public string State { get; set; } = null!;
+    public bool IsUsable { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the land is used or not
+    /// </summary>
+    public bool IsUsed { get; set; } = false;
 
     /// <summary>
     /// Gets or sets the owner of the land
     /// </summary>
     public User OwnedBy { get; set; } = null!;
 }
-
