@@ -23,7 +23,7 @@ public sealed class AnimalGroup : Confirmable
     /// <summary>
     /// Gets or sets the sex of the animal group
     /// </summary>
-    public string Sex { get; set; } = null!;
+    public AnimalSex Sex { get; set; }
 
     /// <summary>
     /// Gets or sets the owner of the animal group
@@ -31,4 +31,11 @@ public sealed class AnimalGroup : Confirmable
     public User OwnedBy { get; set; } = null!;
 }
 
-
+/// <summary>
+/// An enum to represent the sex of the animal
+/// </summary>
+public enum AnimalSex
+{
+    Male,
+    Female,
+}
