@@ -28,5 +28,35 @@ public sealed class UserValidator : Validator<User>
             .Equal(AccessLevel.Farmer)
             .When(u => u.SupervisedBy!.AccessLevel == AccessLevel.Group)
             .WithMessage("a farmer must be supervied by a group superviosr");
+
+        RuleFor(u => u.AccessLevel)
+            .Equal(AccessLevel.Group)
+            .When(u => u.SupervisedBy!.AccessLevel == AccessLevel.Village)
+            .WithMessage("a group supervisor must be supervied by a village superviosr");
+
+        RuleFor(u => u.AccessLevel)
+            .Equal(AccessLevel.Village)
+            .When(u => u.SupervisedBy!.AccessLevel == AccessLevel.District)
+            .WithMessage("a village supervisor must be supervied by a district superviosr");
+
+        RuleFor(u => u.AccessLevel)
+            .Equal(AccessLevel.District)
+            .When(u => u.SupervisedBy!.AccessLevel == AccessLevel.Directorate)
+            .WithMessage("a district supervisor must be supervied by a directorate superviosr");
+
+        RuleFor(u => u.AccessLevel)
+            .Equal(AccessLevel.Directorate)
+            .When(u => u.SupervisedBy!.AccessLevel == AccessLevel.City)
+            .WithMessage("a directorate superviosr must be supervied by a city superviosr");
+
+        RuleFor(u => u.AccessLevel)
+            .Equal(AccessLevel.City)
+            .When(u => u.SupervisedBy!.AccessLevel == AccessLevel.Presedint)
+            .WithMessage("a city superviosr must be supervied by the presedint");
+
+        RuleFor(u => u.AccessLevel)
+            .Equal(AccessLevel.Presedint)
+            .When(u => u.SupervisedBy!.AccessLevel == AccessLevel.Root)
+            .WithMessage("a presedint must be supervied by a root");
     }
 }
