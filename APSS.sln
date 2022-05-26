@@ -23,6 +23,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Infrastructure.Reposit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Infrastructure.Services", "APSS.Infrastructure.Services\APSS.Infrastructure.Services.csproj", "{9D513705-CE0B-4C1D-9028-4972E5507D63}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{B0F48D16-9FF4-4879-B1DE-83ACE7876F8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Domain.Entities.Validators.Test", "APSS.Domain.Entities.Validators.Test\APSS.Domain.Entities.Validators.Test.csproj", "{C4F412A3-0027-491F-93B8-E5D63A4B6949}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,10 @@ Global
 		{9D513705-CE0B-4C1D-9028-4972E5507D63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D513705-CE0B-4C1D-9028-4972E5507D63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D513705-CE0B-4C1D-9028-4972E5507D63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4F412A3-0027-491F-93B8-E5D63A4B6949}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4F412A3-0027-491F-93B8-E5D63A4B6949}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4F412A3-0027-491F-93B8-E5D63A4B6949}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4F412A3-0027-491F-93B8-E5D63A4B6949}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +77,7 @@ Global
 		{D9B345BF-9BB0-4E8F-AEC1-B64DDA4DD14F} = {DA7096ED-DC1C-4FD9-A873-39C7119E8BC0}
 		{75A11CCD-69A1-48BC-92FC-B2202892BDD3} = {0F56A811-A9C9-47C3-B336-620ED7B65C60}
 		{9D513705-CE0B-4C1D-9028-4972E5507D63} = {0F56A811-A9C9-47C3-B336-620ED7B65C60}
+		{C4F412A3-0027-491F-93B8-E5D63A4B6949} = {B0F48D16-9FF4-4879-B1DE-83ACE7876F8A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B2B0F7A8-9934-4C8D-B364-40D94C5AAB64}
