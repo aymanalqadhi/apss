@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\APSS.Domain.Entites.Validators\APSS.Domain.Entities.Validators.csproj" />
     <ProjectReference Include="..\APSS.Domain.Repositories\APSS.Domain.Repositories.csproj" />
   </ItemGroup>
 
