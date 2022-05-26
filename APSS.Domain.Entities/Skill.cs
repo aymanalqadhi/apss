@@ -19,4 +19,9 @@ public sealed class Skill : AuditableEntity
     /// Gets or sets the field of the skill
     /// </summary>
     public string Field { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the individuals which this skill belongs to
+    /// </summary>
+    public Individual BelongsTo { get; set; } = null!;
 }

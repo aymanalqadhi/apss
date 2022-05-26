@@ -14,4 +14,9 @@ public sealed class Voluntary : AuditableEntity
     /// Gets or sets the field of the voluntary
     /// </summary>
     public string Field { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the idnividual who offered to volunteer
+    /// </summary>
+    public Individual OfferedBy { get; set; } = null!;
 }
