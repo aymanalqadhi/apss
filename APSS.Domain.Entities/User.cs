@@ -41,25 +41,26 @@ public sealed class User : AuditableEntity
     public AccessLevel AccessLevel { get; set; }
 
     /// <summary>
-    /// Gets or sets wether the user is a supervisor or not
-    /// </summary>
-    public bool IsSupervisor { get; set; } = false;
-
-    /// <summary>
     /// Gets or sets the supervisor
     /// </summary>
-    public User? SupervisedBy { get; set; } 
+    public User? SupervisedBy { get; set; }
+
+    /// <summary>
+    /// Gets or sets the collection of subusers under this user
+    /// </summary>
+    public ICollection<User> SubUsers { get;set; } = new List<User>();
 }
 /// <summary>
 /// An enum to represent the access level
 /// </summary>
-public enum AccessLevel
+public enum AccessLevel : int
 {
-    Presedint,
-    CityAdmin,
-    DirectorateAdmin,
-    DistrictAdmin,
-    GroupAdmin,
-    VillageAdmin,
-    Farmer,
+    Root = 0,
+    Presedint = 1,
+    City = 2,
+    Directorate = 3,
+    District = 4,
+    Village = 5,
+    Group = 6,
+    Farmer = 7,
 }
