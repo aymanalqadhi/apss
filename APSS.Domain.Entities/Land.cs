@@ -18,12 +18,12 @@ public sealed class Land : Confirmable
     /// <summary>
     /// Gets or sets the longitude of the land
     /// </summary>
-    public decimal Longitude { get; set; }
+    public double Longitude { get; set; }
 
     /// <summary>
     /// Gets or sets the Latitude of the land
     /// </summary>
-    public decimal Latitude { get; set; }
+    public double Latitude { get; set; }
 
     /// <summary>
     /// Gets or sets the address of the land
