@@ -61,36 +61,36 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
     }
 
     /// <inheritdoc/>
-    public Task<T> FirstAsync(CancellationToken token = default)
-        => _query.FirstAsync(token);
+    public Task<T> FirstAsync(CancellationToken cancellationToken = default)
+        => _query.FirstAsync(cancellationToken);
 
     /// <inheritdoc/>
-    public Task<T?> FirstOrNullAsync(CancellationToken token = default)
-        => _query.FirstOrDefaultAsync(token);
+    public Task<T?> FirstOrNullAsync(CancellationToken cancellationToken = default)
+        => _query.FirstOrDefaultAsync(cancellationToken);
 
     /// <inheritdoc/>
     public IAsyncEnumerable<T> AsAsyncEnumerable()
         => _query.AsAsyncEnumerable();
 
     /// <inheritdoc/>
-    public Task<int> CountAsync(CancellationToken token = default)
-        => _query.CountAsync(token);
+    public Task<int> CountAsync(CancellationToken cancellationToken = default)
+        => _query.CountAsync(cancellationToken);
 
     /// <inheritdoc/>
-    public Task<int> CountAsync(Expression<Func<T, bool>> pred, CancellationToken token = default)
-        => _query.CountAsync(pred, token);
+    public Task<int> CountAsync(Expression<Func<T, bool>> pred, CancellationToken cancellationToken = default)
+        => _query.CountAsync(pred, cancellationToken);
 
     /// <inheritdoc/>
-    public Task<bool> HasItemsAsync(CancellationToken token = default)
-        => _query.AnyAsync(token);
+    public Task<bool> HasItemsAsync(CancellationToken cancellationToken = default)
+        => _query.AnyAsync(cancellationToken);
 
     /// <inheritdoc/>
-    public Task<bool> AnyAsync(Expression<Func<T, bool>> pred, CancellationToken token = default)
-        => _query.AnyAsync(pred, token);
+    public Task<bool> AnyAsync(Expression<Func<T, bool>> pred, CancellationToken cancellationToken = default)
+        => _query.AnyAsync(pred, cancellationToken);
 
     /// <inheritdoc/>
-    public Task<bool> AllAsync(Expression<Func<T, bool>> pred, CancellationToken token = default)
-        => _query.AllAsync(pred, token);
+    public Task<bool> AllAsync(Expression<Func<T, bool>> pred, CancellationToken cancellationToken = default)
+        => _query.AllAsync(pred, cancellationToken);
 
     #endregion
 }
