@@ -26,6 +26,11 @@ public sealed class AnimalGroup : Confirmable
     public AnimalSex Sex { get; set; }
 
     /// <summary>
+    /// Gets or sets the products of the animal
+    /// </summary>
+    public ICollection<AnimalProduct> Products { get; set; } = new List<AnimalProduct>();
+
+    /// <summary>
     /// Gets or sets the owner of the animal group
     /// </summary>
     public User OwnedBy { get; set; } = null!;
