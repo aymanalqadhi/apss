@@ -3,7 +3,7 @@
 /// <summary>
 /// An abstract class to represent a question answer
 /// </summary>
-public abstract class QuestionAnswer
+public abstract class QuestionAnswer : AuditableEntity
 {
     /// <summary>
     /// Gets or sets the Question
