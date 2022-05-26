@@ -26,5 +26,5 @@ public interface IRepository<T> where T : AuditableEntity
     /// Deletes an item from the repositry
     /// </summary>
     /// <param name="entity">The item to delete</param>
-    void Delete(T entity);
+    void Remove(T entity);
 }
