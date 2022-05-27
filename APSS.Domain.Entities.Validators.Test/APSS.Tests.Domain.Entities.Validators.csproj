@@ -14,4 +14,10 @@
     <PackageReference Include="coverlet.collector" Version="3.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\APSS.Domain.Entites.Validators\APSS.Domain.Entities.Validators.csproj" />
+    <ProjectReference Include="..\APSS.Domain.Entities\APSS.Domain.Entities.csproj" />
+    <ProjectReference Include="..\APSS.Tests.Utils\APSS.Tests.Utils.csproj" />
+  </ItemGroup>
+
 </Project>
