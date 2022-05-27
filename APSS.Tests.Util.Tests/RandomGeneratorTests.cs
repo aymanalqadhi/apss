@@ -36,9 +36,9 @@ public class RandomGeneratorTests
     [TestMethod]
     public void LowerAlphaTest()
     {
-        var str = RandomGenerator.NextString(_testStringSize,
-                                 RandomStringOptions.Alpha |
-                                     RandomStringOptions.Lowercase);
+        var str = RandomGenerator.NextString(
+            _testStringSize,
+            RandomStringOptions.Alpha | RandomStringOptions.Lowercase);
 
         Assert.AreEqual(str.Length, _testStringSize);
         Assert.IsTrue(str.All(char.IsLower));
@@ -47,9 +47,9 @@ public class RandomGeneratorTests
     [TestMethod]
     public void UpperAlphaTest()
     {
-        var str = RandomGenerator.NextString(_testStringSize,
-                                 RandomStringOptions.Alpha |
-                                     RandomStringOptions.Uppercase);
+        var str = RandomGenerator.NextString(
+            _testStringSize,
+            RandomStringOptions.Alpha | RandomStringOptions.Uppercase);
 
         Assert.AreEqual(str.Length, _testStringSize);
         Assert.IsTrue(str.All(char.IsUpper));
@@ -58,9 +58,9 @@ public class RandomGeneratorTests
     [TestMethod]
     public void MixedAlphaTest()
     {
-        var str = RandomGenerator.NextString(_testStringSize,
-                                 RandomStringOptions.Alpha |
-                                     RandomStringOptions.Mixedcase);
+        var str = RandomGenerator.NextString(
+            _testStringSize,
+            RandomStringOptions.Alpha | RandomStringOptions.Mixedcase);
 
         Assert.AreEqual(str.Length, _testStringSize);
         Assert.IsTrue(str.All(c => char.IsUpper(c) || char.IsLower(c)));
@@ -69,8 +69,7 @@ public class RandomGeneratorTests
     [TestMethod]
     public void AlphaNumTest()
     {
-        var str =
-            RandomGenerator.NextString(_testStringSize, RandomStringOptions.AlphaNumeric);
+        var str = RandomGenerator.NextString(_testStringSize, RandomStringOptions.AlphaNumeric);
 
         Assert.AreEqual(str.Length, _testStringSize);
         Assert.IsTrue(str.All(c => char.IsLetterOrDigit(c)));
