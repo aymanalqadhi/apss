@@ -2,8 +2,6 @@
 using APSS.Domain.Entities.Validators;
 using APSS.Domain.Repositories;
 
-using BDP.Domain.Entities.Validators;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace APSS.Infrastructure.Repositores.EntityFramework;

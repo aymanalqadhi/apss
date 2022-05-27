@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 
-namespace BDP.Domain.Entities.Validators;
+namespace APSS.Domain.Entities.Validators;
 
 /// <summary>
 /// An exception class to represent validation errors
