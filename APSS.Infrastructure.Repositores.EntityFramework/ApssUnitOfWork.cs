@@ -135,7 +135,7 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
         IDatabaseTransaction transaction,
         CancellationToken cancellationToken = default)
     {
-        var ret = await CommitAsync();
+        var ret = await CommitAsync(cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
 
