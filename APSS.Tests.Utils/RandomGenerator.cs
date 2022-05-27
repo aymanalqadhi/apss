@@ -6,10 +6,10 @@ public static class RandomGenerator
 {
     private static readonly Random Rand = new();
 
-    private const string LowercaseAlphabet = "abcdefghijklmnopqrstuvwxyz";
-    private const string UppercaseAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private const string Numbers = "1234567890";
-    private const string Symbols = "`~!@#$%^&*()-_=+\"\\/?.>,<";
+    private const string _lowercaseAlphabet = "abcdefghijklmnopqrstuvwxyz";
+    private const string _uppercaseAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private const string _numbers = "1234567890";
+    private const string _symbols = "`~!@#$%^&*()-_=+\"\\/?.>,<";
 
     /// <summary>
     /// Generates a random string value
@@ -31,23 +31,23 @@ public static class RandomGenerator
             if (!opts.HasFlag(RandomStringOptions.Lowercase) &&
                 !opts.HasFlag(RandomStringOptions.Uppercase))
             {
-                poolBuilder.Append(LowercaseAlphabet);
+                poolBuilder.Append(_lowercaseAlphabet);
             }
             else
             {
                 if (opts.HasFlag(RandomStringOptions.Lowercase))
-                    poolBuilder.Append(LowercaseAlphabet);
+                    poolBuilder.Append(_lowercaseAlphabet);
 
                 if (opts.HasFlag(RandomStringOptions.Uppercase))
-                    poolBuilder.Append(UppercaseAlphabet);
+                    poolBuilder.Append(_uppercaseAlphabet);
             }
         }
 
         if (opts.HasFlag(RandomStringOptions.Numeric))
-            poolBuilder.Append(Numbers);
+            poolBuilder.Append(_numbers);
 
         if (opts.HasFlag(RandomStringOptions.Symbol))
-            poolBuilder.Append(Symbols);
+            poolBuilder.Append(_symbols);
 
         var pool = poolBuilder.ToString();
 
