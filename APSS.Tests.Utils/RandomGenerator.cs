@@ -4,7 +4,7 @@ namespace APSS.Tests.Utils;
 
 public static class RandomGenerator
 {
-    private static readonly Random Rand = new();
+    private static readonly Random _rnd = new();
 
     private const string _lowercaseAlphabet = "abcdefghijklmnopqrstuvwxyz";
     private const string _uppercaseAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -53,7 +53,7 @@ public static class RandomGenerator
 
         return new string(Enumerable
             .Range(0, length)
-            .Select(i => pool[Rand.Next(pool.Length - 1)])
+            .Select(i => pool[_rnd.Next(pool.Length - 1)])
             .ToArray());
     }
 
@@ -64,7 +64,7 @@ public static class RandomGenerator
     /// <param name="max">The maximum boundary</param>
     /// <returns>The generated value</returns>
     public static int NextInt(int min = int.MinValue, int max = int.MaxValue)
-        => Rand.Next(min, max);
+        => _rnd.Next(min, max);
 
     /// <summary>
     /// Generates a random 64-bit integer
@@ -73,7 +73,7 @@ public static class RandomGenerator
     /// <param name="max">The maximum boundary</param>
     /// <returns>The generated value</returns>
     public static long NextLong(long min = long.MinValue, long max = long.MaxValue)
-        => Rand.NextInt64(min, max);
+        => _rnd.NextInt64(min, max);
 
     /// <summary>
     /// Generates a random 64-bit floating point number
@@ -82,7 +82,7 @@ public static class RandomGenerator
     /// <param name="max">The maximum boundary</param>
     /// <returns>The generated value</returns>
     public static double NextDouble(double min = double.MinValue, double max = double.MaxValue)
-        => Rand.NextDouble() * (max - min) + min;
+        => _rnd.NextDouble() * (max - min) + min;
 }
 
 /// <summary>
