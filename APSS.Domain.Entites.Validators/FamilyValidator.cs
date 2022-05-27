@@ -14,6 +14,6 @@ public sealed class FamilyValidator : Validator<Family>
     {
         RuleFor(f => f.Name)
             .NotEmpty()
-            .WithMessage("name is required");
+            .WithMessage("fimaly name cannot be empty");
     }
 }

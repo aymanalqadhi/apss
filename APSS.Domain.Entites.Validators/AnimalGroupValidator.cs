@@ -22,7 +22,7 @@ public sealed class AnimalGroupValidator : Validator<AnimalGroup>
 
         RuleFor(g => g.Quantity)
             .GreaterThan(0)
-            .WithMessage("animal group quantity must be greater then 0");
+            .WithMessage("animal group quantity must be higher than 0");
 
         RuleFor(g => g.OwnedBy.AccessLevel)
             .Equal(AccessLevel.Farmer);

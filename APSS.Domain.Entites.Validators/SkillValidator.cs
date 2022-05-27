@@ -14,6 +14,6 @@ public sealed class SkillValidator : Validator<Skill>
     {
         RuleFor(s => s.Name)
             .NotEmpty()
-            .WithMessage("name is required");
+            .WithMessage("skill name cannot be empty");
     }
 }

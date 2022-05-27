@@ -14,7 +14,7 @@ public sealed class IndividualValidator : Validator<Individual>
     {
         RuleFor(i => i.Name)
             .NotEmpty()
-            .WithMessage("name is required");
+            .WithMessage("individual name cannot be empty");
 
         RuleFor(i => i.AddedBy.AccessLevel)
             .Equal(AccessLevel.Group)

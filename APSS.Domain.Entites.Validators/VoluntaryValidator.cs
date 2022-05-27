@@ -14,10 +14,10 @@ public sealed class VoluntaryValidator : Validator<Voluntary>
     {
         RuleFor(v => v.Name)
             .NotEmpty()
-            .WithMessage("name is required");
+            .WithMessage("voluntary name cannot be empty");
 
         RuleFor(v => v.Field)
            .NotEmpty()
-           .WithMessage("field is required");
+           .WithMessage("voluntary field cannot be empty");
     }
 }

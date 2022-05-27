@@ -14,10 +14,10 @@ public sealed class LandProductValidator : Validator<LandProduct>
     {
         RuleFor(l => l.CropName)
             .NotEmpty()
-            .WithMessage("name is required");
+            .WithMessage("land product name cannot be empty");
 
         RuleFor(l => l.Quantity)
             .GreaterThan(0)
-            .WithMessage("quantity must be higher than 0");
+            .WithMessage("land product quantity must be higher than 0");
     }
 }

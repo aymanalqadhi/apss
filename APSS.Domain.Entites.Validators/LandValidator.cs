@@ -14,7 +14,7 @@ public sealed class LandValidator : Validator<Land>
     {
         RuleFor(l => l.Name)
             .NotEmpty()
-            .WithMessage("name is required");
+            .WithMessage("land name cannot be empty");
 
         RuleFor(l => l.OwnedBy.AccessLevel)
             .Equal(AccessLevel.Farmer)

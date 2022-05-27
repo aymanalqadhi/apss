@@ -14,10 +14,10 @@ public sealed class AnimalProductValidator : Validator<AnimalProduct>
     {
         RuleFor(a => a.Name)
             .NotEmpty()
-            .WithMessage("name is required");
+            .WithMessage("animal product name cannot be empty");
 
         RuleFor(a => a.Quantity)
             .GreaterThan(0)
-            .WithMessage("quantity must be higher than 0");
+            .WithMessage("animal product quantity must be higher than 0");
     }
 }

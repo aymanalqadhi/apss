@@ -14,11 +14,11 @@ public sealed class UserValidator : Validator<User>
     {
         RuleFor(user => user.Name)
             .NotEmpty()
-            .WithMessage("name is required");
+            .WithMessage("user name cannot be empty");
 
         RuleFor(user => user.NationalId)
             .NotEmpty()
-            .WithMessage("national ID is required");
+            .WithMessage("user national ID cannot be empty");
 
         RuleFor(u => u.SupervisedBy)
             .Equal(null as User)

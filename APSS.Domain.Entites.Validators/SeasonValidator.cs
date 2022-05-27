@@ -14,6 +14,6 @@ public sealed class SeasonValidator : Validator<Season>
     {
         RuleFor(s => s.Name)
             .NotEmpty()
-            .WithMessage("name is required");
+            .WithMessage("season name cannot be empty");
     }
 }
