@@ -1,7 +1,12 @@
-﻿using APSS.Tests.Utils;
+﻿using APSS.Domain.Entities;
+using APSS.Domain.Entities.Validators;
+using APSS.Tests.Utils;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace APSS.Domain.Entities.Validators.Test;
+using FluentValidation.TestHelper;
+
+namespace APSS.Tests.Domain.Entities.Validators;
 
 [TestClass]
 public class LogValidatorTests
@@ -30,7 +35,9 @@ public class LogValidatorTests
     {
         var log = new Log { Message = "" };
 
-        Assert.IsFalse(_validator.Validate(log).IsValid);
+        var result = _validator.TestValidate(log);
+
+        result.ShouldHaveValidationErrorFor(l => l.Message);
     }
 
     #endregion
