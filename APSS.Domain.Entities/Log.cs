@@ -11,6 +11,11 @@ public sealed class Log : AuditableEntity
     public string Message { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the log severity level
+    /// </summary>
+    public LogSeverity Severity { get; set; }
+
+    /// <summary>
     /// Gets or sets the timestamp of the log
     /// </summary>
     public DateTime TimeStamp { get; set; }
@@ -26,4 +31,16 @@ public sealed class Log : AuditableEntity
     /// <returns></returns>
     public IEnumerable<string> ParseTags()
         => Tags.Split(',');
+}
+
+/// <summary>
+/// An enum to represent the log severity levels
+/// </summary>
+public enum LogSeverity
+{
+    Debug,
+    Information,
+    Warning,
+    Error,
+    Fatal,
 }
