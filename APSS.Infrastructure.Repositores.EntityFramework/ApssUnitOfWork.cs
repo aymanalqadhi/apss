@@ -127,6 +127,10 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     #region Public methods
 
     /// <inheritdoc/>
+    public int Commit()
+        => _ctx.SaveChanges();
+
+    /// <inheritdoc/>
     public Task<int> CommitAsync(CancellationToken cancellationToken = default)
         => _ctx.SaveChangesAsync(cancellationToken);
 
