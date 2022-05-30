@@ -34,17 +34,20 @@ public sealed class Repository<T, Validator> : IRepository<T>
     #region Public methods
 
     /// <inheritdoc/>
-    public void Add(T entity)
+    public void Add(params T[] entites)
     {
-        var res = _validator.Validate(entity);
+        foreach (var entity in entites)
+        {
+            var res = _validator.Validate(entity);
 
-        if (!res.IsValid)
-            throw new ValidationAggregateException(res.Errors);
+            if (!res.IsValid)
+                throw new ValidationAggregateException(res.Errors);
 
-        entity.CreatedAt = DateTime.Now;
-        entity.ModifiedAt = DateTime.Now;
+            entity.CreatedAt = DateTime.Now;
+            entity.ModifiedAt = DateTime.Now;
+        }
 
-        _set.Add(entity);
+        _set.AddRange(entites);
     }
 
     /// <inheritdoc/>
