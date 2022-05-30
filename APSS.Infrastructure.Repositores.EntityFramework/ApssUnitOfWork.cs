@@ -123,7 +123,7 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     public IRepository<Log> Logs => new Repository<Log, LogValidator>(_ctx.Logs);
 
     /// <inheritdoc/>
-    public IRepository<LogTag> LogTags => new Repository<LogTag, Validator<LogTag>>(_ctx.LogTags);
+    public IRepository<LogTag> LogTags => new Repository<LogTag, LogTagValidator>(_ctx.LogTags);
 
     #endregion
 
