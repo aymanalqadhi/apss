@@ -42,11 +42,32 @@ public interface IQueryBuilder<T> where T : AuditableEntity
     Task<T> FirstAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Asynchronously gets the first item in the query. Throws an exception if
+    /// no items were found
+    /// </summary>
+    /// <param name="pred">The filting expression</param>
+    /// <param name="cancellationToken">The task cancellation cancellationToken</param>
+    /// <returns>the first item in the query</returns>
+    Task<T> FirstAsync(
+        Expression<Func<T, bool>> pred,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Asynchronously gets the first item in the query. A null is returned if
     /// no items were found
     /// </summary>
     /// <returns>the first item in the query if found, null otherwise</returns>
     Task<T?> FirstOrNullAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Asynchronously gets the first item in the query. A null is returned if
+    /// no items were found
+    /// </summary>
+    /// <param name="pred">The filting expression</param>
+    /// <returns>the first item in the query if found, null otherwise</returns>
+    Task<T?> FirstOrNullAsync(
+        Expression<Func<T, bool>> pred,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Asynchronously gets all items in the query
