@@ -9,7 +9,7 @@ public sealed class DatabaseLogsService : ILogsService
 {
     #region Private fields
 
-    private IUnitOfWork _uow;
+    private readonly IUnitOfWork _uow;
 
     #endregion
 
