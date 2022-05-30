@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Web.Mvc", "APSS.Web.Mv
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{5DEC40C0-A942-48E5-8CCD-E9EE941AA674}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Tests.Infrastructure.Repositories.EntityFramework", "APSS.Tests.Infrastructure.Repositories.EntityFramework\APSS.Tests.Infrastructure.Repositories.EntityFramework.csproj", "{D0754C6B-314B-4B19-B378-0DBCD5870C23}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{23DE8BE7-B0B3-4E1A-AC25-B441ACF259A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23DE8BE7-B0B3-4E1A-AC25-B441ACF259A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23DE8BE7-B0B3-4E1A-AC25-B441ACF259A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0754C6B-314B-4B19-B378-0DBCD5870C23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0754C6B-314B-4B19-B378-0DBCD5870C23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0754C6B-314B-4B19-B378-0DBCD5870C23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0754C6B-314B-4B19-B378-0DBCD5870C23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,6 +107,7 @@ Global
 		{78EF35B8-9E6B-4CA7-804A-5456A15D951E} = {B0F48D16-9FF4-4879-B1DE-83ACE7876F8A}
 		{7D34139E-ACFE-4282-A38C-19D196AB97D4} = {B0F48D16-9FF4-4879-B1DE-83ACE7876F8A}
 		{23DE8BE7-B0B3-4E1A-AC25-B441ACF259A4} = {F5590D68-A82C-490F-974E-C484B25B5FDE}
+		{D0754C6B-314B-4B19-B378-0DBCD5870C23} = {B0F48D16-9FF4-4879-B1DE-83ACE7876F8A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B2B0F7A8-9934-4C8D-B364-40D94C5AAB64}
