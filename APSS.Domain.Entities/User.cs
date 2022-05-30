@@ -76,6 +76,7 @@ public enum AccessLevel : int
 /// </summary>
 public enum SocialStatus
 {
+    Unspecified,
     Unmarried,
     Married,
     Divorced,
