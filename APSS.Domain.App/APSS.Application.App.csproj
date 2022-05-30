@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\APSS.Domain.Repositories\APSS.Domain.Repositories.csproj" />
     <ProjectReference Include="..\APSS.Domain.Services\APSS.Domain.Services.csproj" />
   </ItemGroup>
