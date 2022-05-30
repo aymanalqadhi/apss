@@ -1,4 +1,5 @@
-﻿using APSS.Domain.Entities;
+﻿using APSS.Application.App.Exceptions;
+using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
 using APSS.Domain.Services;
 
@@ -33,6 +34,9 @@ public sealed class DatabaseLogsService : ILogsService
         string message,
         params string[] tags)
     {
+        if (tags.FirstOrDefault(t => t.Contains(',')) is var tag && tag is not null)
+            throw new InvalidLogTagException(tag);
+
         var log = new Log
         {
             Severity = severity,
