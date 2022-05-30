@@ -1,7 +1,7 @@
-﻿using APSS.Application.App.Exceptions;
-using APSS.Domain.Entities;
+﻿using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
 using APSS.Domain.Services;
+using APSS.Domain.ValueTypes;
 
 namespace APSS.Application.App;
 
@@ -29,26 +29,51 @@ public sealed class DatabaseLogsService : ILogsService
     #region Public methods
 
     /// <inheritdoc/>
+    public IAsyncEnumerable<Log> GetLogsAsync(params string[] tags)
+        => BuildLogsQuery(tags).AsAsyncEnumerable();
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<Log> GetLogsAsync(DateTimeRange range, params string[] tags)
+    {
+        var query = BuildLogsQuery(tags);
+
+        return query
+            .Where(l => l.CreatedAt >= range.Start && l.CreatedAt <= range.End)
+            .AsAsyncEnumerable();
+    }
+
+    /// <inheritdoc/>
     public async Task<Log> LogAsync(
         LogSeverity severity,
         string message,
         params string[] tags)
     {
-        if (tags.FirstOrDefault(t => t.Contains(',')) is var tag && tag is not null)
-            throw new InvalidLogTagException(tag);
-
         var log = new Log
         {
             Severity = severity,
             Message = message,
-            Tags = string.Join(",", tags),
         };
 
-        _uow.Logs.Add(log);
-        await _uow.CommitAsync();
+        if (tags.Length > 0)
+        {
+            await using var tx = await _uow.BeginTransactionAsync();
 
+            log.Tags = await PrepareTags(tags).ToListAsync();
+            
+            _uow.Logs.Add(log);
+            await _uow.CommitAsync(tx);
+        }
+        else
+        {
+            _uow.Logs.Add(log);
+            await _uow.CommitAsync();
+        }
+     
         return log;
     }
+
+    public IAsyncEnumerable<LogTag> GetTagsAsync()
+        => _uow.LogTags.Query().AsAsyncEnumerable();
 
     /// <inheritdoc/>
     public Task<Log> LogDebugAsync(string message, params string[] tags)
@@ -69,6 +94,40 @@ public sealed class DatabaseLogsService : ILogsService
     /// <inheritdoc/>
     public Task<Log> LogFatalAsync(string message, params string[] tags)
         => LogAsync(LogSeverity.Fatal, message, tags);
+
+    #endregion
+
+    #region Private methods
+
+    private IQueryBuilder<Log> BuildLogsQuery(params string[] tags)
+    {
+        var query = _uow.Logs.Query().OrderByDescending(l => l.Id);
+
+        if (tags.Length == 0)
+            return query;
+
+        return query.Where(l => l.Tags.Any(t => tags.Contains(t.Value)));
+    }
+
+    private async IAsyncEnumerable<LogTag> PrepareTags(params string[] tags)
+    {
+        var ret = new List<LogTag>();
+
+        foreach (var tag in tags)
+        {
+            var tagObject = await _uow.LogTags
+                .Query()
+                .FirstOrNullAsync(t => t.Value == tag);
+
+            if (tagObject is null)
+            {
+                tagObject = new LogTag { Value = tag };
+                _uow.LogTags.Add(tagObject);
+            }
+
+            yield return tagObject;
+        }
+    }
 
     #endregion
 }
