@@ -1,9 +1,24 @@
 ﻿using APSS.Domain.Entities;
+using APSS.Domain.ValueTypes;
 
 namespace APSS.Domain.Services;
 
 public interface ILogsService
 {
+    /// <summary>
+    /// Asynchronously gets logs
+    /// </summary>
+    /// <param name="tags"></param>
+    /// <returns></returns>
+    IAsyncEnumerable<Log> GetLogsAsync(params string[] tags);
+
+    /// <summary>
+    /// Asynchronously gets logs
+    /// </summary>
+    /// <param name="tags"></param>
+    /// <returns></returns>
+    IAsyncEnumerable<Log> GetLogsAsync(DateTimeRange range, params string[] tags);
+
     /// <summary>
     /// Asynchronously creates a log entry
     /// </summary>
