@@ -1,6 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
+
 using Microsoft.EntityFrameworkCore;
+
 using System.Linq.Expressions;
 
 namespace APSS.Infrastructure.Repositores.EntityFramework;
