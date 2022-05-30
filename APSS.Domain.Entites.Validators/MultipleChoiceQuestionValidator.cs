@@ -12,7 +12,7 @@ public sealed class MultipleChoiceQuestionValidator : Validator<MultipleChoiceQu
     /// </summary>
     public MultipleChoiceQuestionValidator()
     {
-        RuleFor(q => q.Answers.Count)
+        RuleFor(q => q.CandidateAnswers.Count)
             .GreaterThanOrEqualTo(2)
             .WithMessage("multiple choice questions must have at least two answers");
 

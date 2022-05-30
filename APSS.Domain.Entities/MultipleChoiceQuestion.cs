@@ -5,7 +5,7 @@ public sealed class MultipleChoiceQuestion : Question
     /// <summary>
     /// Gets or sets the collection of possible answers to this question
     /// </summary>
-    public ICollection<MultipleChoiceAnswerItem> Answers { get; set; } = null!;
+    public ICollection<MultipleChoiceAnswerItem> CandidateAnswers { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets whether multiple answers can be selected at a time
