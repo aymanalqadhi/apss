@@ -20,42 +20,42 @@ public sealed class ApssDbContext : DbContext
     #region Public properties
 
     /// <summary>
-    /// Gets the users repository
+    /// Gets the users set
     /// </summary>
     public DbSet<User> Users => Set<User>();
 
     /// <summary>
-    /// Gets the users' permission inheritances repository
+    /// Gets the users' permission inheritances set
     /// </summary>
     public DbSet<PermissionInheritance> PermissionInheritances => Set<PermissionInheritance>();
 
     /// <summary>
-    /// Gets the lands repository
+    /// Gets the lands set
     /// </summary>
     public DbSet<Land> Lands => Set<Land>();
 
     /// <summary>
-    /// Gets the animal groups repository
+    /// Gets the animal groups set
     /// </summary>
     public DbSet<AnimalGroup> AnimalGroups => Set<AnimalGroup>();
 
     /// <summary>
-    /// Gets the products repository
+    /// Gets the products set
     /// </summary>
     public DbSet<Product> Products => Set<Product>();
 
     /// <summary>
-    /// Gets the produt expenses repository
+    /// Gets the produt expenses set
     /// </summary>
     public DbSet<ProductExpense> ProductExpenses => Set<ProductExpense>();
 
     /// <summary>
-    /// Gets the land products repository
+    /// Gets the land products set
     /// </summary>
     public DbSet<LandProduct> LandProducts => Set<LandProduct>();
 
     /// <summary>
-    /// Gets the seasons repository
+    /// Gets the seasons set
     /// </summary>
     public DbSet<Season> Sessions => Set<Season>();
 
@@ -65,32 +65,32 @@ public sealed class ApssDbContext : DbContext
     public DbSet<AnimalProduct> AnimalProducts => Set<AnimalProduct>();
 
     /// <summary>
-    /// Gets the surveys repository
+    /// Gets the surveys set
     /// </summary>
     public DbSet<Survey> Surveys => Set<Survey>();
 
     /// <summary>
-    /// Gets the questions repository
+    /// Gets the questions set
     /// </summary>
     public DbSet<Question> Questions => Set<Question>();
 
     /// <summary>
-    /// Gets the multiple-choice questions repository
+    /// Gets the multiple-choice questions set
     /// </summary>
     public DbSet<MultipleChoiceQuestion> MultipleChoiceQuestions => Set<MultipleChoiceQuestion>();
 
     /// <summary>
-    /// Gets the multiple-choice questions' answer items repository
+    /// Gets the multiple-choice questions' answer items set
     /// </summary>
     public DbSet<MultipleChoiceAnswerItem> MultipleChoiceAnswerItems => Set<MultipleChoiceAnswerItem>();
 
     /// <summary>
-    /// Gets the logical questions repository
+    /// Gets the logical questions set
     /// </summary>
     public DbSet<LogicalQuestion> LogicalQuestions => Set<LogicalQuestion>();
 
     /// <summary>
-    /// Gets the text questions repository
+    /// Gets the text questions set
     /// </summary>
     public DbSet<TextQuestion> TextQuestions => Set<TextQuestion>();
 
@@ -116,39 +116,44 @@ public sealed class ApssDbContext : DbContext
     public DbSet<TextQuestionAnswer> TextQuestionAnswers => Set<TextQuestionAnswer>();
 
     /// <summary>
-    /// Gets the survey entries repository
+    /// Gets the survey entries set
     /// </summary>
     public DbSet<SurveyEntry> SurveyEntries => Set<SurveyEntry>();
 
     /// <summary>
-    /// Gets the individuals repository
+    /// Gets the individuals set
     /// </summary>
     public DbSet<Individual> Individuals => Set<Individual>();
 
     /// <summary>
-    /// Gets the skills repository
+    /// Gets the skills set
     /// </summary>
     public DbSet<Skill> Skills => Set<Skill>();
 
     /// <summary>
-    /// Gets the volantaries repository
+    /// Gets the volantaries set
     /// </summary>
     public DbSet<Voluntary> Volantaries => Set<Voluntary>();
 
     /// <summary>
-    /// Gets the families repository
+    /// Gets the families set
     /// </summary>
     public DbSet<Family> Families => Set<Family>();
 
     /// <summary>
-    /// Gets the family individuals repository
+    /// Gets the family individuals set
     /// </summary>
     public DbSet<FamilyIndividual> FamilyIndividuals => Set<FamilyIndividual>();
 
     /// <summary>
-    /// Gets the logs repository
+    /// Gets the logs set
     /// </summary>
     public DbSet<Log> Logs => Set<Log>();
+
+    /// <summary>
+    /// Gets the log tags table
+    /// </summary>
+    public DbSet<LogTag> LogTags => Set<LogTag>();
 
     #endregion
 }
