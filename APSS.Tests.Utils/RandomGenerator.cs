@@ -83,6 +83,13 @@ public static class RandomGenerator
     /// <returns>The generated value</returns>
     public static double NextDouble(double min = double.MinValue, double max = double.MaxValue)
         => _rnd.NextDouble() * (max - min) + min;
+
+    /// <summary>
+    /// Generates a random boolean value
+    /// </summary>
+    /// <returns>The generated value</returns>
+    public static bool NextBool() 
+        => NextInt(0, 1) == 1;
 }
 
 /// <summary>
