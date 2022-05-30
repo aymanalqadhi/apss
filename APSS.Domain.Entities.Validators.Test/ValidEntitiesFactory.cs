@@ -171,7 +171,7 @@ public static class ValidEntitiesFactory
         return new ProductExpense
         {
             Type = RandomGenerator.NextString(0xff),
-            Price = (Decimal)RandomGenerator.NextDouble(0),
+            Price = Convert.ToDecimal(RandomGenerator.NextDouble(0, 1_000_000)),
             SpentOn = RandomGenerator.NextBool()
                 ? CreateValidLandProduct() 
                 : CreateValidAnimalProduct()
