@@ -21,16 +21,9 @@ public sealed class Log : AuditableEntity
     public DateTime TimeStamp { get; set; }
 
     /// <summary>
-    /// Gets or sets the tags of the log
+    /// Gets or sets the tags set of the log
     /// </summary>
-    public string Tags { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets the parsed tags collection
-    /// </summary>
-    /// <returns></returns>
-    public IEnumerable<string> ParseTags()
-        => Tags.Split(',');
+    public ICollection<LogTag> Tags { get; set; } = new List<LogTag>();
 }
 
 /// <summary>

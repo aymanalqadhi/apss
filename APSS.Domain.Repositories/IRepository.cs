@@ -13,8 +13,8 @@ public interface IRepository<T> where T : AuditableEntity
     /// <summary>
     /// Adds an item to the repository
     /// </summary>
-    /// <param name="entity">The item to add</param>
-    void Add(T entity);
+    /// <param name="entities">The items to add</param>
+    void Add(params T[] entities);
 
     /// <summary>
     /// Updates an item in the repository

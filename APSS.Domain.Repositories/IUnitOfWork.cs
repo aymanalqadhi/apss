@@ -135,10 +135,21 @@ public interface IUnitOfWork
     /// Gets the logs repository
     /// </summary>
     IRepository<Log> Logs { get; }
+    
+    /// <summary>
+    /// Gets the log tags repository
+    /// </summary>
+    IRepository<LogTag> LogTags { get; }
 
     #endregion
 
     #region Methods
+
+    /// <summary>
+    /// Commits changes to the database
+    /// </summary>
+    /// <returns></returns>
+    int Commit();
 
     /// <summary>
     /// Asynchronously commits changes to data backend

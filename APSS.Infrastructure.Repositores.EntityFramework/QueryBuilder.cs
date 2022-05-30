@@ -67,8 +67,24 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
         => _query.FirstAsync(cancellationToken);
 
     /// <inheritdoc/>
+    public Task<T> FirstAsync(
+        Expression<Func<T, bool>> pred,
+        CancellationToken cancellationToken = default)
+    {
+        return _query.FirstAsync(pred, cancellationToken);
+    }
+
+    /// <inheritdoc/>
     public Task<T?> FirstOrNullAsync(CancellationToken cancellationToken = default)
         => _query.FirstOrDefaultAsync(cancellationToken);
+
+    /// <inheritdoc/>
+    public Task<T?> FirstOrNullAsync(
+        Expression<Func<T, bool>> pred,
+        CancellationToken cancellationToken = default)
+    {
+        return _query.FirstOrDefaultAsync(pred, cancellationToken);
+    }
 
     /// <inheritdoc/>
     public IAsyncEnumerable<T> AsAsyncEnumerable()

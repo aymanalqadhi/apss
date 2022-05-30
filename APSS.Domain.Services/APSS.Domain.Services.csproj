@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\APSS.Domain.Entities\APSS.Domain.Entities.csproj" />
+    <ProjectReference Include="..\APSS.Domain.ValueTypes\APSS.Domain.ValueTypes.csproj" />
   </ItemGroup>
 
 </Project>

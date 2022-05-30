@@ -122,9 +122,16 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     /// <inheritdoc/>
     public IRepository<Log> Logs => new Repository<Log, LogValidator>(_ctx.Logs);
 
+    /// <inheritdoc/>
+    public IRepository<LogTag> LogTags => new Repository<LogTag, Validator<LogTag>>(_ctx.LogTags);
+
     #endregion
 
     #region Public methods
+
+    /// <inheritdoc/>
+    public int Commit()
+        => _ctx.SaveChanges();
 
     /// <inheritdoc/>
     public Task<int> CommitAsync(CancellationToken cancellationToken = default)
