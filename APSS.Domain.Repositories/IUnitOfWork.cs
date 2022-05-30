@@ -135,6 +135,11 @@ public interface IUnitOfWork
     /// Gets the logs repository
     /// </summary>
     IRepository<Log> Logs { get; }
+    
+    /// <summary>
+    /// Gets the log tags repository
+    /// </summary>
+    IRepository<LogTag> LogTags { get; }
 
     #endregion
 
