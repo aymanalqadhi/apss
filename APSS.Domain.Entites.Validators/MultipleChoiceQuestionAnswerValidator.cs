@@ -23,6 +23,7 @@ public sealed class MultipleChoiceQuestionAnswerValidator : Validator<MultipleCh
 
         RuleFor(a => a.Answers.Count)
             .GreaterThanOrEqualTo(2)
-            .When(a => ((MultipleChoiceQuestion)a.Question).CanMultiSelect);
+            .When(a => a.Question is MultipleChoiceQuestion
+                      && ((MultipleChoiceQuestion)a.Question).CanMultiSelect);
     }
 }
