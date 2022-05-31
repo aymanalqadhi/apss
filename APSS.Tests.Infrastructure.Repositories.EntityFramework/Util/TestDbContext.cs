@@ -3,7 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace APSS.Tests.Infrastructure.Repositories.EntityFramework;
+namespace APSS.Tests.Infrastructure.Repositories.EntityFramework.Util;
 
 public static class TestDbContext
 {

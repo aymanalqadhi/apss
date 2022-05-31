@@ -1,7 +1,7 @@
 ﻿using APSS.Domain.Repositories;
 using APSS.Infrastructure.Repositores.EntityFramework;
 
-namespace APSS.Tests.Infrastructure.Repositories.EntityFramework;
+namespace APSS.Tests.Infrastructure.Repositories.EntityFramework.Util;
 
 public static class TestUnitOfWork
 {

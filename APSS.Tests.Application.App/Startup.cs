@@ -1,5 +1,4 @@
-﻿using APSS.Domain.Repositories;
-using APSS.Tests.Infrastructure.Repositories.EntityFramework;
+﻿using APSS.Tests.Infrastructure.Repositories.EntityFramework.Util;
 
 using Microsoft.Extensions.DependencyInjection;
 

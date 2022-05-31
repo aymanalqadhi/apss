@@ -1,5 +1,6 @@
 ﻿using APSS.Infrastructure.Repositores.EntityFramework;
 using APSS.Tests.Domain.Entities.Validators;
+using APSS.Tests.Infrastructure.Repositories.EntityFramework.Util;
 using APSS.Tests.Utils;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
