@@ -1,6 +1,6 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
-
+using APSS.Domain.Repositories.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 using System.Linq.Expressions;
@@ -58,6 +58,40 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
     public IQueryBuilder<T> Where(Expression<Func<T, bool>> pred)
     {
         _query = _query.Where(pred);
+
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IQueryBuilder<T> Take(int count)
+    {
+        _query = _query.Take(count);
+
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IQueryBuilder<T> Skip(int count)
+    {
+        _query = _query.Skip(count);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Fetches the page with index <see cref="page"/> and size <see cref="pageSize"/>
+    /// </summary>
+    /// <param name="page">The index of the page</param>
+    /// <param name="pageSize">The size of the page</param>
+    /// <returns>The modified query builder</returns>
+    public IQueryBuilder<T> Page(int page, int pageSize)
+    {
+        if (page <= 0 || pageSize <= 0)
+            throw new InvalidPaginationParametersException(page, pageSize);
+
+        _query = _query
+            .Skip((page - 1) * pageSize)
+            .Take(page * pageSize);
 
         return this;
     }
