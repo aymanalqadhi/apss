@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -15,7 +13,7 @@ public class AnimalGroupValidatorTests
 
     private readonly AnimalGroupValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -52,5 +50,5 @@ public class AnimalGroupValidatorTests
         result.ShouldHaveValidationErrorFor(a => a.OwnedBy.AccessLevel);
     }
 
-    #endregion
+    #endregion Tests
 }

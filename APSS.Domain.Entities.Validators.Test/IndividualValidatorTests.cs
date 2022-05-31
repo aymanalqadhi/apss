@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -15,7 +13,7 @@ public class IndividualValidatorTests
 
     private readonly IndividualValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -25,7 +23,7 @@ public class IndividualValidatorTests
         var individual = new Individual
         {
             Name = RandomGenerator.NextString(0xff),
-            AddedBy = new User { AccessLevel = AccessLevel.Group}
+            AddedBy = new User { AccessLevel = AccessLevel.Group }
         };
 
         Assert.IsTrue(_validator.Validate(individual).IsValid);
@@ -46,5 +44,5 @@ public class IndividualValidatorTests
         result.ShouldHaveValidationErrorFor(a => a.AddedBy.AccessLevel);
     }
 
-    #endregion
+    #endregion Tests
 }

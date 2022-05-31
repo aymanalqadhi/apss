@@ -19,14 +19,14 @@ public sealed class DatabaseLogsServiceTest : IDisposable
     private readonly IUnitOfWork _uow;
     private readonly ILogsService _logsSvc;
 
-    #endregion
+    #endregion Private fields
 
     #region Constructors
 
     public DatabaseLogsServiceTest(IUnitOfWork uow)
         => _logsSvc = new DatabaseLogsService(_uow = uow);
 
-    #endregion
+    #endregion Constructors
 
     #region Tests
 
@@ -68,7 +68,7 @@ public sealed class DatabaseLogsServiceTest : IDisposable
         });
     }
 
-    #endregion
+    #endregion Tests
 
     #region IDisposable Members
 
@@ -76,5 +76,5 @@ public sealed class DatabaseLogsServiceTest : IDisposable
     public void Dispose()
         => _uow.Dispose();
 
-    #endregion
+    #endregion IDisposable Members
 }

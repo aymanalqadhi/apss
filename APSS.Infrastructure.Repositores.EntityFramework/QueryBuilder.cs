@@ -13,7 +13,7 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
 
     private IQueryable<T> _query;
 
-    #endregion
+    #endregion Private fields
 
     #region Ctors
 
@@ -26,7 +26,7 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
         _query = query;
     }
 
-    #endregion
+    #endregion Ctors
 
     #region Public methods
 
@@ -144,5 +144,5 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
     public Task<bool> AllAsync(Expression<Func<T, bool>> pred, CancellationToken cancellationToken = default)
         => _query.AllAsync(pred, cancellationToken);
 
-    #endregion
+    #endregion Public methods
 }

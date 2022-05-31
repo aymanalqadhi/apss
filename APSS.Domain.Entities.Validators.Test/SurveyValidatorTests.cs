@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -12,10 +10,10 @@ namespace APSS.Tests.Domain.Entities.Validators;
 public class SurveyValidatorTests
 {
     #region Private fields
-    
+
     private readonly SurveyValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -25,7 +23,7 @@ public class SurveyValidatorTests
         var survey = new Survey
         {
             Name = RandomGenerator.NextString(0xff),
-            CreatedBy = new User { AccessLevel = AccessLevel.Group},
+            CreatedBy = new User { AccessLevel = AccessLevel.Group },
         };
 
         Assert.IsTrue(_validator.Validate(survey).IsValid);
@@ -34,10 +32,10 @@ public class SurveyValidatorTests
     [TestMethod]
     public void ValidateSurveyShouldFail()
     {
-        var survey = new Survey 
+        var survey = new Survey
         {
             Name = "",
-            CreatedBy = new User { AccessLevel = AccessLevel.Farmer},
+            CreatedBy = new User { AccessLevel = AccessLevel.Farmer },
         };
 
         var result = _validator.TestValidate(survey);
@@ -46,5 +44,5 @@ public class SurveyValidatorTests
         result.ShouldHaveValidationErrorFor(l => l.CreatedBy.AccessLevel);
     }
 
-    #endregion
+    #endregion Tests
 }

@@ -15,7 +15,7 @@ public sealed class Repository<T, Validator> : IRepository<T>
     private readonly DbSet<T> _set;
     private readonly Validator _validator;
 
-    #endregion
+    #endregion Private fields
 
     #region Ctors
 
@@ -29,7 +29,7 @@ public sealed class Repository<T, Validator> : IRepository<T>
         _validator = new Validator();
     }
 
-    #endregion
+    #endregion Ctors
 
     #region Public methods
 
@@ -71,5 +71,5 @@ public sealed class Repository<T, Validator> : IRepository<T>
     public IQueryBuilder<T> Query()
         => new QueryBuilder<T>(_set.AsQueryable());
 
-    #endregion
+    #endregion Public methods
 }

@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -12,10 +10,10 @@ namespace APSS.Tests.Domain.Entities.Validators;
 public class LogValidatorTests
 {
     #region Private fields
-    
+
     private readonly LogValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -40,5 +38,5 @@ public class LogValidatorTests
         result.ShouldHaveValidationErrorFor(l => l.Message);
     }
 
-    #endregion
+    #endregion Tests
 }

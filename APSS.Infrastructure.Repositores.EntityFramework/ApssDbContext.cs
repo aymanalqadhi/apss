@@ -15,7 +15,7 @@ public sealed class ApssDbContext : DbContext
     {
     }
 
-    #endregion
+    #endregion Ctors
 
     #region Public properties
 
@@ -155,5 +155,5 @@ public sealed class ApssDbContext : DbContext
     /// </summary>
     public DbSet<LogTag> LogTags => Set<LogTag>();
 
-    #endregion
+    #endregion Public properties
 }

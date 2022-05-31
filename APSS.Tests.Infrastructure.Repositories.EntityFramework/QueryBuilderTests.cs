@@ -126,7 +126,7 @@ public class QueryBuilderTests
             .ToArray();
 
         uow.Logs.Add(logs);
-        
+
         Assert.AreEqual(logs.Length, uow.Commit());
         Assert.IsTrue(uow.Logs.Query().AllAsync(l => l.Message.Length % 2 == 0).Result);
     }

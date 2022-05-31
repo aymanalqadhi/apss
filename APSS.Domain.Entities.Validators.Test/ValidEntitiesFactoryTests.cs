@@ -1,20 +1,13 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
-using APSS.Tests.Utils;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using FluentValidation.TestHelper;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
 [TestClass]
 public class ValidEntitiesFactoryTests
 {
-    #region Private fields
-    
-    #endregion
-
     #region Tests
 
     [TestMethod]
@@ -179,5 +172,5 @@ public class ValidEntitiesFactoryTests
         Assert.IsTrue(validator.Validate(multiple).IsValid);
     }
 
-    #endregion
+    #endregion Tests
 }

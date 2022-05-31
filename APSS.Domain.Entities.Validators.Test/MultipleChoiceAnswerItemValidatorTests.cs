@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -12,10 +10,10 @@ namespace APSS.Tests.Domain.Entities.Validators;
 public class MultipleChoiceAnswerItemValidatorTests
 {
     #region Private fields
-    
+
     private readonly MultipleChoiceAnswerItemValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -33,7 +31,7 @@ public class MultipleChoiceAnswerItemValidatorTests
     [TestMethod]
     public void ValidateMultipleChoiceAnswerItemShouldFail()
     {
-        var item = new MultipleChoiceAnswerItem 
+        var item = new MultipleChoiceAnswerItem
         {
             Value = "",
         };
@@ -43,5 +41,5 @@ public class MultipleChoiceAnswerItemValidatorTests
         result.ShouldHaveValidationErrorFor(l => l.Value);
     }
 
-    #endregion
+    #endregion Tests
 }

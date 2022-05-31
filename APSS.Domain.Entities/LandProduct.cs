@@ -77,7 +77,7 @@ public sealed class LandProduct : Product
     public Land Producer { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the season that the land's product was produced in 
+    /// Gets or sets the season that the land's product was produced in
     /// </summary>
     public Season ProducedIn { get; set; } = null!;
 }
@@ -91,7 +91,6 @@ public enum IrrigationWaterSource
     HumanStored,
     OnDemand,
 }
-
 
 /// <summary>
 /// An enum that represents the sorts of energy sources

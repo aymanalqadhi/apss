@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
 namespace APSS.Tests.Domain.Entities.Validators;
@@ -13,21 +11,20 @@ namespace APSS.Tests.Domain.Entities.Validators;
 public class MultipleChoiceQuestionValidatorTests
 {
     #region Private fields
-    
+
     private readonly MultipleChoiceQuestionValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
     [TestMethod]
     public void ValidateMultipleChoiceQuestionShouldSucceed()
     {
-        
         var multiple = new MultipleChoiceQuestion
         {
             CandidateAnswers = Enumerable.Range(2, RandomGenerator.NextInt(2, 6))
-                .Select(i => new MultipleChoiceAnswerItem { Value = RandomGenerator.NextString(0xff)})
+                .Select(i => new MultipleChoiceAnswerItem { Value = RandomGenerator.NextString(0xff) })
                 .ToList()
         };
 
@@ -37,7 +34,7 @@ public class MultipleChoiceQuestionValidatorTests
     [TestMethod]
     public void ValidateMultipleChoiceQuestionShouldFail()
     {
-        var multiple = new MultipleChoiceQuestion 
+        var multiple = new MultipleChoiceQuestion
         {
             CandidateAnswers = Enumerable.Range(0, 1)
                 .Select(i => new MultipleChoiceAnswerItem { Value = RandomGenerator.NextString(0xff) })
@@ -49,5 +46,5 @@ public class MultipleChoiceQuestionValidatorTests
         result.ShouldHaveValidationErrorFor(l => l.CandidateAnswers.Count);
     }
 
-    #endregion
+    #endregion Tests
 }

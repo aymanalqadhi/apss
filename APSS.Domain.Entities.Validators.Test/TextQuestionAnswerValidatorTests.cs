@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -15,7 +13,7 @@ public class TextQuestionAnswerValidatorTests
 
     private readonly TextQuestionAnswerValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -24,7 +22,7 @@ public class TextQuestionAnswerValidatorTests
     {
         var textQuestion = new TextQuestionAnswer
         {
-            Question = new TextQuestion { IsRequired = true},
+            Question = new TextQuestion { IsRequired = true },
             Answer = RandomGenerator.NextString(0xff)
         };
 
@@ -36,7 +34,7 @@ public class TextQuestionAnswerValidatorTests
     {
         var textQuestion = new TextQuestionAnswer
         {
-            Question = new LogicalQuestion { IsRequired = true},
+            Question = new LogicalQuestion { IsRequired = true },
             Answer = ""
         };
 
@@ -46,5 +44,5 @@ public class TextQuestionAnswerValidatorTests
         result.ShouldHaveValidationErrorFor(a => a.Answer);
     }
 
-    #endregion
+    #endregion Tests
 }

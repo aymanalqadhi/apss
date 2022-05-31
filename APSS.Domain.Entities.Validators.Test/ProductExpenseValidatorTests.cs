@@ -1,11 +1,9 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
+using FluentValidation.TestHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-
-using FluentValidation.TestHelper;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -13,10 +11,10 @@ namespace APSS.Tests.Domain.Entities.Validators;
 public class ProductExpenseValidatorTests
 {
     #region Private fields
-    
+
     private readonly ProductExpenseValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -34,7 +32,7 @@ public class ProductExpenseValidatorTests
     [TestMethod]
     public void ValidateProductExpenseShouldFail()
     {
-        var expense = new ProductExpense 
+        var expense = new ProductExpense
         {
             Price = -2
         };
@@ -44,5 +42,5 @@ public class ProductExpenseValidatorTests
         result.ShouldHaveValidationErrorFor(l => l.Price);
     }
 
-    #endregion
+    #endregion Tests
 }

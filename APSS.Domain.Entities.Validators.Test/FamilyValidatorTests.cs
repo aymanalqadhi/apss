@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -15,7 +13,7 @@ public class FamilyValidatorTests
 
     private readonly FamilyValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -43,5 +41,5 @@ public class FamilyValidatorTests
         result.ShouldHaveValidationErrorFor(a => a.Name);
     }
 
-    #endregion
+    #endregion Tests
 }

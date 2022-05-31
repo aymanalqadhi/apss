@@ -11,7 +11,7 @@ public class RandomGeneratorTests
 
     private const int _testStringSize = 0xff;
 
-    #endregion
+    #endregion Constants
 
     #region Tests
 
@@ -116,7 +116,6 @@ public class RandomGeneratorTests
         Assert.IsTrue(value <= max);
     }
 
-
     [TestMethod]
     public void DoubleTest()
     {
@@ -129,5 +128,5 @@ public class RandomGeneratorTests
         Assert.IsTrue(value <= max);
     }
 
-    #endregion
+    #endregion Tests
 }

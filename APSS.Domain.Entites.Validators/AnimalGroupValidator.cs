@@ -26,6 +26,5 @@ public sealed class AnimalGroupValidator : Validator<AnimalGroup>
 
         RuleFor(g => g.OwnedBy.AccessLevel)
             .Equal(AccessLevel.Farmer);
-
     }
 }

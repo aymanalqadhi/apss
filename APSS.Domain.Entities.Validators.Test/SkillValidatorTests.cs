@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -12,10 +10,10 @@ namespace APSS.Tests.Domain.Entities.Validators;
 public class SkillValidatorTests
 {
     #region Private fields
-    
+
     private readonly SkillValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -33,7 +31,7 @@ public class SkillValidatorTests
     [TestMethod]
     public void ValidateSkillShouldFail()
     {
-        var skill = new Skill 
+        var skill = new Skill
         {
             Name = "",
         };
@@ -43,5 +41,5 @@ public class SkillValidatorTests
         result.ShouldHaveValidationErrorFor(l => l.Name);
     }
 
-    #endregion
+    #endregion Tests
 }

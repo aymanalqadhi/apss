@@ -15,6 +15,5 @@ public sealed class MultipleChoiceQuestionValidator : Validator<MultipleChoiceQu
         RuleFor(q => q.CandidateAnswers.Count)
             .GreaterThanOrEqualTo(2)
             .WithMessage("multiple choice questions must have at least two answers");
-
     }
 }

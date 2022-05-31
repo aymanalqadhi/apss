@@ -12,4 +12,3 @@ public sealed class MultipleChoiceQuestion : Question
     /// </summary>
     public bool CanMultiSelect { get; set; } = false;
 }
-    

@@ -20,8 +20,8 @@ public struct DateTimeRange
         End = end;
     }
 
-    #endregion
-    
+    #endregion Constructors
+
     #region Public properties
 
     /// <summary>
@@ -34,5 +34,5 @@ public struct DateTimeRange
     /// </summary>
     public DateTime End { get; }
 
-    #endregion
+    #endregion Public properties
 }

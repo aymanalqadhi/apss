@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -15,7 +13,7 @@ public class LandValidatorTests
 
     private readonly LandValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -25,7 +23,7 @@ public class LandValidatorTests
         var land = new Land
         {
             Name = RandomGenerator.NextString(0xff),
-            OwnedBy = new User { AccessLevel = AccessLevel.Farmer}
+            OwnedBy = new User { AccessLevel = AccessLevel.Farmer }
         };
 
         Assert.IsTrue(_validator.Validate(land).IsValid);
@@ -46,5 +44,5 @@ public class LandValidatorTests
         result.ShouldHaveValidationErrorFor(a => a.OwnedBy.AccessLevel);
     }
 
-    #endregion
+    #endregion Tests
 }

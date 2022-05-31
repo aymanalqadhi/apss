@@ -1,10 +1,7 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
-using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -15,7 +12,7 @@ public class LogicalQuestionAnswerValidatorTests
 
     private readonly LogicalQuestionAnswerValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -24,7 +21,7 @@ public class LogicalQuestionAnswerValidatorTests
     {
         var logicalQuestionAnswer = new LogicalQuestionAnswer
         {
-            Question = new LogicalQuestion { IsRequired = true},
+            Question = new LogicalQuestion { IsRequired = true },
             Answer = true
         };
 
@@ -36,7 +33,7 @@ public class LogicalQuestionAnswerValidatorTests
     {
         var logicalQuestionAnswer = new LogicalQuestionAnswer
         {
-            Question = new MultipleChoiceQuestion { IsRequired = true},
+            Question = new MultipleChoiceQuestion { IsRequired = true },
             Answer = null
         };
 
@@ -46,5 +43,5 @@ public class LogicalQuestionAnswerValidatorTests
         result.ShouldHaveValidationErrorFor(a => a.Answer);
     }
 
-    #endregion
+    #endregion Tests
 }

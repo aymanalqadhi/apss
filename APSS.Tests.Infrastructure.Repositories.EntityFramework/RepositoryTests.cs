@@ -19,9 +19,9 @@ public class RepositoryTests
         using var uow = new ApssUnitOfWork(ctx);
 
         var log = ValidEntitiesFactory.CreateValidLog();
-        
+
         uow.Logs.Add(log);
-        
+
         Assert.AreEqual(uow.Commit(), 1);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
     }
@@ -33,7 +33,7 @@ public class RepositoryTests
         using var uow = new ApssUnitOfWork(ctx);
 
         var log = ValidEntitiesFactory.CreateValidLog();
-        
+
         uow.Logs.Add(log);
 
         Assert.AreEqual(uow.Commit(), 1);
@@ -42,7 +42,7 @@ public class RepositoryTests
         log.Message = RandomGenerator.NextString(0xff);
 
         uow.Logs.Update(log);
-        
+
         Assert.AreEqual(uow.Commit(), 1);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id && l.Message == log.Message));
     }

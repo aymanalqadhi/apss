@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -12,10 +10,10 @@ namespace APSS.Tests.Domain.Entities.Validators;
 public class UserValidatorTests
 {
     #region Private fields
-    
+
     private readonly UserValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -27,7 +25,7 @@ public class UserValidatorTests
             Name = RandomGenerator.NextString(0xff),
             NationalId = RandomGenerator.NextString(0xff),
             AccessLevel = AccessLevel.Farmer,
-            SupervisedBy = new User { AccessLevel = AccessLevel.Group},
+            SupervisedBy = new User { AccessLevel = AccessLevel.Group },
         };
 
         Assert.IsTrue(_validator.Validate(user).IsValid);
@@ -36,12 +34,12 @@ public class UserValidatorTests
     [TestMethod]
     public void ValidateUserShouldFail()
     {
-        var user = new User 
+        var user = new User
         {
             Name = "",
             NationalId = "",
             AccessLevel = AccessLevel.Root,
-            SupervisedBy = new User { AccessLevel = AccessLevel.Presedint},
+            SupervisedBy = new User { AccessLevel = AccessLevel.Presedint },
         };
 
         var result = _validator.TestValidate(user);
@@ -52,5 +50,5 @@ public class UserValidatorTests
         result.ShouldHaveValidationErrorFor(l => l.SupervisedBy);
     }
 
-    #endregion
+    #endregion Tests
 }

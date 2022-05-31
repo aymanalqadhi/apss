@@ -10,7 +10,7 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
 
     private readonly ApssDbContext _ctx;
 
-    #endregion
+    #endregion Private fields
 
     #region Ctors
 
@@ -23,7 +23,7 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
         _ctx = ctx;
     }
 
-    #endregion
+    #endregion Ctors
 
     #region Public properties
 
@@ -125,7 +125,7 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     /// <inheritdoc/>
     public IRepository<LogTag> LogTags => new Repository<LogTag, LogTagValidator>(_ctx.LogTags);
 
-    #endregion
+    #endregion Public properties
 
     #region Public methods
 
@@ -161,5 +161,5 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     public ValueTask DisposeAsync()
         => _ctx.DisposeAsync();
 
-    #endregion
+    #endregion Public methods
 }

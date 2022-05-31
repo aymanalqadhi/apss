@@ -21,7 +21,7 @@ public sealed class AnimalProduct : Product
     public double Quantity { get; set; }
 
     /// <summary>
-    /// Gets or sets the period taken to produce the animal's product 
+    /// Gets or sets the period taken to produce the animal's product
     /// </summary>
     public TimeSpan PeriodTaken { get; set; }
 

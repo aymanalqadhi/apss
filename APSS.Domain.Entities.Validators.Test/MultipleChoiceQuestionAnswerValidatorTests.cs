@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +15,7 @@ public class MultipleChoiceQuestionAnswerValidatorTests
 
     private readonly MultipleChoiceQuestionAnswerValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -30,14 +28,14 @@ public class MultipleChoiceQuestionAnswerValidatorTests
             Text = RandomGenerator.NextString(0xff),
             IsRequired = true,
             CandidateAnswers = Enumerable.Range(2, RandomGenerator.NextInt(2, 6))
-                .Select(i => new MultipleChoiceAnswerItem { Value = RandomGenerator.NextString(0xff)})
+                .Select(i => new MultipleChoiceAnswerItem { Value = RandomGenerator.NextString(0xff) })
                 .ToList(),
             CanMultiSelect = RandomGenerator.NextBool(),
-        }; 
+        };
 
         var multiple = new MultipleChoiceQuestionAnswer
         {
-            Question = new MultipleChoiceQuestion { IsRequired = true},
+            Question = new MultipleChoiceQuestion { IsRequired = true },
             Answers = question.CanMultiSelect
                 ? question
                     .CandidateAnswers
@@ -54,7 +52,7 @@ public class MultipleChoiceQuestionAnswerValidatorTests
     {
         var multiple = new MultipleChoiceQuestionAnswer
         {
-            Question = new MultipleChoiceQuestion{ IsRequired = true},
+            Question = new MultipleChoiceQuestion { IsRequired = true },
             Answers = new List<MultipleChoiceAnswerItem>()
         };
 
@@ -64,7 +62,7 @@ public class MultipleChoiceQuestionAnswerValidatorTests
 
         var multipleWithInvalidQuestion = new MultipleChoiceQuestionAnswer
         {
-            Question = new TextQuestion { IsRequired = true}
+            Question = new TextQuestion { IsRequired = true }
         };
 
         var secondResult = _validator.TestValidate(multipleWithInvalidQuestion);
@@ -72,5 +70,5 @@ public class MultipleChoiceQuestionAnswerValidatorTests
         secondResult.ShouldHaveValidationErrorFor(a => a.Question);
     }
 
-    #endregion
+    #endregion Tests
 }

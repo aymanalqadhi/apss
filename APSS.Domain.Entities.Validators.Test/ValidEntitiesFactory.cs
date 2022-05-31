@@ -44,7 +44,7 @@ public static class ValidEntitiesFactory
             OwnedBy = CreateValidUser(AccessLevel.Farmer),
         };
     }
-    
+
     /// <summary>
     /// Creates a valid animal product object
     /// </summary>
@@ -55,7 +55,7 @@ public static class ValidEntitiesFactory
         {
             Name = RandomGenerator.NextString(0xff),
             Quantity = RandomGenerator.NextInt(1),
-            Unit = new AnimalProductUnit { Name = RandomGenerator.NextString(0xff)},
+            Unit = new AnimalProductUnit { Name = RandomGenerator.NextString(0xff) },
             PeriodTaken = new TimeSpan(RandomGenerator.NextLong()),
             Producer = CreateValidAnimalGroup(),
         };
@@ -173,7 +173,7 @@ public static class ValidEntitiesFactory
             Type = RandomGenerator.NextString(0xff),
             Price = Convert.ToDecimal(RandomGenerator.NextDouble(0, 1_000_000)),
             SpentOn = RandomGenerator.NextBool()
-                ? CreateValidLandProduct() 
+                ? CreateValidLandProduct()
                 : CreateValidAnimalProduct()
         };
     }

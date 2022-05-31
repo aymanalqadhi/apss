@@ -135,13 +135,13 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     /// Gets the logs repository
     /// </summary>
     IRepository<Log> Logs { get; }
-    
+
     /// <summary>
     /// Gets the log tags repository
     /// </summary>
     IRepository<LogTag> LogTags { get; }
 
-    #endregion
+    #endregion Properties
 
     #region Methods
 
@@ -172,5 +172,5 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     /// <returns></returns>
     Task<IDatabaseTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 
-    #endregion
+    #endregion Methods
 }

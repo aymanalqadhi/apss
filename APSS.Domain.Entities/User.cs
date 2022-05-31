@@ -6,7 +6,7 @@
 public sealed class User : AuditableEntity
 {
     /// <summary>
-    /// Gets or stes the name of the user 
+    /// Gets or stes the name of the user
     /// </summary>
     public string Name { get; set; } = null!;
 
@@ -16,32 +16,32 @@ public sealed class User : AuditableEntity
     public string? HolderName { get; set; }
 
     /// <summary>
-    /// Gets or sets the password hash of the user 
+    /// Gets or sets the password hash of the user
     /// </summary>
     public string PasswordHash { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the national id of the user 
+    /// Gets or sets the national id of the user
     /// </summary>
     public string NationalId { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the phone number of the user 
+    /// Gets or sets the phone number of the user
     /// </summary>
     public string PhoneNumber { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the social status of the user 
+    /// Gets or sets the social status of the user
     /// </summary>
     public SocialStatus SocialStatus { get; set; }
 
     /// <summary>
-    /// Gets or sets the job of the user 
+    /// Gets or sets the job of the user
     /// </summary>
     public string Job { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the access level of the user 
+    /// Gets or sets the access level of the user
     /// </summary>
     public AccessLevel AccessLevel { get; set; }
 
@@ -53,7 +53,7 @@ public sealed class User : AuditableEntity
     /// <summary>
     /// Gets or sets the collection of subusers under this user
     /// </summary>
-    public ICollection<User> SubUsers { get;set; } = new List<User>();
+    public ICollection<User> SubUsers { get; set; } = new List<User>();
 }
 
 /// <summary>

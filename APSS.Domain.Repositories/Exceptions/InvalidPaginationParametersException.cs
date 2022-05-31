@@ -7,7 +7,7 @@ public class InvalidPaginationParametersException : Exception
     private readonly int _page;
     private readonly int _pageLength;
 
-    #endregion
+    #endregion Private fields
 
     #region Constructors
 
@@ -23,7 +23,7 @@ public class InvalidPaginationParametersException : Exception
         _pageLength = pageLength;
     }
 
-    #endregion
+    #endregion Constructors
 
     #region Public properties
 
@@ -37,5 +37,5 @@ public class InvalidPaginationParametersException : Exception
     /// </summary>
     public int PageLength => _pageLength;
 
-    #endregion
+    #endregion Public properties
 }

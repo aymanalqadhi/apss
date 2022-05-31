@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace APSS.Web.Mvc.Pages
 {
@@ -14,7 +13,6 @@ namespace APSS.Web.Mvc.Pages
 
         public void OnGet()
         {
-
         }
     }
 }

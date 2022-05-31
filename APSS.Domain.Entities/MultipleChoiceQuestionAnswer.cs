@@ -1,7 +1,7 @@
 ﻿namespace APSS.Domain.Entities;
 
 /// <summary>
-/// A class to represent 
+/// A class to represent
 /// </summary>
 public sealed class MultipleChoiceQuestionAnswer : QuestionAnswer
 {

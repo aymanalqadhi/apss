@@ -88,7 +88,7 @@ public static class RandomGenerator
     /// Generates a random boolean value
     /// </summary>
     /// <returns>The generated value</returns>
-    public static bool NextBool() 
+    public static bool NextBool()
         => NextInt(0, 1) == 1;
 }
 

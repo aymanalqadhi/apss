@@ -1,10 +1,8 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Entities.Validators;
 using APSS.Tests.Utils;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using FluentValidation.TestHelper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -12,10 +10,10 @@ namespace APSS.Tests.Domain.Entities.Validators;
 public class VoluntaryValidatorTests
 {
     #region Private fields
-    
+
     private readonly VoluntaryValidator _validator = new();
 
-    #endregion
+    #endregion Private fields
 
     #region Tests
 
@@ -34,7 +32,7 @@ public class VoluntaryValidatorTests
     [TestMethod]
     public void ValidateVoluntaryShouldFail()
     {
-        var voluntary = new Voluntary 
+        var voluntary = new Voluntary
         {
             Name = "",
             Field = "",
@@ -46,5 +44,5 @@ public class VoluntaryValidatorTests
         result.ShouldHaveValidationErrorFor(l => l.Field);
     }
 
-    #endregion
+    #endregion Tests
 }

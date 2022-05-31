@@ -11,7 +11,7 @@ public sealed class DatabaseLogsService : ILogsService
 
     private readonly IUnitOfWork _uow;
 
-    #endregion
+    #endregion Private fields
 
     #region Constructors
 
@@ -24,7 +24,7 @@ public sealed class DatabaseLogsService : ILogsService
         _uow = uow;
     }
 
-    #endregion
+    #endregion Constructors
 
     #region Public methods
 
@@ -58,7 +58,7 @@ public sealed class DatabaseLogsService : ILogsService
             await using var tx = await _uow.BeginTransactionAsync();
 
             log.Tags = await PrepareTags(tags).ToListAsync();
-            
+
             _uow.Logs.Add(log);
             await _uow.CommitAsync(tx);
         }
@@ -67,7 +67,7 @@ public sealed class DatabaseLogsService : ILogsService
             _uow.Logs.Add(log);
             await _uow.CommitAsync();
         }
-     
+
         return log;
     }
 
@@ -94,7 +94,7 @@ public sealed class DatabaseLogsService : ILogsService
     public Task<Log> LogFatalAsync(string message, params string[] tags)
         => LogAsync(LogSeverity.Fatal, message, tags);
 
-    #endregion
+    #endregion Public methods
 
     #region Private methods
 
@@ -128,5 +128,5 @@ public sealed class DatabaseLogsService : ILogsService
         }
     }
 
-    #endregion
+    #endregion Private methods
 }

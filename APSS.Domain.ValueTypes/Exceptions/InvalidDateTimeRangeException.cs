@@ -7,7 +7,7 @@ public class InvalidDateTimeRangeException : Exception
     private readonly DateTime _start;
     private readonly DateTime _end;
 
-    #endregion
+    #endregion Private fields
 
     #region Constructors
 
@@ -23,7 +23,7 @@ public class InvalidDateTimeRangeException : Exception
         _end = end;
     }
 
-    #endregion
+    #endregion Constructors
 
     #region Public properties
 
@@ -37,5 +37,5 @@ public class InvalidDateTimeRangeException : Exception
     /// </summary>
     public DateTime End => _end;
 
-    #endregion
+    #endregion Public properties
 }
