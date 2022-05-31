@@ -2,7 +2,7 @@
 
 namespace APSS.Domain.Repositories;
 
-public interface IUnitOfWork
+public interface IUnitOfWork : IDisposable, IAsyncDisposable
 {
     #region Properties
 
