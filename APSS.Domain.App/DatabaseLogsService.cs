@@ -29,17 +29,16 @@ public sealed class DatabaseLogsService : ILogsService
     #region Public methods
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<Log> GetLogsAsync(params string[] tags)
-        => BuildLogsQuery(tags).AsAsyncEnumerable();
+    public IQueryBuilder<Log> GetLogsAsync(params string[] tags)
+        => BuildLogsQuery(tags);
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<Log> GetLogsAsync(DateTimeRange range, params string[] tags)
+    public IQueryBuilder<Log> GetLogsAsync(DateTimeRange range, params string[] tags)
     {
         var query = BuildLogsQuery(tags);
 
         return query
-            .Where(l => l.CreatedAt >= range.Start && l.CreatedAt <= range.End)
-            .AsAsyncEnumerable();
+            .Where(l => l.CreatedAt >= range.Start && l.CreatedAt <= range.End);
     }
 
     /// <inheritdoc/>
