@@ -13,8 +13,7 @@ public class QueryBuilderTests
     [TestMethod]
     public void FirstShouldSucceed()
     {
-        using var ctx = TestDbContext.Create();
-        using var uow = new ApssUnitOfWork(ctx);
+        using var uow = TestUnitOfWork.Create();
 
         var logs = new[]
         {
@@ -42,8 +41,7 @@ public class QueryBuilderTests
     [TestMethod]
     public void FirstShouldFail()
     {
-        using var ctx = TestDbContext.Create();
-        using var uow = new ApssUnitOfWork(ctx);
+        using var uow = TestUnitOfWork.Create();
 
         var exception = Assert.ThrowsException<AggregateException>(() =>
         {
@@ -66,8 +64,7 @@ public class QueryBuilderTests
     [TestMethod]
     public void CountShouldSucceed()
     {
-        using var ctx = TestDbContext.Create();
-        using var uow = new ApssUnitOfWork(ctx);
+        using var uow = TestUnitOfWork.Create();
 
         var logs = Enumerable
             .Range(0, RandomGenerator.NextInt(0, 100))
@@ -87,8 +84,7 @@ public class QueryBuilderTests
     [TestMethod]
     public void HasItemsShouldSucceed()
     {
-        using var ctx = TestDbContext.Create();
-        using var uow = new ApssUnitOfWork(ctx);
+        using var uow = TestUnitOfWork.Create();
 
         Assert.IsFalse(uow.Logs.Query().HasItemsAsync().Result);
 
@@ -102,8 +98,7 @@ public class QueryBuilderTests
     [TestMethod]
     public void AnyShouldSucceed()
     {
-        using var ctx = TestDbContext.Create();
-        using var uow = new ApssUnitOfWork(ctx);
+        using var uow = TestUnitOfWork.Create();
 
         var log = ValidEntitiesFactory.CreateValidLog();
 
@@ -118,8 +113,7 @@ public class QueryBuilderTests
     [TestMethod]
     public void AllShouldSucceed()
     {
-        using var ctx = TestDbContext.Create();
-        using var uow = new ApssUnitOfWork(ctx);
+        using var uow = TestUnitOfWork.Create();
 
         var logs = Enumerable
             .Range(0, RandomGenerator.NextInt(0, 200))
