@@ -34,6 +34,29 @@ public interface IQueryBuilder<T> where T : AuditableEntity
     IQueryBuilder<T> Where(Expression<Func<T, bool>> pred);
 
     /// <summary>
+    /// Takes the first <see cref="count"/> items
+    /// </summary>
+    /// <param name="count">The number of items to take</param>
+    /// <returns>The modified query builder</returns>
+    IQueryBuilder<T> Take(int count);
+
+    /// <summary>
+    /// Skips the first <see cref="count"/> items
+    /// </summary>
+    /// <param name="count">The number of items to skip</param>
+    /// <returns>The modified query builder</returns>
+    IQueryBuilder<T> Skip(int count);
+
+    /// <summary>
+    /// Fetches the page with index <see cref="page"/> and size <see cref="pageSize"/>
+    /// </summary>
+    /// <param name="page">The index of the page (starts at 1)</param>
+    /// <param name="pageLength">The length of the page</param>
+    /// <returns>The modified query builder</returns>
+    /// <exception cref="Exceptions.InvalidPaginationParametersException"></exception>
+    IQueryBuilder<T> Page(int page, int pageLength);
+
+    /// <summary>
     /// Asynchronously gets the first item in the query. Throws an exception if
     /// no items were found
     /// </summary>
