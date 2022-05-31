@@ -60,6 +60,8 @@ public class QueryBuilderTests
         {
             uow.Logs.Query().FirstAsync(l => l.Id == log.Id + 1).Wait();
         });
+
+        Assert.AreEqual(uow.Logs.Query().FirstAsync(l => l.Id == log.Id).Result.Id, log.Id);
         Assert.IsInstanceOfType(exception.InnerException, typeof(InvalidOperationException));
     }
 
@@ -94,7 +96,7 @@ public class QueryBuilderTests
         uow.Logs.Add(log);
 
         Assert.AreEqual(1, uow.Commit());
-        Assert.IsFalse(uow.Logs.Query().HasItemsAsync().Result);
+        Assert.IsTrue(uow.Logs.Query().HasItemsAsync().Result);
     }
 
     [TestMethod]
