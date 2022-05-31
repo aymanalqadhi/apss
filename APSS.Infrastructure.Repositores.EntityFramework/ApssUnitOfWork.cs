@@ -139,7 +139,7 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
 
     /// <inheritdoc/>
     public async Task<int> CommitAsync(
-        IDatabaseTransaction transaction,
+        IAsyncDatabaseTransaction transaction,
         CancellationToken cancellationToken = default)
     {
         var ret = await CommitAsync(cancellationToken);
@@ -150,8 +150,8 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     }
 
     /// <inheritdoc/>
-    public async Task<IDatabaseTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
-        => new DatabaseTransaction(await _ctx.Database.BeginTransactionAsync(cancellationToken));
+    public async Task<IAsyncDatabaseTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        => new AsyncDatabaseTransaction(await _ctx.Database.BeginTransactionAsync(cancellationToken));
 
     /// <inheritdoc/>
     public void Dispose()

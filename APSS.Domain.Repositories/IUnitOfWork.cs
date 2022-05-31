@@ -163,14 +163,14 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     /// </summary>
     /// <param name="cancellationToken">The task cancellation token</param>
     /// <returns>The affected records count</returns>
-    Task<int> CommitAsync(IDatabaseTransaction transaction, CancellationToken cancellationToken = default);
+    Task<int> CommitAsync(IAsyncDatabaseTransaction transaction, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Asynchronously begins a transaction
     /// </summary>
     /// <param name="cancellationToken">The task cancellation token</param>
     /// <returns></returns>
-    Task<IDatabaseTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+    Task<IAsyncDatabaseTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 
     #endregion Methods
 }
