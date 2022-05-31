@@ -1,4 +1,5 @@
 ﻿using APSS.Infrastructure.Repositores.EntityFramework;
+using APSS.Tests.Utils;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -14,7 +15,7 @@ public static class TestDbContext
     public static ApssDbContext Create()
     {
         var options = new DbContextOptionsBuilder<ApssDbContext>()
-            .UseInMemoryDatabase("test_apss_db")
+            .UseInMemoryDatabase($"test_apss_db_{RandomGenerator.NextString(16)}")
             .ConfigureWarnings((o) => o.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 
