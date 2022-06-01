@@ -86,7 +86,7 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
 
         _query = _query
             .Skip((page - 1) * pageSize)
-            .Take(page * pageSize);
+            .Take(pageSize);
 
         return this;
     }
