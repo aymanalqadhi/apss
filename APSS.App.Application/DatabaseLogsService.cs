@@ -110,8 +110,6 @@ public sealed class DatabaseLogsService : ILogsService
 
     private async IAsyncEnumerable<LogTag> PrepareTags(params string[] tags)
     {
-        var ret = new List<LogTag>();
-
         foreach (var tag in tags)
         {
             var tagObject = await _uow.LogTags
