@@ -78,12 +78,7 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
         return this;
     }
 
-    /// <summary>
-    /// Fetches the page with index <see cref="page"/> and size <see cref="pageSize"/>
-    /// </summary>
-    /// <param name="page">The index of the page</param>
-    /// <param name="pageSize">The size of the page</param>
-    /// <returns>The modified query builder</returns>
+    /// <inheritdoc/>
     public IQueryBuilder<T> Page(int page, int pageSize)
     {
         if (page <= 0 || pageSize <= 0)
