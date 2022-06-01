@@ -102,7 +102,7 @@ public sealed class DatabaseLogsService : ILogsService
         if (tags.Length == 0)
             return query;
 
-        return query.Where(l => l.Tags.Any(t => tags.Contains(t.Value)));
+        return query.Where(l => l.Tags.All(t => tags.Contains(t.Value)));
     }
 
     private async IAsyncEnumerable<LogTag> PrepareTags(params string[] tags)
