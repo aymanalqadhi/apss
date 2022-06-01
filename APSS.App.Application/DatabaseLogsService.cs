@@ -71,9 +71,6 @@ public sealed class DatabaseLogsService : ILogsService
         return log;
     }
 
-    public IAsyncEnumerable<LogTag> GetTagsAsync()
-        => _uow.LogTags.Query().AsAsyncEnumerable();
-
     /// <inheritdoc/>
     public Task<Log> LogDebugAsync(string message, params string[] tags)
         => LogAsync(LogSeverity.Debug, message, tags);
