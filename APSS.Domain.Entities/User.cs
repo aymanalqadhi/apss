@@ -63,7 +63,7 @@ public enum AccessLevel : int
 {
     Root = 0,
     Presedint = 1,
-    City = 2,
+    Governorate = 2,
     Directorate = 3,
     District = 4,
     Village = 5,
