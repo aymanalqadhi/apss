@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\APSS.Domain.Repositories.Extensions\APSS.Domain.Repositories.Extensions.csproj" />
     <ProjectReference Include="..\APSS.Domain.Repositories\APSS.Domain.Repositories.csproj" />
     <ProjectReference Include="..\APSS.Domain.Services\APSS.Domain.Services.csproj" />
   </ItemGroup>
