@@ -2,11 +2,11 @@
 
 namespace APSS.Domain.Services.Exceptions;
 
-public sealed class UnsufficientPermissionException : Exception
+public sealed class InsufficientPermissionsException : Exception
 {
     #region Fields
 
-    private readonly User _user;
+    private readonly long _userId;
 
     #endregion Fields
 
@@ -15,12 +15,12 @@ public sealed class UnsufficientPermissionException : Exception
     /// <summary>
     /// Default constructor
     /// </summary>
-    /// <param name="user">The user who lacks permissions</param>
+    /// <param name="userId">The id of the user who lacks permissions</param>
     /// <param name="message">An optional message to clarify the error</param>
-    public UnsufficientPermissionException(User user, string? message)
+    public InsufficientPermissionsException(long userId, string? message)
         : base(message)
     {
-        _user = user;
+        _userId = userId;
     }
 
     #endregion Public Constructors
@@ -28,9 +28,9 @@ public sealed class UnsufficientPermissionException : Exception
     #region Properties
 
     /// <summary>
-    /// Gets the user who lacks sufficient permissions
+    /// Gets the id of the user who lacks sufficient permissions
     /// </summary>
-    public User User => _user;
+    public long UserId => _userId;
 
     #endregion Properties
 }
