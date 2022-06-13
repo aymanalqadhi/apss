@@ -8,7 +8,7 @@ public sealed class PermissionInheritance : AuditableEntity
     /// <summary>
     /// Gets or sets the inherited permissions
     /// </summary>
-    public InheritedPermissionType Permissions { get; set; }
+    public PermissionType Permissions { get; set; }
 
     /// <summary>
     /// Gets or set the user whose permissions inherited from
@@ -30,7 +30,7 @@ public sealed class PermissionInheritance : AuditableEntity
 /// An enum to represent the possible permissions to inherit
 /// </summary>
 [Flags]
-public enum InheritedPermissionType
+public enum PermissionType
 {
     None = 0,
     Read = 1,
