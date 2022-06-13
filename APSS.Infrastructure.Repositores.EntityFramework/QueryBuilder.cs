@@ -93,14 +93,30 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
 
     /// <inheritdoc/>
     public Task<T> FirstAsync(CancellationToken cancellationToken = default)
-        => _query.FirstAsync(cancellationToken);
+    {
+        try
+        {
+            return _query.FirstAsync(cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new NotFoundException(ex.Message, ex);
+        }
+    }
 
     /// <inheritdoc/>
     public Task<T> FirstAsync(
         Expression<Func<T, bool>> pred,
         CancellationToken cancellationToken = default)
     {
-        return _query.FirstAsync(pred, cancellationToken);
+        try
+        {
+            return _query.FirstAsync(pred, cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new NotFoundException(ex.Message, ex);
+        }
     }
 
     /// <inheritdoc/>
