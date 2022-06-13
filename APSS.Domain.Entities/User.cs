@@ -46,6 +46,11 @@ public sealed class User : AuditableEntity
     public AccessLevel AccessLevel { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the user is active or not
+    /// </summary>
+    public bool IsActive { get; set; } = false;
+
+    /// <summary>
     /// Gets or sets the supervisor
     /// </summary>
     public User? SupervisedBy { get; set; }
