@@ -6,6 +6,11 @@
 public sealed class PermissionInheritance : AuditableEntity
 {
     /// <summary>
+    /// Gets or sets the inherited permissions
+    /// </summary>
+    public InheritedPermissionType Permissions { get; set; }
+
+    /// <summary>
     /// Gets or set the user whose permissions inherited from
     /// </summary>
     public User From { get; set; } = null!;
@@ -19,4 +24,17 @@ public sealed class PermissionInheritance : AuditableEntity
     /// Gets or sets the time validity of the permission inherited
     /// </summary>
     public DateTime ValidUntil { get; set; }
+}
+
+/// <summary>
+/// An enum to represent the possible permissions to inherit
+/// </summary>
+[Flags]
+public enum InheritedPermissionType
+{
+    None = 0,
+    Read = 1,
+    Delete = 2,
+    Update = 4,
+    Create = 8,
 }
