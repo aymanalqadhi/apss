@@ -15,8 +15,6 @@ public sealed class PopulationService :IPopulationService
     #endregion
 
     #region Public Constructors
-
-
     public PopulationService(IUnitOfWork uow,IPermissionsService permissions)
     {
         _uow = uow;
@@ -25,16 +23,19 @@ public sealed class PopulationService :IPopulationService
     #endregion
 
     #region Public Methods
-    public  async Task<Family> AddFamily(string name, long userid, string livinglocation)
+
+    ///<inheritdoc/>
+    public  async Task<Family> AddFamilyAsync(string name, long userid, string livinglocation)
     {
+        var user = await _uow.Users.Query().FindAsync(userid);
         var family = new Family
         {
             Name = name,
             LivingLocation = livinglocation,
+            AddedBy=user,
         };
 
-        var user = await _uow.Users.Query().FindAsync(userid);
-        if ((int)user.AccessLevel <= 6)
+        if ((int)user.AccessLevel == 6)
         {
             _uow.Families.Add(family);
             await _uow.CommitAsync();
@@ -50,93 +51,286 @@ public sealed class PopulationService :IPopulationService
         return family;
     }
 
-    public Task<Individual> AddIndividual(long userId, string name, string address, IndividualSex sex, DateTime DateOfBirth, string job, string NationalId, SocialStatus socialstatus)
+
+    ///<inheritdoc/>
+    public async Task<Individual> AddIndividualAsync(long userId, string name, string address, IndividualSex sex, DateTime DateOfBirth, string job, string NationalId, SocialStatus socialstatus)
     {
-        throw new NotImplementedException();
+        var user = await _uow.Users.Query().FindAsync(userId);
+        var individual = new Individual
+        {
+            Name = name,
+            Address = address,
+            Sex = sex,
+            DateOfBirth = DateOfBirth,
+            Job = job,
+            NationalId = NationalId,
+            AddedBy = user
+        };
+
+        if ((int)user.AccessLevel != 6)
+        {
+            throw new InsufficientPermissionsException(
+                userId,
+                $"user {userId} does not have a permission to Add new Individual ");
+        }
+
+        _uow.Individuals.Add(individual);
+        await _uow.CommitAsync();
+
+        return individual;
+
     }
 
-    public Task<Skill> Addskill(long IndividualId, string name, string description, string Field)
+
+    ///<inheritdoc/>
+    public async Task<Skill> AddskillAsync(long IndividualId, long userId, string name, string description, string field)
     {
-        throw new NotImplementedException();
+
+        if (!await _permissionsSvc.IsSuperOfIndividualAsync(userId, IndividualId))
+        {
+            throw new InsufficientPermissionsException(
+              userId,
+              $"user {userId} does not have a permission to Add skill for Individual ");
+        }
+        var skill = new Skill
+        {
+            Name = name,
+            Description = description,
+            Field = field,
+        };
+
+        var individual = await _uow.Individuals.Query().FindAsync(IndividualId);
+            skill.BelongsTo = individual;
+            _uow.Skills.Add(skill);
+            await _uow.CommitAsync();
+   
+     return skill;
     }
 
-    public Task<Voluntary> AddVoluntary(long IndividualId, string name, string Field)
+    ///<inheritdoc/>
+    public async Task<Voluntary> AddVoluntaryAsync(long IndividualId,long userId, string name, string field)
     {
-        throw new NotImplementedException();
+        var voluntary = new Voluntary
+        {
+            Name=name,
+            Field = field,
+        };
+
+        if (!await _permissionsSvc.IsSuperOfIndividualAsync(userId, IndividualId))
+        {
+            throw new InsufficientPermissionsException(
+                IndividualId,
+                $"user {userId} does not have a permission to edite on  Individual{IndividualId} ");
+        }
+        else
+        {
+            var individual = await _uow.Individuals.Query().FindAsync(IndividualId);
+            voluntary.OfferedBy = individual;
+            _uow.Volantaries.Add(voluntary);
+            await _uow.CommitAsync();
+        }
+        return voluntary;
     }
 
-    public Task<Family> DeleteFamily(long Id)
+ 
+///<inheritdoc/>
+    public async Task<Family> DeleteFamilyAsync(long familyId, long userId)
     {
-        throw new NotImplementedException();
+        var family = await _uow.Families.Query().FindAsync(familyId);
+        if (! await _permissionsSvc.IsSuperOfFamilyAsync(userId, familyId))
+        {
+            throw new InsufficientPermissionsException(
+             familyId,
+             $"user {userId} does not have a permission to delete on the Family {familyId}");
+        }
+
+        _uow.Families.Remove(family);
+            await _uow.CommitAsync();
+
+        return family;
     }
 
-    public Task<Individual> DeleteIndividual(long Id)
+
+    ///<inheritdoc/>
+    public async Task<Individual> DeleteIndividualAsync(long individualId, long userId)
     {
-        throw new NotImplementedException();
+        var individual = await _uow.Individuals.Query().FindAsync(individualId);
+        if (!await _permissionsSvc.IsSuperOfIndividualAsync(userId, individualId))
+        
+        {
+            throw new InsufficientPermissionsException(
+             individualId,
+             $"user {userId} does not have a permission to delete on the Individual {individualId}");
+        }
+
+        _uow.Individuals.Remove(individual);
+            await _uow.CommitAsync();
+
+        return individual;
     }
 
-    public Task DeleteIndividualFamily(long individualId)
+    ///<inheritdoc/>
+    public async Task<FamilyIndividual> DeleteIndividualFamilyAsync(long familyIndividualId, long userId)
     {
-        throw new NotImplementedException();
+        var individualoffamily = await _uow.FamilyIndividuals.Query().Include(f=>f.Family).FindAsync(familyIndividualId);
+        if (!await _permissionsSvc.IsSuperOfFamilyAsync(userId,individualoffamily.Family.Id))
+        {
+            throw new InsufficientPermissionsException(
+             familyIndividualId,
+             $"user {userId} does not have a permission to delete on the family's Individual {familyIndividualId}");
+        }
+
+        _uow.FamilyIndividuals.Remove(individualoffamily);
+            await _uow.CommitAsync();
+
+        return individualoffamily;
     }
 
-    public Task<Skill> Deleteskill(long skillId)
+    ///<inheritdoc/>
+    public async Task<Skill> DeleteskillAsync(long skillId, long userId)
     {
-        throw new NotImplementedException();
+        var skill = await _uow.Skills.Query().Include(s => s.BelongsTo).FindAsync(skillId);
+        if(!await _permissionsSvc.IsSuperOfIndividualAsync(userId, skill.BelongsTo.Id))
+        {
+            throw new InsufficientPermissionsException(
+            skill.BelongsTo.Id,
+             $"user {userId} does not have a permission to delete on the skill of Individual {skill.BelongsTo.Id}");
+        }
+
+        _uow.Skills.Remove(skill);
+            await _uow.CommitAsync();
+       
+        return skill;
     }
 
-    public Task<Voluntary> DeleteVoluntary(long id)
+    ///<inheritdoc/>
+    public async Task<Voluntary> DeleteVoluntaryAsync(long voluntaryId, long userId)
     {
-        throw new NotImplementedException();
+        var voluntary = await _uow.Volantaries.Query().Include(v => v.OfferedBy).FindAsync(voluntaryId);
+        if (await _permissionsSvc.IsSuperOfIndividualAsync(userId, voluntary.OfferedBy.Id))
+        {
+            throw new InsufficientPermissionsException(
+            voluntary.OfferedBy.Id,
+             $"user {userId} does not have a permission to delete on the Individual {voluntary.OfferedBy.Id}");
+        }
+
+        _uow.Volantaries.Remove(voluntary);
+        await _uow.CommitAsync();
+        
+        return voluntary;
     }
 
-    public IQueryBuilder<Family> GetFamily()
-         => _uow.Families.Query();
+    ///<inheritdoc/>
+    public IQueryBuilder<Family> GetFamily(long userid)
+        => _uow.Families.Query().Where(f => f.AddedBy.Id == userid);
 
-    /// <inheritdoc/>
-    public IQueryBuilder<FamilyIndividual> GetFamilyIndividuals(long FamilyId)
+    ///<inheritdoc/>
+    public IQueryBuilder<FamilyIndividual> GetFamilyIndividuals(long userid, long FamilyId)
+        =>  _uow.FamilyIndividuals.Query().Where(fi => fi.Family.Id==FamilyId);
+ 
+
+    ///<inheritdoc/>
+    public  IQueryBuilder<Individual> GetIndividual(long userId)
+    => _uow.Individuals.Query().Where(i => i.AddedBy.Id == userId);    
+
+
+    ///<inheritdoc/>
+    public async Task<FamilyIndividual> IndividualOfFamilyAsync(long IndividualId, long FamilyId, bool isparent, bool isprovider)
     {
-        var familyindivdual = _uow.FamilyIndividuals.Query();
+        var individual =await _uow.Individuals.Query().FindAsync(IndividualId);
+        var family = await _uow.Families.Query().FindAsync(FamilyId);
 
-        return familyindivdual.Where(fi => fi.Family.Id == FamilyId);
+        var familyhas = new FamilyIndividual
+        {
+            Individual = individual,
+            Family = family,
+            IsParent = isparent,
+            IsProvider = isprovider,
+        };
+
+        return familyhas;
     }
 
-    /// <inheritdoc/>
-    public IQueryBuilder<Individual> GetIndividual()
-    => _uow.Individuals.Query();
 
-
-
-    public Task<FamilyIndividual> IndividualOfFamily(long IndividualId, long FamilyId, bool isParent, bool isprovider)
+    ///<inheritdoc/>
+    public async Task<Family> UpdateFamilyAsync(Family family, long userId)
     {
-        throw new NotImplementedException();
+        if(!await _permissionsSvc.IsSuperOfFamilyAsync(family.Id, userId))
+        {
+            throw new InsufficientPermissionsException(
+                 userId,
+                 $"user {userId} does not have a permission to update Family #{family.Id}");
+        }
+
+        _uow.Families.Update(family);
+        await _uow.CommitAsync();
+
+        return family;
     }
 
-    public Task<Family> UpdateFamily(long id)
+    ///<inheritdoc/>
+    public async  Task<Individual> UpdateIndividualAsync(Individual individual, long userId)
     {
-        throw new NotImplementedException();
+        if(! await _permissionsSvc.IsSuperOfIndividualAsync(userId, individual.Id))
+        {
+            throw new InsufficientPermissionsException(
+                 userId,
+                 $"user {userId} does not have a permission to update individual #{individual.Id}");
+        }
+        _uow.Individuals.Update(individual);
+        await _uow.CommitAsync();
+
+        return individual;
     }
 
-    public Task<Individual> UpdateIndividual(long id)
+    ///<inheritdoc/>
+    public async Task<FamilyIndividual> UpdateIndividualFamilyAsync(FamilyIndividual familyindividual, long userId)
     {
-        throw new NotImplementedException();
+        if(! await _permissionsSvc.IsSuperOfFamilyAsync(userId, familyindividual.Id))
+        {
+            throw new InsufficientPermissionsException(
+                 userId,
+                 $"user {userId} does not have a permission to update Family #{familyindividual.Id}");
+        }
+
+        _uow.FamilyIndividuals.Update(familyindividual);
+        await _uow.CommitAsync();
+
+        return familyindividual;
+       
     }
 
-    public Task UpdateIndividualFamily(long famlyId)
+    ///<inheritdoc/>
+    public async Task<Skill> UpdateskillAsync(Skill skill, long userId)
     {
-        throw new NotImplementedException();
+        if (!await _permissionsSvc.IsSuperOfIndividualAsync(userId, skill.BelongsTo.Id))
+        {
+            throw new InsufficientPermissionsException(
+                 userId,
+                 $"user {userId} does not have a permission to update skill of individual #{skill.BelongsTo.Id}");
+        }
+
+        _uow.Skills.Update(skill);
+        await _uow.CommitAsync();
+
+        return skill;
     }
 
-    public Task<Skill> Updateskill(long skillId)
+    ///<inheritdoc/>
+    public async Task<Voluntary> UpdateVoluntaryAsync(Voluntary voluntary, long userId)
     {
-        throw new NotImplementedException();
-    }
+        if (!await _permissionsSvc.IsSuperOfIndividualAsync(userId, voluntary.OfferedBy.Id))
+        {
+            throw new InsufficientPermissionsException(
+                 userId,
+                 $"user {userId} does not have a permission to update individual Voluntary #{voluntary.OfferedBy.Id}");
+        }
 
-    public Task<Voluntary> UpdateVoluntary(long id)
-    {
-        throw new NotImplementedException();
-    }
+        _uow.Volantaries.Update(voluntary);
+        await _uow.CommitAsync();
 
+        return voluntary;
+    }
     #endregion
 
 }
