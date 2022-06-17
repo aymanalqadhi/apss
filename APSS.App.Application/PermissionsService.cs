@@ -95,9 +95,34 @@ public sealed class PermissionsService : IPermissionsService
     public async Task<bool> IsDirectSuperuserOfAsync(long superuserId, long subuserId)
         => await GetSubuserDistanceAsync(superuserId, subuserId) == 0;
 
-    /// <inheritdoc/>
+   /// <inheritdoc/>
     public async Task<bool> IsSuperuserOfAsync(long superuserId, long subuserId)
         => await GetSubuserDistanceAsync(superuserId, subuserId) >= 0;
+
+
+    /// <inheritdoc/>
+    public async Task<bool> IsSuperOfIndividualAsync(long superuserId, long individualId)
+    {
+
+        var individual=await _uow.Individuals.Query().Include(i=>i.AddedBy).FindAsync(individualId);
+
+        if(individual.AddedBy.Id==superuserId || await HasRootAccessAsync(superuserId))
+            return true;
+
+        return false;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> IsSuperOfFamilyAsync(long superuserId, long FamilyId)
+    {
+        var family = await _uow.Families.Query().Include(f => f.AddedBy).FindAsync(FamilyId);
+
+        if (family.AddedBy.Id == superuserId||await HasRootAccessAsync(superuserId))
+            return true;
+
+        return false;
+    }
+
 
     #endregion Public Methods
 
@@ -128,6 +153,7 @@ public sealed class PermissionsService : IPermissionsService
                 .FindAsync(subuser.SupervisedBy.Id);
         }
     }
+
 
     #endregion Private Methods
 }
