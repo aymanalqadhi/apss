@@ -86,5 +86,51 @@ public interface ILandService
     /// <returns></returns>
     Task<LandProduct> DeleteLandProductAsynic(long userId, long landProductId);
 
+    /// <summary>
+    ///  Asynchronously adds a new land product
+    /// </summary>
+    /// <param name="userId">The id of the user who adds the product</param>
+    /// <param name="quantity">The quantity of the product</param>
+    /// <param name="irrigationCount">The count of irrigations</param>
+    /// <param name="irrigationWaterSource">The suorce of the irrigation water </param>
+    /// <param name="irrigationPowerSource">The power of the irrigation source</param>
+    /// <param name="isGovernmentFunded">whether the land is funded by government or not</param>
+    /// <returns></returns>
+    Task<LandProduct> AddLandProductAsync(
+        long userId,
+        double quantity,
+        double irrigationCount,
+        IrrigationWaterSource irrigationWaterSource,
+        IrrigationPowerSource irrigationPowerSource,
+        bool isGovernmentFunded
+        );
+
+    /// <summary>
+    ///  Asynchronously adds a new Season
+    /// </summary>
+    /// <param name="userId">The id of the user who adds the Season</param>
+    /// <param name="name">The name of the season</param>
+    /// <param name="startsAt">The starting date of the season</param>
+    /// <param name="endsAt">The end date of the season</param>
+    /// <returns></returns>
+    Task<Season> AddSeasonAsync(
+        long userId,
+        string name,
+        DateTime startsAt,
+        DateTime endsAt
+        );
+
+    /// <summary>
+    ///  Asynchronously deletes the chosen season
+    /// </summary>
+    /// <param name="userId">The id of the user who deletes the season</param>
+    /// <param name="seasonId">The id of the season</param>
+    /// <returns></returns>
+    Task<Season> DeleteSeasonAsync(
+        long userId,
+        long seasonId
+
+        );
+
     #endregion Public Methods
 }
