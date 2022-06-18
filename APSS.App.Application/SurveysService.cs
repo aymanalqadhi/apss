@@ -88,44 +88,77 @@ public sealed class SurveysService : ISurveysService
     }
 
     /// <inheritdoc/>
-    public Task<TextQuestionAnswer> AnswerTextQuestionAsync(
+    public async Task<TextQuestionAnswer> AnswerTextQuestionAsync(
         long userId,
         long entryId,
         long questionId,
         string? answer)
     {
-        throw new NotImplementedException();
+        //var entry = await GetSurveyEntries(userId).FindAsync(entryId);
+        //var question = await _uow..Que
+        //    .Where(t => t.)
     }
 
     /// <inheritdoc/>
-    public Task<Survey> CreateSurveyAsync(long userId, string name, DateTime expiresAt)
+    public async Task<Survey> CreateSurveyAsync(long userId, string name, DateTime expiresAt)
     {
-        throw new NotImplementedException();
+        var user = await _uow.Users.Query().FindAsync(userId);
+
+        if (user.AccessLevel == AccessLevel.Farmer)
+            throw new InsufficientPermissionsException(userId, $"farmer #{userId} cannot add surveys");
+
+        var survey = new Survey
+        {
+            Name = name,
+            ExpirationDate = expiresAt,
+        };
+
+        _uow.Surveys.Add(survey);
+        await _uow.CommitAsync();
+
+        return survey;
     }
 
     /// <inheritdoc/>
-    public Task<SurveyEntry> CreateSurveyEntryAsync(long userId, long surveyId)
+    public async Task<SurveyEntry> CreateSurveyEntryAsync(long userId, long surveyId)
     {
-        throw new NotImplementedException();
+        var user = await _uow.Users.Query().FindAsync(userId);
+        var survey = await GetAvailableSurveys(userId).FindAsync(surveyId);
+
+        var entry = new SurveyEntry
+        {
+            MadeBy = user,
+            Survey = survey,
+        };
+
+        _uow.SurveyEntries.Add(entry);
+        await _uow.CommitAsync();
+
+        return entry;
     }
 
     /// <inheritdoc/>
     public IQueryBuilder<Survey> GetAvailableSurveys(long userId)
     {
-        throw new NotImplementedException();
+        return _uow.Surveys
+            .Query()
+            .Where(s => s.CreatedBy.Id == userId)
+            .Where(s => s.ExpirationDate > DateTime.Now);
     }
 
     /// <inheritdoc/>
-    public Task<IQueryBuilder<Survey>> GetSurveyAsync(long userId, long surveyId)
+    public async Task<IQueryBuilder<Survey>> GetSurveyAsync(long userId, long surveyId)
     {
-        throw new NotImplementedException();
+        await GetSurveyWithAuthorizationAsync(userId, surveyId, PermissionType.Read);
+
+        return _uow.Surveys
+            .Query()
+            .Where(s => s.CreatedBy.Id == userId);
     }
 
     /// <inheritdoc/>
     public IQueryBuilder<SurveyEntry> GetSurveyEntries(long userId)
-    {
-        throw new NotImplementedException();
-    }
+        => _uow.SurveyEntries.Query().Where(e => e.MadeBy.Id == userId);
 
     /// <inheritdoc/>
     public Task<bool> IsEntryComplete(long userId, long surveyEntryId)
@@ -136,12 +169,7 @@ public sealed class SurveysService : ISurveysService
     /// <inheritdoc/>
     public async Task RemoveSurveyAsync(long userId, long surveyId)
     {
-        var survey = await _uow.Surveys
-            .Query()
-            .Include(s => s.CreatedBy)
-            .FindAsync(surveyId);
-
-        await _permissionsSvc.ValidatePermissionsAsync(userId, survey.CreatedBy.Id, survey, PermissionType.Delete);
+        var (survey, _) = await GetSurveyWithAuthorizationAsync(userId, surveyId, PermissionType.Delete);
 
         _uow.Surveys.Remove(survey);
         await _uow.CommitAsync();
@@ -150,12 +178,7 @@ public sealed class SurveysService : ISurveysService
     /// <inheritdoc/>
     public async Task<Survey> SetSurveyActiveStatusAsync(long userId, long surveyId, bool activeStatus)
     {
-        var survey = await _uow.Surveys
-            .Query()
-            .Include(s => s.CreatedBy)
-            .FindAsync(surveyId);
-
-        await _permissionsSvc.ValidatePermissionsAsync(userId, survey.CreatedBy.Id, survey, PermissionType.Update);
+        var (survey, _) = await GetSurveyWithAuthorizationAsync(userId, surveyId, PermissionType.Update);
 
         survey.IsActive = activeStatus;
 
@@ -177,4 +200,20 @@ public sealed class SurveysService : ISurveysService
     }
 
     #endregion Public Methods
+
+    #region Private Methods
+
+    private async Task<(Survey, long)> GetSurveyWithAuthorizationAsync(long userId, long surveyId, PermissionType permissions)
+    {
+        var survey = await _uow.Surveys
+            .Query()
+            .Include(s => s.CreatedBy)
+            .FindAsync(surveyId);
+
+        var id = await _permissionsSvc.ValidatePermissionsAsync(userId, survey.CreatedBy.Id, survey, permissions);
+
+        return (survey, id);
+    }
+
+    #endregion Private Methods
 }
