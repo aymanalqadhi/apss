@@ -37,6 +37,13 @@ public interface ILandService
     IQueryBuilder<Land> GetLands(long UserId);
 
     /// <summary>
+    /// Update the land
+    /// </summary>
+    /// <param name="userId">The id of the user who owns the land</param>
+    /// <returns></returns>
+    Task<Land> UpdateLand(long userId);
+
+    /// <summary>
     /// Update the land product
     /// </summary>
     /// <param name="userId">The id of the user who owns the land product</param>
