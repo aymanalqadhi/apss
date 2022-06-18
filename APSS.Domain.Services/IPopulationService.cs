@@ -10,179 +10,147 @@ public interface IPopulationService
     /// <summary>
     /// Gets a query for the individual set
     /// </summary>
-    /// <param name="userid">The id of the superuser which to get the added individual  by its</param>
+    /// <param name="userId">The id of the superuser which to get the added individual  by its</param>
     /// <returns></returns>
-    IQueryBuilder<Individual> GetIndividual(long userid);
+    IQueryBuilder<Individual> GetIndividual(long userId);
 
     /// <summary>
     /// Gets a query for the get family
     /// </summary>
-    /// <param name="userid">The id of the superuser which to get the added fammily  by its</param>
+    /// <param name="userId">The id of the superuser which to get the added fammily  by its</param>
     /// <returns></returns>
-    IQueryBuilder<Family> GetFamily(long userid);
+    IQueryBuilder<Family> GetFamily(long userId);
 
     /// <summary>
     /// Gets a query for the get individuals of family
     /// </summary>
-    /// <param name="userid">The id of the superuser which to get the added fammily  by its</param>
-    /// <param name="FamilyId">The id of the family which to get the individuals for </param>
+    /// <param name="userId">The id of the superuser which to get the added fammily  by its</param>
+    /// <param name="familyId">The id of the family which to get the individuals for </param>
     /// <returns></returns>
-    IQueryBuilder<FamilyIndividual> GetFamilyIndividuals(long userid,long FamilyId);
+    IQueryBuilder<FamilyIndividual> GetFamilyIndividuals(long userId, long familyId);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="userId"></param>
+    /// <param name="familyId"></param>
     /// <param name="name"></param>
     /// <param name="address"></param>
     /// <param name="sex"></param>
     /// <param name="DateOfBirth"></param>
-    /// <param name="job"></param>
-    /// <param name="NationalId"></param>
-    /// <param name="socialstatus"></param>
     /// <returns></returns>
     Task<Individual> AddIndividualAsync(
-        long userId, string name, string address,
+        long userId,
+        long familyId,
+        string name,
+        string address,
         IndividualSex sex,
-        DateTime DateOfBirth,
-        string job,
-        string NationalId,
-        SocialStatus socialstatus);
+        bool isParent = false,
+        bool isProvider = false
+    );
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="individual"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<Individual> UpdateIndividualAsync(Individual individual,long userId);
-
-   /// <summary>
-   /// 
-   /// </summary>
-   /// <param name="individualId"></param>
-   /// <param name="userId"></param>
-   /// <returns></returns>
-    Task<Individual> DeleteIndividualAsync(long individualId,long userId);
+    Task<Individual> UpdateIndividualAsync(long userId, Individual individual);
 
     /// <summary>
-    /// 
+    ///
+    /// </summary>
+    /// <param name="individualId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<Individual> DeleteIndividualAsync(long userId, long individualId);
+
+    /// <summary>
+    ///
     /// </summary>
     /// <param name="name"></param>
     /// <param name="userid"></param>
     /// <param name="LivingLocation"></param>
     /// <returns></returns>
-    Task<Family> AddFamilyAsync(string name, long userid, string livinglocation);
+    Task<Family> AddFamilyAsync(long userid, string name, string livingLocation);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="family"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<Family> UpdateFamilyAsync(Family family, long userId);
-
-   /// <summary>
-   /// 
-   /// </summary>
-   /// <param name="familyId"></param>
-   /// <param name="userId"></param>
-   /// <returns></returns>
-    Task<Family> DeleteFamilyAsync(long familyId, long userId);
+    Task<Family> UpdateFamilyAsync(long userId, Family family);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    /// <param name="IndividualId"></param>
-    /// <param name="FamilyId"></param>
-    /// <param name="isParent"></param>
-    /// <param name="isprovider"></param>
-    /// <returns></returns>
-    Task<FamilyIndividual> IndividualOfFamilyAsync(
-        long IndividualId,
-        long FamilyId,
-        bool isParent,
-        bool isprovider);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="familyindividual"></param>
+    /// <param name="familyId"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task <FamilyIndividual>  UpdateIndividualFamilyAsync(FamilyIndividual familyindividual, long userId);
-
-   /// <summary>
-   /// 
-   /// </summary>
-   /// <param name="familyIndividualId"></param>
-   /// <param name="userId"></param>
-   /// <returns></returns>
-    Task<FamilyIndividual> DeleteIndividualFamilyAsync(long familyIndividualId, long userId);
+    Task<Family> DeleteFamilyAsync(long userId, long familyId);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    /// <param name="userid"></param>
-    /// <param name="IndividualId"></param>
+    /// <param name="userId"></param>
+    /// <param name="individualId"></param>
     /// <param name="name"></param>
     /// <param name="description"></param>
-    /// <param name="Field"></param>
+    /// <param name="field"></param>
     /// <returns></returns>
-    Task<Skill> AddskillAsync(
-        long userid,
-        long IndividualId,
+    Task<Skill> AddSkillAsync(
+        long userId,
+        long individualId,
         string name,
-        string description,
-        string Field);
-
+        string field,
+        string? description = null);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="skill"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<Skill> UpdateskillAsync(Skill skill, long userId);
+    Task<Skill> UpdateSkillAsync(long userId, Skill skill);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="skillId"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<Skill> DeleteskillAsync(long skillId, long userId);
+    Task<Skill> DeleteSkillAsync(long userId, long skillId);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="IndividualId"></param>
     /// <param name="name"></param>
-    /// <param name="Field"></param>
+    /// <param name="field"></param>
     /// <returns></returns>
     Task<Voluntary> AddVoluntaryAsync(
         long userId,
         long IndividualId,
         string name,
-        string Field);
+        string field);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="voluntary"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<Voluntary> UpdateVoluntaryAsync(Voluntary voluntary, long userId);
+    Task<Voluntary> UpdateVoluntaryAsync(long userId, Voluntary voluntary);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="voluntary"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task <Voluntary>DeleteVoluntaryAsync(long voluntary, long userId);
-   
-    #endregion
+    Task<Voluntary> DeleteVoluntaryAsync(long userId, long voluntary);
 
+    #endregion Public Methods
 }
