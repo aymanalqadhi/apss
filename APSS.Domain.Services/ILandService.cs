@@ -40,8 +40,16 @@ public interface ILandService
     /// Update the land
     /// </summary>
     /// <param name="userId">The id of the user who owns the land</param>
+    /// <param name="land">The land</param>
     /// <returns></returns>
-    Task<Land> UpdateLand(long userId);
+    Task<Land> UpdateLand(long userId, Land land);
+
+    /// <summary>
+    /// Delete the land
+    /// </summary>
+    /// <param name="userId">The id of the farmer`s superviser</param>
+    /// <returns></returns>
+    Task<Land> DeleteLandAsync(long userId);
 
     /// <summary>
     /// Update the land product
