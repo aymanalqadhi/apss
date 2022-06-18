@@ -98,6 +98,7 @@ public interface ILandService
     /// <returns></returns>
     Task<LandProduct> AddLandProductAsync(
         long userId,
+        long landProductUnitId,
         double quantity,
         double irrigationCount,
         IrrigationWaterSource irrigationWaterSource,
