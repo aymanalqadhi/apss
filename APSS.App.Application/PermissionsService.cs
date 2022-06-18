@@ -85,16 +85,26 @@ public sealed class PermissionsService : IPermissionsService
     }
 
     /// <inheritdoc/>
-    public async Task ValidatePermissionsAsync<TEntity>(
+    public async Task<long> ValidatePermissionsAsync<TEntity>(
         long userId,
         long ofUserId,
         TEntity resource,
         PermissionType permissions) where TEntity : AuditableEntity
     {
         if (await HasPermissionsOfAsync(userId, ofUserId, permissions))
-            return;
+            return ofUserId;
 
         throw new CannotAccessResouceOfException(userId, ofUserId, resource.Id, typeof(TEntity), permissions);
+    }
+
+    /// <inheritdoc/>
+    public async Task<long> ValidatePermissionsAsync(long userId, long ofUserId, PermissionType permissions)
+    {
+        if (await HasPermissionsOfAsync(userId, ofUserId, permissions))
+            return ofUserId;
+
+        throw new InsufficientExecutionStackException(
+            $"user #{userId} does not have {{ {string.Join(',', permissions.GetPermissionValues())} }} of user #{ofUserId}");
     }
 
     #endregion Public Methods
@@ -129,16 +139,6 @@ public sealed class PermissionsService : IPermissionsService
                 .Include(u => u.SupervisedBy!)
                 .FindAsync(subuser.SupervisedBy.Id);
         }
-    }
-
-    /// <inheritdoc/>
-    public async Task ValidatePermissionsAsync(long userId, long ofUserId, PermissionType permissions)
-    {
-        if (await HasPermissionsOfAsync(userId, ofUserId, permissions))
-            return;
-
-        throw new InsufficientExecutionStackException(
-            $"user #{userId} does not have {{ {string.Join(',', permissions.GetPermissionValues())} }} of user #{ofUserId}");
     }
 
     #endregion Private Methods

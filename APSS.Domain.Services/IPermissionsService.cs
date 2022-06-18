@@ -49,11 +49,11 @@ public interface IPermissionsService
     /// <param name="ofUserId">The owner of the resource</param>
     /// <param name="resource">The accessed resource</param>
     /// <param name="permissions">The required permissions</param>
-    /// <returns></returns>
+    /// <returns>The authorized user id</returns>
     /// <exception cref="CannotAccessResouceOfException">
     /// Thrown if the user has no access to the <see cref="ofUserId"/> resource
     /// </exception>
-    Task ValidatePermissionsAsync<TEntity>(
+    Task<long> ValidatePermissionsAsync<TEntity>(
         long userId,
         long ofUserId,
         TEntity resource,
@@ -65,11 +65,11 @@ public interface IPermissionsService
     /// <param name="userId">The user accessing the resources</param>
     /// <param name="ofUserId">The owner of the resource</param>
     /// <param name="permissions">The required permissions</param>
-    /// <returns></returns>
+    /// <returns>The authorized user id</returns>
     /// <exception cref="InsufficientExecutionStackException">
     /// Thrown if the user has no access to the <see cref="ofUserId"/> resource
     /// </exception>
-    Task ValidatePermissionsAsync(
+    Task<long> ValidatePermissionsAsync(
         long userId,
         long ofUserId,
         PermissionType permissions);
