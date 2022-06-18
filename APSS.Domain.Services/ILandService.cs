@@ -22,6 +22,7 @@ public interface ILandService
     /// <param name="longitude">The longitude of the land</param>
     /// <param name="latitude">The latitude of the land</param>
     /// <param name="address">The address of the land</param>
+    /// <param name="name">The name of the land</param>
     /// <param name="isUsable">Whether the land can be used or not</param>
     /// <param name="isUsed">Whether the land is currently used or not</param>
     /// <returns></returns>
@@ -31,8 +32,17 @@ public interface ILandService
         double longitude,
         double latitude,
         string address,
+        string name,
         bool isUsable = true,
         bool isUsed = false);
+
+    /// <summary>
+    /// Gets the user`s land products by land
+    /// </summary>
+    /// <param name="userId">The id of the user who owns the land</param>
+    /// <param name="landId">The id of the land</param>
+    /// <returns></returns>
+    IQueryBuilder<LandProduct> GetLandProducts(long userId, long landId);
 
     #endregion Public Methods
 }
