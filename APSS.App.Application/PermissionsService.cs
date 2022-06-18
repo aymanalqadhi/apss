@@ -131,5 +131,15 @@ public sealed class PermissionsService : IPermissionsService
         }
     }
 
+    /// <inheritdoc/>
+    public async Task ValidatePermissionsAsync(long userId, long ofUserId, PermissionType permissions)
+    {
+        if (await HasPermissionsOfAsync(userId, ofUserId, permissions))
+            return;
+
+        throw new InsufficientExecutionStackException(
+            $"user #{userId} does not have {{ {string.Join(',', permissions.GetPermissionValues())} }} of user #{ofUserId}");
+    }
+
     #endregion Private Methods
 }
