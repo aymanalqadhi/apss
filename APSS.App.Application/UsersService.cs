@@ -58,12 +58,7 @@ public sealed class UsersService : IUsersService
     /// <inheritdoc/>
     public async Task<User> UpdateUserAsync(long superuserId, User user)
     {
-        if (!await _permissionsSvc.HasWriteAccessAsync(superuserId, user.Id))
-        {
-            throw new InsufficientPermissionsException(
-                superuserId,
-                $"user {superuserId} does not have a permission to update user #{user.Id}");
-        }
+        await _permissionsSvc.ValidatePermissionsAsync(superuserId, user.Id, PermissionType.Update);
 
         _uow.Users.Update(user);
         await _uow.CommitAsync();
