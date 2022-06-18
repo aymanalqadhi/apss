@@ -8,13 +8,6 @@ public interface ILandService
     #region Public Methods
 
     /// <summary>
-    /// Gets a query for the lands set
-    /// </summary>
-    /// <param name="UserId">The id of the user witch to get the land</param>
-    /// <returns></returns>
-    IQueryBuilder<Land> GetLands(long UserId);
-
-    /// <summary>
     /// Asynchronously adds a new land
     /// </summary>
     /// <param name="userId">The id of the user who owns the land</param>
@@ -35,6 +28,21 @@ public interface ILandService
         string name,
         bool isUsable = true,
         bool isUsed = false);
+
+    /// <summary>
+    /// Gets a query for the lands set
+    /// </summary>
+    /// <param name="UserId">The id of the user witch to get the land</param>
+    /// <returns></returns>
+    IQueryBuilder<Land> GetLands(long UserId);
+
+    /// <summary>
+    /// Update the land product
+    /// </summary>
+    /// <param name="userId">The id of the user who owns the land product</param>
+    /// <param name="landProduct">The id of the land product</param>
+    /// <returns></returns>
+    Task<LandProduct> UpdateLandProductAsynic(long userId, LandProduct landProduct);
 
     /// <summary>
     /// Gets the user`s land products by land
