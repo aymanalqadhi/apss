@@ -16,6 +16,11 @@ public sealed class Survey : AuditableEntity
     public DateTime ExpirationDate { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the survey is active or not
+    /// </summary>
+    public bool IsActive { get; set; }
+
+    /// <summary>
     /// Gets or sets the user who created the survey
     /// </summary>
     public User CreatedBy { get; set; } = null!;
