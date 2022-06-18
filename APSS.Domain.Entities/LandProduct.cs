@@ -66,6 +66,16 @@ public sealed class LandProduct : Product
     public string Insecticide { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the starting date of the harvest
+    /// </summary>
+    public DateTime HarvestStart { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ending date of the harvest
+    /// </summary>
+    public DateTime HarvestEnd { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the production of this product was funded
     /// by the government
     /// </summary>
