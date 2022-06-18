@@ -8,18 +8,11 @@ public interface IPopulationService
     #region Public Methods
 
     /// <summary>
-    /// Gets a query for the individual set
-    /// </summary>
-    /// <param name="userId">The id of the superuser which to get the added individual  by its</param>
-    /// <returns></returns>
-    IQueryBuilder<Individual> GetIndividual(long userId);
-
-    /// <summary>
     /// Gets a query for the get family
     /// </summary>
     /// <param name="userId">The id of the superuser which to get the added fammily  by its</param>
     /// <returns></returns>
-    IQueryBuilder<Family> GetFamily(long userId);
+    IQueryBuilder<Family> GetFamilies(long userId);
 
     /// <summary>
     /// Gets a query for the get individuals of family
