@@ -120,7 +120,7 @@ public interface ISurveysService
     /// </summary>
     /// <param name="userId">The id of the user to get surveys for</param>
     /// <returns>A query builder with the matching surveys for the user</returns>
-    IQueryBuilder<Survey> GetAvailableSurveys(long userId);
+    Task<IQueryBuilder<Survey>> GetAvailableSurveysAsync(long userId);
 
     /// <summary>
     /// Asynchronously gets a survey by id

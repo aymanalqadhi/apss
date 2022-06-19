@@ -295,7 +295,7 @@ public sealed class SurveysService : ISurveysService
     public async Task<SurveyEntry> CreateSurveyEntryAsync(long userId, long surveyId)
     {
         var user = await _uow.Users.Query().FindAsync(userId);
-        var survey = await GetAvailableSurveys(userId).FindAsync(surveyId);
+        var survey = await (await GetAvailableSurveysAsync(userId)).FindAsync(surveyId);
 
         var entry = new SurveyEntry
         {
@@ -310,7 +310,7 @@ public sealed class SurveysService : ISurveysService
     }
 
     /// <inheritdoc/>
-    public async Task<IQueryBuilder<Survey>> GetAvailableSurveys(long userId)
+    public async Task<IQueryBuilder<Survey>> GetAvailableSurveysAsync(long userId)
     {
         var usersHierarchyIds = await _usersSvc
             .GetUserUpwardHierarchyAsync(userId)
