@@ -36,7 +36,7 @@ public interface ILandService
     /// <returns>The lands that matchs the query</returns>
     IQueryBuilder<Land> GetLands(long UserId);
 
-    IQueryBuilder<Land> GetLand(long userId, long landId);
+    Task<IQueryBuilder<Land>> GetLand(long userId, long landId);
 
     /// <summary>
     /// Update the land
@@ -52,7 +52,7 @@ public interface ILandService
     /// <param name="userId">The id of the land owner`s superviser</param>
     /// <param name="landId">The id of land</param>
     /// <returns></returns>
-    Task<Land> DeleteLandAsync(long userId, long landId);
+    Task<Land> RemoveLandAsync(long userId, long landId);
 
     /// <summary>
     /// Update the land product
@@ -84,7 +84,7 @@ public interface ILandService
     /// <param name="userId">The id of the landProduct owner`s superviser</param>
     /// <param name="landProductId">the id of the land product</param>
     /// <returns></returns>
-    Task<LandProduct> DeleteLandProductAsynic(long userId, long landProductId);
+    Task<LandProduct> RemoveLandProductAsync(long userId, long landProductId);
 
     /// <summary>
     ///  Asynchronously adds a new land product
@@ -98,6 +98,8 @@ public interface ILandService
     /// <returns></returns>
     Task<LandProduct> AddLandProductAsync(
         long userId,
+        long landId,
+        long seasonId,
         long landProductUnitId,
         double quantity,
         double irrigationCount,
@@ -127,7 +129,7 @@ public interface ILandService
     /// <param name="userId">The id of the user who deletes the season</param>
     /// <param name="seasonId">The id of the season</param>
     /// <returns></returns>
-    Task<Season> DeleteSeasonAsync(
+    Task<Season> RemoveSeasonAsync(
         long userId,
         long seasonId
 
