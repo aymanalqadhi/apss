@@ -15,6 +15,7 @@ public sealed class SurveysService : ISurveysService
 
     private readonly IUnitOfWork _uow;
     private readonly IPermissionsService _permissionsSvc;
+    private readonly IUsersService _usersSvc;
 
     #endregion Fields
 
@@ -25,10 +26,12 @@ public sealed class SurveysService : ISurveysService
     /// </summary>
     /// <param name="uow">The unit of work of the application</param>
     /// <param name="permissionsSvc">The application permissions management service</param>
-    public SurveysService(IUnitOfWork uow, IPermissionsService permissionsSvc)
+    /// <param name="usersSvc">Users managment service</param>
+    public SurveysService(IUnitOfWork uow, IPermissionsService permissionsSvc, IUsersService usersSvc)
     {
         _uow = uow;
         _permissionsSvc = permissionsSvc;
+        _usersSvc = usersSvc;
     }
 
     #endregion Public Constructors
@@ -42,11 +45,11 @@ public sealed class SurveysService : ISurveysService
         string text,
         bool isRequired)
     {
-        throw new NotImplementedException();
+        return AddQuestionAsync(_uow.LogicalQuestions, userId, surveyId, text, isRequired);
     }
 
     /// <inheritdoc/>
-    public Task<MultipleChoiceQuestion> AddMultipleChoiceQuestionAsync(
+    public async Task<MultipleChoiceQuestion> AddMultipleChoiceQuestionAsync(
         long userId,
         long surveyId,
         string text,
@@ -54,7 +57,22 @@ public sealed class SurveysService : ISurveysService
         bool canMultiSelect,
         params string[] candidateAnswers)
     {
-        throw new NotImplementedException();
+        await using var tx = await _uow.BeginTransactionAsync();
+
+        var question = await AddQuestionAsync(_uow.MultipleChoiceQuestions, userId, surveyId, text, isRequired);
+        var answers = candidateAnswers.Select(a => new MultipleChoiceAnswerItem
+        {
+            Value = a,
+        }).ToArray();
+
+        _uow.MultipleChoiceAnswerItems.Add(answers);
+        question.CandidateAnswers = answers;
+        question.CanMultiSelect = canMultiSelect;
+        _uow.MultipleChoiceQuestions.Update(question);
+
+        await _uow.CommitAsync(tx);
+
+        return question;
     }
 
     /// <inheritdoc/>
@@ -64,27 +82,142 @@ public sealed class SurveysService : ISurveysService
         string text,
         bool isRequired)
     {
-        throw new NotImplementedException();
+        return AddQuestionAsync(_uow.TextQuestions, userId, surveyId, text, isRequired);
     }
 
     /// <inheritdoc/>
-    public Task<LogicalQuestionAnswer> AnswerLogicalQuestionAsync(
+    public async Task<TQuesiton> AddQuestionAsync<TQuesiton>(
+        IRepository<TQuesiton> repo,
+        long userId,
+        long surveyId,
+        string text,
+        bool isRequired) where TQuesiton : Question, new()
+    {
+        var (survey, _) = await GetSurveyWithAuthorizationAsync(userId, surveyId, PermissionType.Create);
+        var question = new TQuesiton
+        {
+            Text = text,
+            IsRequired = isRequired,
+            Survey = survey,
+        };
+
+        repo.Add(question);
+        survey.Questions.Add(question);
+        await _uow.CommitAsync();
+
+        return question;
+    }
+
+    /// <inheritdoc/>
+    public async Task<LogicalQuestionAnswer> AnswerLogicalQuestionAsync(
         long userId,
         long entryId,
         long questionId,
         bool? answer)
     {
-        throw new NotImplementedException();
+        var entry = await GetSurveyEntries(userId)
+            .Include(e => e.Survey)
+            .FindAsync(entryId);
+
+        var question = await _uow.LogicalQuestions.Query()
+            .Where(q => q.Survey.Id == entry.Survey.Id)
+            .FindAsync(questionId);
+
+        if (question.IsRequired && answer is null)
+        {
+            throw new InvalidLogicalQuestionAnswerException(
+                questionId,
+                answer,
+                $"user #{userId} has tried to answer a required logical question #{questionId} with a null value");
+        }
+
+        var answerObj = await _uow.LogicalQuestionAnswers.Query()
+            .Where(a => a.Question.Id == questionId)
+            .FirstOrNullAsync();
+
+        if (answerObj is not null)
+        {
+            answerObj.Answer = answer;
+            _uow.LogicalQuestionAnswers.Update(answerObj);
+        }
+        else
+        {
+            answerObj = new LogicalQuestionAnswer
+            {
+                Question = question,
+                Answer = answer,
+            };
+
+            entry.Answers.Add(answerObj);
+
+            _uow.LogicalQuestionAnswers.Add(answerObj);
+            _uow.SurveyEntries.Update(entry);
+        }
+
+        await _uow.CommitAsync();
+
+        return answerObj;
     }
 
     /// <inheritdoc/>
-    public Task<MultipleChoiceQuestionAnswer> AnswerMultipleChoiceQuestionAsync(
+    public async Task<MultipleChoiceQuestionAnswer> AnswerMultipleChoiceQuestionAsync(
         long userId,
         long entryId,
         long questionId,
         params long[] answerItemsIds)
     {
-        throw new NotImplementedException();
+        var entry = await GetSurveyEntries(userId)
+            .Include(e => e.Survey)
+            .FindAsync(entryId);
+
+        var question = await _uow.MultipleChoiceQuestions.Query()
+            .Where(q => q.Survey.Id == entry.Survey.Id)
+            .FindAsync(questionId);
+
+        var answerObj = await _uow.MultipleChoiceQuestionAnswers.Query()
+            .Where(a => a.Question.Id == questionId)
+            .FirstOrNullAsync();
+
+        var answerItems = await Task.WhenAll(answerItemsIds
+            .Select(i => _uow.MultipleChoiceAnswerItems.Query().FindAsync(i)));
+
+        if (question.IsRequired && answerItems.Length == 0)
+        {
+            throw new InvalidMultipleChoiceQuestionAnswerException(
+                questionId,
+                answerItems.Select(i => i.Value),
+                $"user #{userId} has tried to answer a required multiple choice question #{questionId} with an empty value");
+        }
+        else if (!question.CanMultiSelect && answerItems.Length > 1)
+        {
+            throw new InvalidMultipleChoiceQuestionAnswerException(
+                questionId,
+                answerItems.Select(i => i.Value),
+                $"user #{userId} has tried to answer a multiple-choice question #{questionId} (no multi-select) with multiple values");
+        }
+
+        if (answerObj is not null)
+        {
+            answerObj.Answers = answerItems;
+            _uow.MultipleChoiceQuestionAnswers.Update(answerObj);
+        }
+        else
+        {
+            answerObj = new MultipleChoiceQuestionAnswer
+            {
+                Question = question,
+                Answers = answerItems,
+            };
+
+            entry.Answers.Add(answerObj);
+
+            _uow.MultipleChoiceQuestionAnswers.Add(answerObj);
+            _uow.SurveyEntries.Update(entry);
+        }
+
+        await _uow.CommitAsync();
+
+        return answerObj;
     }
 
     /// <inheritdoc/>
@@ -94,9 +227,48 @@ public sealed class SurveysService : ISurveysService
         long questionId,
         string? answer)
     {
-        //var entry = await GetSurveyEntries(userId).FindAsync(entryId);
-        //var question = await _uow..Que
-        //    .Where(t => t.)
+        var entry = await GetSurveyEntries(userId)
+            .Include(e => e.Survey)
+            .FindAsync(entryId);
+
+        var question = await _uow.TextQuestions.Query()
+            .Where(q => q.Survey.Id == entry.Survey.Id)
+            .FindAsync(questionId);
+
+        if (question.IsRequired && answer is null)
+        {
+            throw new InvalidTextQuestionAnswerException(
+                questionId,
+                answer,
+                $"user #{userId} has tried to answer a required text question #{questionId} with a null value");
+        }
+
+        var answerObj = await _uow.TextQuestionAnswers.Query()
+            .Where(a => a.Question.Id == questionId)
+            .FirstOrNullAsync();
+
+        if (answerObj is not null)
+        {
+            answerObj.Answer = answer;
+            _uow.TextQuestionAnswers.Update(answerObj);
+        }
+        else
+        {
+            answerObj = new TextQuestionAnswer
+            {
+                Question = question,
+                Answer = answer,
+            };
+
+            entry.Answers.Add(answerObj);
+
+            _uow.TextQuestionAnswers.Add(answerObj);
+            _uow.SurveyEntries.Update(entry);
+        }
+
+        await _uow.CommitAsync();
+
+        return answerObj;
     }
 
     /// <inheritdoc/>
@@ -138,12 +310,16 @@ public sealed class SurveysService : ISurveysService
     }
 
     /// <inheritdoc/>
-    public IQueryBuilder<Survey> GetAvailableSurveys(long userId)
+    public async Task<IQueryBuilder<Survey>> GetAvailableSurveys(long userId)
     {
-        return _uow.Surveys
-            .Query()
-            .Where(s => s.CreatedBy.Id == userId)
-            .Where(s => s.ExpirationDate > DateTime.Now);
+        var usersHierarchyIds = await _usersSvc
+            .GetUserUpwardHierarchyAsync(userId)
+            .Select(u => u.Id)
+            .ToListAsync();
+
+        return _uow.Surveys.Query()
+            .Where(s => s.ExpirationDate > DateTime.Now)
+            .Where(s => usersHierarchyIds.Contains(s.CreatedBy.Id));
     }
 
     /// <inheritdoc/>
