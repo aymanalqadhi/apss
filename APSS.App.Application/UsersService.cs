@@ -66,5 +66,28 @@ public sealed class UsersService : IUsersService
         return user;
     }
 
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<User> GetUserUpwardHierarchyAsync(
+        long userId,
+        Func<IQueryBuilder<User>, IQueryBuilder<User>>? builder = null)
+    {
+        while (true)
+        {
+            var query = _uow.Users.Query().Include(u => u.SupervisedBy!);
+
+            if (builder is not null)
+                query = builder(query);
+
+            var user = await query.FindAsync(userId);
+
+            yield return user;
+
+            if (user.SupervisedBy is null)
+                yield break;
+
+            userId = user.SupervisedBy.Id;
+        }
+    }
+
     #endregion Public Methods
 }
