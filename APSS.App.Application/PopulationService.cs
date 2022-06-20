@@ -117,7 +117,7 @@ public sealed class PopulationService : IPopulationService
             .Include(i => i.AddedBy)
             .FindAsync(individualId);
      
-        if (!await HaspermissionOnIndividual(userId,individualId) )
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId,individual.AddedBy.Id,individual,PermissionType.Create)!=userId )
         {
             throw new InsufficientPermissionsException(
                 userId,
@@ -142,13 +142,13 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<Voluntary> AddVoluntaryAsync(long individualId, long userId, string name, string field)
+    public async Task<Voluntary> AddVoluntaryAsync(long userId,long individualId, string name, string field)
     {
         var individual = await _uow.Individuals.Query()
             .Include(i => i.AddedBy)
             .FindAsync(individualId);
 
-        if (!await HaspermissionOnIndividual(userId,individualId))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId,individual.AddedBy.Id,individual,PermissionType.Create)!=userId )
         {
             throw new InsufficientPermissionsException(
                 userId,
@@ -172,10 +172,10 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<Family> DeleteFamilyAsync(long familyId, long userId)
+    public async Task<Family> DeleteFamilyAsync(long userId, long familyId)
     {
         var family = await _uow.Families.Query().Include(f=>f.AddedBy).FindAsync(familyId);
-        if (!await HaspermissionOnFamily(userId,familyId))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId,family.AddedBy.Id,family,PermissionType.Delete)!=userId)
         {
             throw new InsufficientPermissionsException(
              userId,
@@ -192,7 +192,7 @@ public sealed class PopulationService : IPopulationService
     public async Task<Individual> DeleteIndividualAsync(long userId,long individualId)
     {
         var individual = await _uow.Individuals.Query().Include(i=>i.AddedBy).FindAsync(individualId);
-        if (!await HaspermissionOnIndividual(userId,individualId))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId,individual.AddedBy.Id,individual,PermissionType.Delete)!=userId)
         {
             throw new InsufficientPermissionsException(
              userId,
@@ -210,7 +210,7 @@ public sealed class PopulationService : IPopulationService
     {
         var skill = await _uow.Skills.Query().Include(s => s.BelongsTo).FindAsync(skillId);
         
-        if (!await HaspermissionOnIndividual(userId,skill.BelongsTo.Id))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId, skill.BelongsTo.Id, skill, PermissionType.Delete) != userId)
         {
             throw new InsufficientPermissionsException(
             userId,
@@ -228,7 +228,7 @@ public sealed class PopulationService : IPopulationService
     {
         var voluntary = await _uow.Volantaries.Query().Include(v => v.OfferedBy).FindAsync(voluntaryId);
        
-       if(!await HaspermissionOnIndividual(userId,voluntary.OfferedBy.Id))
+       if(await _permissionsSvc.ValidatePermissionsAsync(userId, voluntary.OfferedBy.Id, voluntary, PermissionType.Delete) != userId)
         {
             throw new InsufficientPermissionsException(
             voluntary.OfferedBy.Id,
@@ -243,18 +243,21 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public IQueryBuilder<Family> GetFamilies(long userId)
-        => _uow.Families.Query().Where(f => f.AddedBy.Id == userId);
+    public async Task <IQueryBuilder<Family>> GetFamilies(long userId)
+        =>await _uow.Families.Query().Where(f => f.AddedBy.Id == userId).FirstOrNullAsync();
 
     ///<inheritdoc/>
-    public IQueryBuilder<FamilyIndividual> GetFamilyIndividuals(long userId, long familyId)
-        => _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId && f.Family.AddedBy.Id == userId );
-
+    public async Task<IQueryBuilder<FamilyIndividual>> GetFamilyIndividuals(long userId, long familyId)
+    {
+        var family=await _uow.Families.Query().Include(f=>f.AddedBy).FindAsync(familyId);
+      var user=await  _permissionsSvc.ValidatePermissionsAsync(userId, family.AddedBy.Id, family, PermissionType.Read);
+       return _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId);
+    }
     ///<inheritdoc/>
     public async Task<Family> UpdateFamilyAsync(long userId, Family family)
     {
         
-        if (!await HaspermissionOnFamily(userId,family.Id))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId,family.AddedBy.Id,family,PermissionType.Update)!=userId)
         {
             throw new InsufficientPermissionsException(
                  userId,
@@ -270,7 +273,7 @@ public sealed class PopulationService : IPopulationService
     ///<inheritdoc/>
     public async Task<Individual> UpdateIndividualAsync(long userId,Individual individual)
     {
-        if (!await HaspermissionOnIndividual(userId,individual.Id))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId, individual.AddedBy.Id, individual, PermissionType.Update) != userId)
         {
             throw new InsufficientPermissionsException(
                  userId,
@@ -285,7 +288,7 @@ public sealed class PopulationService : IPopulationService
     ///<inheritdoc/>
     public async Task<Skill> UpdateSkillAsync(long userId,Skill skill)
     {
-        if (!await HaspermissionOnIndividual(userId,skill.BelongsTo.Id))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId, skill.BelongsTo.Id, skill, PermissionType.Update) != userId)
         {
             throw new InsufficientPermissionsException(
                  userId,
@@ -301,7 +304,7 @@ public sealed class PopulationService : IPopulationService
     ///<inheritdoc/>
     public async Task<Voluntary> UpdateVoluntaryAsync(long userId,Voluntary voluntary)
     {
-        if (!await HaspermissionOnIndividual(userId,voluntary.OfferedBy.Id))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId,voluntary.OfferedBy.Id,voluntary,PermissionType.Update)!=userId)
         {
             throw new InsufficientPermissionsException(
                  userId,
@@ -316,26 +319,5 @@ public sealed class PopulationService : IPopulationService
 
     #endregion Public Methods
 
-    #region Private Methods
-    private async Task<bool> HaspermissionOnIndividual(long userId,long individualId) { 
-        var individual = await _uow.Individuals.Query().Include(i=> i.AddedBy).FindAsync(individualId);
-        if (await _permissionsSvc.HasRootAccessAsync(userId))
-            return true;
-        else if (individual.AddedBy.Id==userId)
-            return true;
-        return false;
-    }
-
-    private async Task<bool> HaspermissionOnFamily(long userId, long familyId)
-    {
-        var family = await _uow.Families.Query().Include(i => i.AddedBy).FindAsync(familyId);
-        if (await _permissionsSvc.HasRootAccessAsync(userId))
-            return true;
-        else if (family.AddedBy.Id == userId)
-            return true;
-        return false;
-    }
-
-
-    #endregion
+  
 }
