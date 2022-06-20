@@ -58,17 +58,35 @@ public sealed class UsersService : IUsersService
     /// <inheritdoc/>
     public async Task<User> UpdateUserAsync(long superuserId, User user)
     {
-        if (!await _permissionsSvc.HasWriteAccessAsync(superuserId, user.Id))
-        {
-            throw new InsufficientPermissionsException(
-                superuserId,
-                $"user {superuserId} does not have a permission to update user #{user.Id}");
-        }
+        await _permissionsSvc.ValidatePermissionsAsync(superuserId, user.Id, PermissionType.Update);
 
         _uow.Users.Update(user);
         await _uow.CommitAsync();
 
         return user;
+    }
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<User> GetUserUpwardHierarchyAsync(
+        long userId,
+        Func<IQueryBuilder<User>, IQueryBuilder<User>>? builder = null)
+    {
+        while (true)
+        {
+            var query = _uow.Users.Query().Include(u => u.SupervisedBy!);
+
+            if (builder is not null)
+                query = builder(query);
+
+            var user = await query.FindAsync(userId);
+
+            yield return user;
+
+            if (user.SupervisedBy is null)
+                yield break;
+
+            userId = user.SupervisedBy.Id;
+        }
     }
 
     #endregion Public Methods

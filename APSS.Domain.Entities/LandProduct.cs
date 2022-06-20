@@ -13,7 +13,7 @@ public sealed class LandProduct : Product
     /// <summary>
     /// Gets or sets the unit of the land's product
     /// </summary>
-    public string Unit { get; set; } = null!;
+    public LandProductUnit Unit { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the quantity of the land's product

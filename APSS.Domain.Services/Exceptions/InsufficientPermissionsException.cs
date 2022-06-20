@@ -1,7 +1,10 @@
-﻿using APSS.Domain.Entities;
+﻿using System.Security.AccessControl;
 
 namespace APSS.Domain.Services.Exceptions;
 
+/// <summary>
+/// An exception to be thrown when a user lacks sufficient permissions to perform an operation
+/// </summary>
 public sealed class InsufficientPermissionsException : Exception
 {
     #region Fields

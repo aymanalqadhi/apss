@@ -1,6 +1,7 @@
 ﻿using APSS.Domain.Entities;
+using APSS.Domain.Repositories;
 
-namespace APSS.Domain.Repositories.Extensions;
+namespace APSS.Domain.Services.Exceptions;
 
 public static class ConfirmableRepositoryExtensions
 {

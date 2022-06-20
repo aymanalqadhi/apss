@@ -5,7 +5,7 @@ public abstract class AuditableEntity
     /// <summary>
     /// Gets or sets the id of the entity
     /// </summary>
-    public long Id { get; set; }
+    public long Id { get; set; } 
 
     /// <summary>
     /// Gets or sets the creation date of the entity
