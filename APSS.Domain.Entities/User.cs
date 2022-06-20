@@ -16,9 +16,9 @@ public sealed class User : AuditableEntity
     public AccessLevel AccessLevel { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the user is active or not
+    /// Gets or sets the user status
     /// </summary>
-    public bool IsActive { get; set; } = false;
+    public UserStatus UserStatus { get; set; }
 
     /// <summary>
     /// Gets or sets the supervisor
@@ -34,12 +34,10 @@ public sealed class User : AuditableEntity
     /// Gets or sets the collection of accounts under this user
     /// </summary>
     public ICollection<Account> Accounts { get; set; } = new List<Account>();
-
-
 }
 
 /// <summary>
-/// An enum to represent the access level
+/// An enum to represent the user status
 /// </summary>
 public enum AccessLevel : int
 {
@@ -51,4 +49,14 @@ public enum AccessLevel : int
     Village = 5,
     Group = 6,
     Farmer = 7,
+}
+
+/// <summary>
+/// An enum to represent the access level
+/// </summary>
+public enum UserStatus
+{
+    Active,
+    Inactive,
+    Terminated ,
 }
