@@ -8,19 +8,19 @@ public interface IPopulationService
     #region Public Methods
 
     /// <summary>
-    /// Gets a query for the get family
+    /// Asynnchrosuly Gets a query for the get family
     /// </summary>
     /// <param name="userId">The id of the superuser which to get the added fammily  by its</param>
     /// <returns></returns>
-    IQueryBuilder<Family> GetFamilies(long userId);
+    Task<IQueryBuilder<Family>> GetFamilies(long userId);
 
     /// <summary>
-    /// Gets a query for the get individuals of family
+    /// Asynnchrosuly Gets a query for the get individuals of family
     /// </summary>
     /// <param name="userId">The id of the superuser which to get the added fammily  by its</param>
     /// <param name="familyId">The id of the family which to get the individuals for </param>
     /// <returns></returns>
-    IQueryBuilder<FamilyIndividual> GetFamilyIndividuals(long userId, long familyId);
+    Task<IQueryBuilder<FamilyIndividual>> GetFamilyIndividuals(long userId, long familyId);
 
     /// <summary>
     ///  Asynchronosuly add a new Individuals
