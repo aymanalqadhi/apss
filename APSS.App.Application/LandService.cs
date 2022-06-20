@@ -40,12 +40,14 @@ internal class LandService : ILandService
         bool isUsed = false)
     {
         var user = await _uow.Users.Query().FindAsync(userId);
+
         if (user.AccessLevel != AccessLevel.Farmer)
         {
             throw new InsufficientPermissionsException(
                 userId,
-                $"user #{userId} cannot add lands becuase he dose not have farmer access level");
+                $"user #{userId} cannot add lands becuase it dose not have farmer access level");
         }
+
         var newLand = new Land
         {
             Name = name,
@@ -77,7 +79,9 @@ internal class LandService : ILandService
         bool isGovernmentFunded)
     {
         var user = await _uow.Users.Query().FindAsync(userId);
-        var land = await _uow.Lands.Query().FindAsync(landId);
+        var land = await _uow.Lands.Query()
+            .Include(u => u.OwnedBy)
+            .FindAsync(landId);
 
         if (user.Id != land.OwnedBy.Id)
         {
