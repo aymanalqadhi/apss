@@ -44,5 +44,15 @@ public interface IUsersService
     /// <returns>The updated user</returns>
     Task<User> UpdateUserAsync(long superUserId, User user);
 
+    /// <summary>
+    /// Asyncrhnnously gets a user's upwards hierarchy (all users above)
+    /// </summary>
+    /// <param name="userId">The id of the uesr to get the heirarchy for</param>
+    /// <param name="builder">An optional query builder to manipulate the qurey</param>
+    /// <returns>A stream of users in the hierarchy</returns>
+    IAsyncEnumerable<User> GetUserUpwardHierarchyAsync(
+        long userId,
+        Func<IQueryBuilder<User>, IQueryBuilder<User>>? builder = null);
+
     #endregion Public Methods
 }
