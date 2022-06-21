@@ -141,7 +141,7 @@ internal class LandService : ILandService
         var superUser = await _uow.Users.Query().FindAsync(userId);
         var land = await _uow.Lands.Query().Include(l => l.OwnedBy).FindAsync(landId);
 
-        if (!await _permissionsSvc.HasWriteAccessAsync(userId, land.OwnedBy.Id))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId, land.OwnedBy.Id,PermissionType.Delete)!=userId)
         {
             throw new InsufficientPermissionsException(
                 userId,
@@ -164,7 +164,7 @@ internal class LandService : ILandService
             .Include(p => p.Producer.OwnedBy)
             .FindAsync(landProductId);
 
-        if (!await _permissionsSvc.HasWriteAccessAsync(userId, landProduct.Producer.OwnedBy.Id))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId, landProduct.Producer.OwnedBy.Id,PermissionType.Delete)!=userId)
         {
             throw new InsufficientPermissionsException(
                 userId,
@@ -189,7 +189,7 @@ internal class LandService : ILandService
             .Include(o => o.Producer.OwnedBy)
             .FirstAsync();
 
-        if (!await _permissionsSvc.HasWriteAccessAsync(userId, season.Producer.OwnedBy.Id))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId, season.Producer.OwnedBy.Id,PermissionType.Delete)!=userId)
         {
             throw new InsufficientPermissionsException(
                 userId,
@@ -206,28 +206,48 @@ internal class LandService : ILandService
     /// <inheritdoc/>
     public async Task<IQueryBuilder<Land>> GetLand(long userId, long landId)
     {
-        var superUser = _uow.Users.Query().Find(userId);
+       
         var land = await _uow.Lands.Query().Include(l => l.OwnedBy).FindAsync(landId);
 
-        if (!await _permissionsSvc.IsSuperuserOfAsync(userId, land.OwnedBy.Id))
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId, land.OwnedBy.Id,PermissionType.Read)!=userId)
         {
             throw new InsufficientPermissionsException(
                 userId,
                 $"user #{userId} cannot Get land becuase he dose not have Read accessLevel on #{landId}");
         }
-        return land;
+
+        return _uow.Lands.Query().Where(l=>l.Id==landId);
     }
 
     /// <inheritdoc/>
-    public IQueryBuilder<LandProduct> GetLandProduct(long userId, long landProdcutId)
+    public async Task <IQueryBuilder<LandProduct>>GetLandProduct(long userId, long landProductId)
     {
-        throw new NotImplementedException();
+        var landProduct = await _uow.LandProducts.Query().Include(l => l.Producer).Include(l=>l.Producer.OwnedBy).FindAsync(landProductId);
+
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId, landProduct.Producer.OwnedBy.Id, PermissionType.Read) != userId)
+        {
+            throw new InsufficientPermissionsException(
+                userId,
+                $"user #{userId} cannot Get landproduct becuase he dose not have Read accessLevel on #{landProductId}");
+        }
+
+        return _uow.LandProducts.Query().Where(p=>p.Id==landProductId);
+
     }
 
     /// <inheritdoc/>
-    public IQueryBuilder<LandProduct> GetLandProducts(long userId, long landId)
+    public async Task <IQueryBuilder<LandProduct>> GetLandProducts(long userId, long landId)
     {
-        throw new NotImplementedException();
+        var land = await _uow.Lands.Query().Include(l=>l.OwnedBy).FindAsync(landId);
+
+        if (await _permissionsSvc.ValidatePermissionsAsync(userId, land.OwnedBy.Id, PermissionType.Read) != userId)
+        {
+            throw new InsufficientPermissionsException(
+                userId,
+                $"user #{userId} cannot Get products of land#{landId} becuase he dose not have Read permission on #{landId}");
+        }
+
+        return _uow.LandProducts.Query().Where(p => p.Producer.Id == landId);
     }
 
     /// <inheritdoc/>
