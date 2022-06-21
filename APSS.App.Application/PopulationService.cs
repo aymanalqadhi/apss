@@ -330,6 +330,7 @@ public sealed class PopulationService : IPopulationService
 
     #endregion Public Methods
 
+    #region Private Methods
     private async Task<int> GetSubuserDistanceAsync(long superuserId, long subuserId)
     {
         var superuser = await _uow.Users.Query().FindAsync(superuserId);
@@ -359,6 +360,6 @@ public sealed class PopulationService : IPopulationService
                 .FindAsync(subuser.SupervisedBy.Id);
         }
     }
-
+    #endregion
 
 }
