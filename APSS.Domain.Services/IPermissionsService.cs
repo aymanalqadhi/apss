@@ -42,43 +42,37 @@ public interface IPermissionsService
     Task<bool> HasPermissionsOfAsync(long userId, long ofUserId, PermissionType permissions);
 
     /// <summary>
-    /// Asynchronously checks if the user has read permission (any level of sub-users)
+    /// Asychrnonously validates permissoins of a user to access another user's resources
     /// </summary>
-    /// <param name="userId">The user who to check for permission existance</param>
-    /// <param name="subuserId">The user who to check against</param>
-    /// <returns>True if the user has read access, false otherwise</returns>
-    Task<bool> HasReadAccessAsync(long userId, long subuserId);
+    /// <typeparam name="TEntity">The type of the entity to be accessed</typeparam>
+    /// <param name="userId">The user accessing the resources</param>
+    /// <param name="ofUserId">The owner of the resource</param>
+    /// <param name="resource">The accessed resource</param>
+    /// <param name="permissions">The required permissions</param>
+    /// <returns>The authorized user id</returns>
+    /// <exception cref="CannotAccessResouceOfException">
+    /// Thrown if the user has no access to the <see cref="ofUserId"/> resource
+    /// </exception>
+    Task<long> ValidatePermissionsAsync<TEntity>(
+        long userId,
+        long ofUserId,
+        TEntity resource,
+        PermissionType permissions) where TEntity : AuditableEntity;
 
     /// <summary>
-    /// Asynchronously checks if the user has rooot permissions
+    /// Asychrnonously validates permissoins of a user to access another user's resources
     /// </summary>
-    /// <param name="userId">The id of the user to check</param>
-    /// <returns>True if the user has root permissions, false otherwise</returns>
-    Task<bool> HasRootAccessAsync(long userId);
-
-    /// <summary>
-    /// Asynchronously checks if the user has write permission (direct level of subusers)
-    /// </summary>
-    /// <param name="userId">The user who to check for permission existance</param>
-    /// <param name="subuserId">The user who to check against</param>
-    /// <returns>True if the user has write access, false otherwise</returns>
-    Task<bool> HasWriteAccessAsync(long userId, long subuserId);
-
-    /// <summary>
-    /// Asynchrnously checks whether a user is the directy superuser of another user
-    /// </summary>
-    /// <param name="superuserId">The id of the super user</param>
-    /// <param name="subuserId">The id of the subuser</param>
-    /// <returns>True if the user is the direct superuser of the other user</returns>
-    Task<bool> IsDirectSuperuserOfAsync(long superuserId, long subuserId);
-
-    /// <summary>
-    /// Asynchrnously checks whether a user is a superuser of another user
-    /// </summary>
-    /// <param name="superuserId">The id of the super user</param>
-    /// <param name="subuserId">The id of the subuser</param>
-    /// <returns>True if the user is a superuser of the other user</returns>
-    Task<bool> IsSuperuserOfAsync(long superuserId, long subuserId);
+    /// <param name="userId">The user accessing the resources</param>
+    /// <param name="ofUserId">The owner of the resource</param>
+    /// <param name="permissions">The required permissions</param>
+    /// <returns>The authorized user id</returns>
+    /// <exception cref="InsufficientExecutionStackException">
+    /// Thrown if the user has no access to the <see cref="ofUserId"/> resource
+    /// </exception>
+    Task<long> ValidatePermissionsAsync(
+        long userId,
+        long ofUserId,
+        PermissionType permissions);
 
     #endregion Public Methods
 }

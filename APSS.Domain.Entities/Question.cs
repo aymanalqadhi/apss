@@ -19,4 +19,9 @@ public abstract class Question : AuditableEntity
     /// Gets or sets wether the question is required or not
     /// </summary>
     public bool IsRequired { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the survey
+    /// </summary>
+    public Survey Survey { get; set; } = null!;
 }

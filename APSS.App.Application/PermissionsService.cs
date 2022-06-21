@@ -62,6 +62,15 @@ public sealed class PermissionsService : IPermissionsService
     /// <inheritdoc/>
     public async Task<bool> HasPermissionsOfAsync(long userId, long ofUserId, PermissionType permissions)
     {
+        if (userId == ofUserId)
+            return true;
+
+        if (await GetSubuserDistanceAsync(userId, ofUserId) is var distance && distance >= 0)
+        {
+            if (distance == 0 || permissions == PermissionType.Read)
+                return true;
+        }
+
         var user = await _uow.Users.Query().FindAsync(userId);
         var inheritance = await _uow.PermissionInheritances
             .Query()
@@ -76,28 +85,27 @@ public sealed class PermissionsService : IPermissionsService
     }
 
     /// <inheritdoc/>
-    public async Task<bool> HasReadAccessAsync(long userId, long subuserId)
-        => await HasRootAccessAsync(userId) || await IsSuperuserOfAsync(userId, subuserId);
-
-    /// <inheritdoc/>
-    public async Task<bool> HasRootAccessAsync(long userId)
+    public async Task<long> ValidatePermissionsAsync<TEntity>(
+        long userId,
+        long ofUserId,
+        TEntity resource,
+        PermissionType permissions) where TEntity : AuditableEntity
     {
-        var user = await _uow.Users.Query().FindAsync(userId);
+        if (await HasPermissionsOfAsync(userId, ofUserId, permissions))
+            return ofUserId;
 
-        return user.AccessLevel == AccessLevel.Root;
+        throw new CannotAccessResouceOfException(userId, ofUserId, resource.Id, typeof(TEntity), permissions);
     }
 
     /// <inheritdoc/>
-    public async Task<bool> HasWriteAccessAsync(long userId, long subuserId)
-        => await HasRootAccessAsync(userId) || await IsDirectSuperuserOfAsync(userId, subuserId);
+    public async Task<long> ValidatePermissionsAsync(long userId, long ofUserId, PermissionType permissions)
+    {
+        if (await HasPermissionsOfAsync(userId, ofUserId, permissions))
+            return ofUserId;
 
-    /// <inheritdoc/>
-    public async Task<bool> IsDirectSuperuserOfAsync(long superuserId, long subuserId)
-        => await GetSubuserDistanceAsync(superuserId, subuserId) == 0;
-
-    /// <inheritdoc/>
-    public async Task<bool> IsSuperuserOfAsync(long superuserId, long subuserId)
-        => await GetSubuserDistanceAsync(superuserId, subuserId) >= 0;
+        throw new InsufficientExecutionStackException(
+            $"user #{userId} does not have {{ {string.Join(',', permissions.GetPermissionValues())} }} of user #{ofUserId}");
+    }
 
     #endregion Public Methods
 
@@ -106,6 +114,10 @@ public sealed class PermissionsService : IPermissionsService
     private async Task<int> GetSubuserDistanceAsync(long superuserId, long subuserId)
     {
         var superuser = await _uow.Users.Query().FindAsync(superuserId);
+
+        if (superuser.AccessLevel == AccessLevel.Root)
+            return 0;
+
         var subuser = await _uow.Users
             .Query()
             .Include(u => u.SupervisedBy!)
