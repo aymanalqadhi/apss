@@ -12,15 +12,17 @@ public sealed class PopulationService : IPopulationService
 
     private readonly IPermissionsService _permissionsSvc;
     private readonly IUnitOfWork _uow;
+    private readonly IUsersService _userSvc;
 
     #endregion Fields
 
     #region Public Constructors
 
-    public PopulationService(IUnitOfWork uow, IPermissionsService permissions)
+    public PopulationService(IUnitOfWork uow, IPermissionsService permissions, IUsersService userSvc)
     {
         _uow = uow;
         _permissionsSvc = permissions;
+        _userSvc = userSvc;
     }
 
     #endregion Public Constructors
@@ -243,15 +245,24 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task <IQueryBuilder<Family>> GetFamilies(long userId)
-        =>await _uow.Families.Query().Where(f => f.AddedBy.Id == userId).FirstOrNullAsync();
+    public  IQueryBuilder<Family>GetFamilies(long userId)
+    {
+        var family=  _uow.Families
+            .Query()
+            .Include(f=>f.AddedBy)
+            .Where( f=> GetSubuserDistanceAsync(userId,f.AddedBy.Id).Result>=0); 
+        return family;
+    }
+
 
     ///<inheritdoc/>
     public async Task<IQueryBuilder<FamilyIndividual>> GetFamilyIndividuals(long userId, long familyId)
     {
+        var familis = GetFamilies(userId);
         var family=await _uow.Families.Query().Include(f=>f.AddedBy).FindAsync(familyId);
       var user=await  _permissionsSvc.ValidatePermissionsAsync(userId, family.AddedBy.Id, family, PermissionType.Read);
        return _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId);
+
     }
     ///<inheritdoc/>
     public async Task<Family> UpdateFamilyAsync(long userId, Family family)
@@ -319,5 +330,35 @@ public sealed class PopulationService : IPopulationService
 
     #endregion Public Methods
 
-  
+    private async Task<int> GetSubuserDistanceAsync(long superuserId, long subuserId)
+    {
+        var superuser = await _uow.Users.Query().FindAsync(superuserId);
+
+        if (superuser.AccessLevel == AccessLevel.Root)
+            return 0;
+
+        var subuser = await _uow.Users
+            .Query()
+            .Include(u => u.SupervisedBy!)
+            .FindAsync(subuserId);
+
+        if ((int)superuser.AccessLevel > (int)subuser.AccessLevel)
+            return -1;
+
+        for (int i = 0; ; ++i)
+        {
+            if (subuser.SupervisedBy is null)
+                return -1;
+
+            if (subuser.SupervisedBy.Id == superuser.Id)
+                return i;
+
+            subuser = await _uow.Users
+                .Query()
+                .Include(u => u.SupervisedBy!)
+                .FindAsync(subuser.SupervisedBy.Id);
+        }
+    }
+
+
 }

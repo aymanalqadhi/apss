@@ -12,7 +12,7 @@ public interface IPopulationService
     /// </summary>
     /// <param name="userId">The id of the superuser which to get the added fammily  by its</param>
     /// <returns></returns>
-    Task<IQueryBuilder<Family>> GetFamilies(long userId);
+    IQueryBuilder<Family> GetFamilies(long userId);
 
     /// <summary>
     /// Asynnchrosuly Gets a query for the get individuals of family
