@@ -1,5 +1,6 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
+using APSS.Domain.ValueTypes;
 
 namespace APSS.Domain.Services;
 
@@ -11,10 +12,9 @@ public interface ILandService
     /// Asynchronously adds a new land
     /// </summary>
     /// <param name="userId">The id of the user who owns the land</param>
-    /// <param name="area">The place of the land</param>
-    /// <param name="longitude">The longitude of the land</param>
-    /// <param name="latitude">The latitude of the land</param>
-    /// <param name="address">The address of the land</param>
+    /// <param name="area">The area of the land (in m2)</param>
+    /// <param name="coordinates">The coordinates of the land</param>
+    /// <param name="address">The ad physical dress of the land</param>
     /// <param name="name">The name of the land</param>
     /// <param name="isUsable">Whether the land can be used or not</param>
     /// <param name="isUsed">Whether the land is currently used or not</param>
@@ -22,21 +22,20 @@ public interface ILandService
     Task<Land> AddLandAsync(
         long userId,
         long area,
-        double longitude,
-        double latitude,
+        Coordinates coordinates,
         string address,
         string name,
         bool isUsable = true,
         bool isUsed = false);
 
-    /// <summary>
-    /// Gets a query for the lands set
+    /// <summary>e
+    /// Gets a query for thlands set of a user
     /// </summary>
-    /// <param name="UserId">The id of the user witch to get the land</param>
+    /// <param name="userId">The id of the user which to get the lands for</param>
     /// <returns>The lands that matchs the query</returns>
-    IQueryBuilder<Land> GetLands(long UserId);
+    IQueryBuilder<Land> GetLands(long userId);
 
-    Task<IQueryBuilder<Land>> GetLand(long userId, long landId);
+    IQueryBuilder<Land> GetLand(long userId, long landId);
 
     /// <summary>
     /// Update the land
