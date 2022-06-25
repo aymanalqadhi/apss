@@ -31,8 +31,7 @@ public sealed class ApssUnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     public IRepository<User> Users => new Repository<User, UserValidator>(_ctx.Users);
 
     /// <inheritdoc/>
-    public IRepository<PermissionInheritance> PermissionInheritances =>
-        new Repository<PermissionInheritance, Validator<PermissionInheritance>>(_ctx.PermissionInheritances);
+    public IRepository<Account> Accounts => new Repository<Account, AccountValidator>(_ctx.Accounts);
 
     /// <inheritdoc/>
     public IRepository<Land> Lands => new Repository<Land, LandValidator>(_ctx.Lands);

@@ -1,4 +1,5 @@
 ﻿using APSS.Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace APSS.Infrastructure.Repositores.EntityFramework;
@@ -20,14 +21,14 @@ public sealed class ApssDbContext : DbContext
     #region Public properties
 
     /// <summary>
+    /// Gets the accounts table
+    /// </summary>
+    public DbSet<Account> Accounts => Set<Account>();
+
+    /// <summary>
     /// Gets the users set
     /// </summary>
     public DbSet<User> Users => Set<User>();
-
-    /// <summary>
-    /// Gets the users' permission inheritances set
-    /// </summary>
-    public DbSet<PermissionInheritance> PermissionInheritances => Set<PermissionInheritance>();
 
     /// <summary>
     /// Gets the lands set
