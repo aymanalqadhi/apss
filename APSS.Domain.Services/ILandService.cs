@@ -33,9 +33,9 @@ public interface ILandService
     /// </summary>
     /// <param name="userId">The id of the user which to get the lands for</param>
     /// <returns>The lands that matchs the query</returns>
-    IQueryBuilder<Land> GetLands(long userId);
+    Task<IQueryBuilder<Land>> GetLands(long userId);
 
-    IQueryBuilder<Land> GetLand(long userId, long landId);
+    Task<IQueryBuilder<Land>> GetLand(long userId, long landId);
 
     /// <summary>
     /// Update the land
@@ -67,7 +67,7 @@ public interface ILandService
     /// <param name="userId">The id of the user who owns the land</param>
     /// <param name="landId">The id of the land</param>
     /// <returns>The land products that belong to the land</returns>
-    Task <IQueryBuilder<LandProduct>> GetLandProducts(long userId, long landId);
+    IQueryBuilder<LandProduct> GetLandProducts(long userId, long landId);
 
     /// <summary>
     /// Gets single land product
@@ -75,7 +75,7 @@ public interface ILandService
     /// <param name="userId">The id of the user who owns the land</param>
     /// <param name="landProdcutId">The id of the land product</param>
     /// <returns>The land that matchs the land id</returns>
-    Task <IQueryBuilder<LandProduct>> GetLandProduct(long userId, long landProdcutId);
+    IQueryBuilder<LandProduct> GetLandProduct(long userId, long landProdcutId);
 
     /// <summary>
     /// Delete the land product

@@ -30,7 +30,7 @@ internal class LandService : ILandService
 
     /// <inheritdoc/>
     public async Task<Land> AddLandAsync(
-        long userId,
+        long accountId,
         long area,
         double longitude,
         double latitude,
@@ -39,10 +39,10 @@ internal class LandService : ILandService
         bool isUsable = true,
         bool isUsed = false)
     {
-        var account = await _uow.Account
+        var account = await _uow.Accounts
             .Query()
             .Include(u => u.User)
-            .FindAsync(userId);
+            .FindAsync(accountId);
 
         if (account.User.AccessLevel != AccessLevel.Farmer)
         {
@@ -71,7 +71,7 @@ internal class LandService : ILandService
 
     /// <inheritdoc/>
     public async Task<LandProduct> AddLandProductAsync(
-        long userId,
+        long accountId,
         long landId,
         long seasonId,
         long landProductUnitId,
@@ -81,10 +81,10 @@ internal class LandService : ILandService
         IrrigationPowerSource irrigationPowerSource,
         bool isGovernmentFunded)
     {
-        var account = await _uow.Account
+        var account = await _uow.Accounts
             .Query()
             .Include(u => u.User)
-            .FindAsync(userId);
+            .FindAsync(accountId);
 
         if (account.User.AccessLevel != AccessLevel.Farmer)
         {
@@ -94,7 +94,7 @@ internal class LandService : ILandService
 
         var land = await _uow.Lands.Query().FindAsync(landId);
 
-        if (account.User.Id != land.OwnedBy)
+        if (account.User.Id != land.OwnedBy.Id)
         {
             throw new InsufficientPermissionsException(account.User.Id,
                 $"User #{account.User.Id} can not add land product to land #{landId} becuase they do not own it");
@@ -121,20 +121,20 @@ internal class LandService : ILandService
 
     /// <inheritdoc/>
     public async Task<Season> AddSeasonAsync(
-        long userId,
+        long accountId,
         string name,
         DateTime startsAt,
         DateTime endsAt)
     {
-        var account = await _uow.Account
+        var account = await _uow.Accounts
             .Query()
             .Include(u => u.User)
-            .FindAsync(userId);
+            .FindAsync(accountId);
 
         if (account.User.AccessLevel != AccessLevel.Root)
         {
-            throw new InsufficientPermissionsException(userId,
-                $"User #{ccount.User.Id} cannot add season because they do not have root access level");
+            throw new InsufficientPermissionsException(accountId,
+                $"User #{account.User.Id} cannot add season because they do not have root access level");
         }
         var season = new Season
         {
@@ -150,20 +150,10 @@ internal class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<Land> RemoveLandAsync(long userId, long landId)
+    public async Task<Land> RemoveLandAsync(long accountId, long landId)
     {
-        var account = await _uow.Account
-            .Query()
-            .Include(u => u.User)
-            .FindAsync(userId);
         var land = await _uow.Lands.Query().Include(l => l.OwnedBy).FindAsync(landId);
-
-        if (await _permissionsSvc.ValidatePermissionsAsync(account.User.Id, land.OwnedBy.Id, PermissionType.Delete) != userId)
-        {
-            throw new InsufficientPermissionsException(
-                account.User.Id,
-                $"User {account.User.Id} does not have a permission to delete land #{landId}");
-        }
+        await _permissionsSvc.ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Delete);
 
         _uow.Lands.Remove(land);
         await _uow.CommitAsync();
@@ -172,21 +162,15 @@ internal class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<LandProduct> RemoveLandProductAsync(long userId, long landProductId)
+    public async Task<LandProduct> RemoveLandProductAsync(long accountId, long landProductId)
     {
-        var superUser = await _uow.Users.Query().FindAsync(userId);
         var landProduct = await _uow.LandProducts
             .Query()
             .Include(p => p.Producer)
             .Include(p => p.Producer.OwnedBy)
             .FindAsync(landProductId);
 
-        if (await _permissionsSvc.ValidatePermissionsAsync(userId, landProduct.Producer.OwnedBy.Id, PermissionType.Delete) != userId)
-        {
-            throw new InsufficientPermissionsException(
-                userId,
-                $"user {userId} does not have a permission to delete landProduct #{landProductId}");
-        }
+        await _permissionsSvc.ValidatePermissionsAsync(accountId, landProduct.Producer.OwnedBy.Id, PermissionType.Delete);
 
         _uow.LandProducts.Remove(landProduct);
         await _uow.CommitAsync();
@@ -195,16 +179,21 @@ internal class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<Season> RemoveSeasonAsync(long userId, long seasonId)
+    public async Task<Season> RemoveSeasonAsync(long accountId, long seasonId)
     {
-        var user = await _uow.Users.Query().FindAsync(userId);
-        if (user.AccessLevel != AccessLevel.Root)
+        var account = await _uow.Accounts
+            .Query()
+            .Include(u => u.User)
+            .FindAsync(accountId);
+        if (account.User.AccessLevel != AccessLevel.Root)
         {
             throw new InsufficientPermissionsException(
-                userId,
-                $"user#{userId} cannot get land becuase he dose not have read permissions on #{seasonId}");
+                accountId,
+                $"user#{accountId} cannot get land becuase he dose not have read permissions on #{seasonId}");
         }
+
         var season = await _uow.Sessions.Query().FindAsync(seasonId);
+
         _uow.Sessions.Remove(season);
         await _uow.CommitAsync();
         return season;
@@ -221,8 +210,7 @@ internal class LandService : ILandService
                 userId,
                 $"user #{userId} cannot Get land becuase he dose not have Read accessLevel on #{landId}");
         }
-
-        return _uow.Lands.Query().Where(l => l.Id == landId);
+        return await _uow.Lands.Query().FindAsync(landId);
     }
 
     /// <inheritdoc/>
@@ -259,7 +247,7 @@ internal class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public IQueryBuilder<Land> GetLands(long UserId)
+    public async Task<IQueryBuilder<Land>> GetLands(long UserId)
     {
         throw new NotImplementedException();
     }
