@@ -78,23 +78,26 @@ internal class LandService : ILandService
         IrrigationPowerSource irrigationPowerSource,
         bool isGovernmentFunded)
     {
-        var user = await _uow.Users.Query().FindAsync(userId);
         var land = await _uow.Lands.Query()
             .Include(u => u.OwnedBy)
             .FindAsync(landId);
 
-        if (user.Id != land.OwnedBy.Id)
-        {
-            throw new InsufficientPermissionsException(userId,
-                $"user #{userId} cannot add land product because he dose not own land #{landId}");
-        }
-        else if (user.AccessLevel != AccessLevel.Farmer)
+        var authedId = await _permissionsSvc.ValidatePermissionsAsync(
+            userId,
+            land.OwnedBy.Id,
+            land,
+            PermissionType.Create);
+
+        var user = await _uow.Users.Query().FindAsync(authedId);
+
+        if (user.AccessLevel != AccessLevel.Farmer)
         {
             throw new InsufficientPermissionsException(userId,
                 $"user #{userId} cannot add land product because he dose not have farmer access level");
         }
 
         var season = await _uow.Sessions.Query().FindAsync(seasonId);
+
         var landproduct = new LandProduct
         {
             Quantity = quantity,
