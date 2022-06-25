@@ -30,86 +30,48 @@ public sealed class PermissionsService : IPermissionsService
     #region Public Methods
 
     /// <inheritdoc/>
-    public async Task<PermissionInheritance> GivePermissionsAsync(
-        long superuserId,
-        long fromId,
-        long toId,
-        PermissionType permissions,
-        DateTime validUntil)
+    public async Task<bool> HasPermissionsAsync(long accountId, long userId, PermissionType permissions)
     {
-        var superuser = await _uow.Users.Query().FindAsync(superuserId);
+        var account = await _uow.Accounts.Query().FindAsync(accountId);
+        var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
 
-        if (superuser.AccessLevel != AccessLevel.Root)
-            throw new InsufficientPermissionsException(superuserId, "only root can transfer permissions");
-
-        if (validUntil <= DateTime.Now)
-            throw new InvalidDateTimeException(validUntil, "permission inheritance expiry date cannot be in the past");
-
-        var inheritance = new PermissionInheritance
-        {
-            From = await _uow.Users.Query().FindAsync(fromId),
-            To = await _uow.Users.Query().FindAsync(toId),
-            Permissions = permissions,
-            ValidUntil = validUntil,
-        };
-
-        _uow.PermissionInheritances.Add(inheritance);
-        await _uow.CommitAsync();
-
-        return inheritance;
+        return CorrelateDistanceWithPermissions(distance, permissions);
     }
 
     /// <inheritdoc/>
-    public async Task<bool> HasPermissionsOfAsync(long userId, long ofUserId, PermissionType permissions)
+    public async Task<Account> ValidatePermissionsAsync(long accountId, long userId, PermissionType permissions)
     {
-        if (userId == ofUserId)
-            return true;
+        var account = await _uow.Accounts.Query()
+            .Include(a => a.User)
+            .FindAsync(accountId);
+        var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
 
-        if (await GetSubuserDistanceAsync(userId, ofUserId) is var distance && distance >= 0)
+        if (!CorrelateDistanceWithPermissions(distance, permissions))
         {
-            if (distance == 0 || permissions == PermissionType.Read)
-                return true;
+            var pemStr = permissions.ToFormattedString();
+
+            throw new InsufficientPermissionsException(
+                accountId,
+                $"account #{account} of user #{account.User.Id} does not have permissions {pemStr} on user #{userId}");
         }
 
-        var user = await _uow.Users.Query().FindAsync(userId);
-        var inheritance = await _uow.PermissionInheritances
-            .Query()
-            .Where(i => i.ValidUntil >= DateTime.Now)
-            .Where(i => i.From.Id == ofUserId && i.To.Id == userId)
-            .FirstOrNullAsync();
-
-        if (inheritance is null)
-            return false;
-
-        return inheritance.Permissions.HasFlag(permissions);
-    }
-
-    /// <inheritdoc/>
-    public async Task<long> ValidatePermissionsAsync<TEntity>(
-        long userId,
-        long ofUserId,
-        TEntity resource,
-        PermissionType permissions) where TEntity : AuditableEntity
-    {
-        if (await HasPermissionsOfAsync(userId, ofUserId, permissions))
-            return ofUserId;
-
-        throw new CannotAccessResouceOfException(userId, ofUserId, resource.Id, typeof(TEntity), permissions);
-    }
-
-    /// <inheritdoc/>
-    public async Task<long> ValidatePermissionsAsync(long userId, long ofUserId, PermissionType permissions)
-    {
-        if (await HasPermissionsOfAsync(userId, ofUserId, permissions))
-            return ofUserId;
-
-        throw new InsufficientExecutionStackException(
-            $"user #{userId} does not have {{ {string.Join(',', permissions.GetPermissionValues())} }} of user #{ofUserId}");
+        return account;
     }
 
     #endregion Public Methods
 
     #region Private Methods
+
+    private static bool CorrelateDistanceWithPermissions(int distance, PermissionType permissions)
+    {
+        if (distance < 0)
+            return false;
+
+        if (distance == 0)
+            return true;
+
+        return permissions == PermissionType.Read;
+    }
 
     private async Task<int> GetSubuserDistanceAsync(long superuserId, long subuserId)
     {

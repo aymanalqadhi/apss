@@ -28,4 +28,7 @@ public static class PermissionTypeExtensions
         if (permissions.HasFlag(PermissionType.Create))
             yield return "create";
     }
+
+    public static string ToFormattedString(this PermissionType permissions)
+        => $"{{ {string.Join(", ", permissions.GetPermissionValues())} }}";
 }

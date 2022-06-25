@@ -28,13 +28,13 @@ public interface IUsersService
     IQueryBuilder<User> GetSubuser(int superuserId);
 
     /// <summary>
-    /// Asynchronously disables/enables a user
+    /// Asynchronously set the user status of a user
     /// </summary>
-    /// <param name="superuserId">The id of id superuser</param>
+    /// <param name="accountId">The id of id superuser</param>
     /// <param name="userId">The id of the user to change</param>
     /// <param name="newActiveStatus">The new active value</param>
     /// <returns></returns>
-    Task SetUserActiveStatusAsync(long superuserId, long userId, bool newActiveStatus);
+    Task SetUserStatusAsync(long accountId, long userId, bool newActiveStatus);
 
     /// <summary>
     /// Asynchronously updates a user
