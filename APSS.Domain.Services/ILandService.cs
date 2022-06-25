@@ -11,7 +11,7 @@ public interface ILandService
     /// <summary>
     /// Asynchronously adds a new land
     /// </summary>
-    /// <param name="accountId">The id of the user who owns the land</param>
+    /// <param name="accountId">The Id of the account to add land for</param>
     /// <param name="area">The area of the land (in m2)</param>
     /// <param name="coordinates">The coordinates of the land</param>
     /// <param name="address">The ad physical dress of the land</param>
