@@ -11,44 +11,14 @@ public sealed class User : AuditableEntity
     public string Name { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the name of the peron who holds this account
-    /// </summary>
-    public string? HolderName { get; set; }
-
-    /// <summary>
-    /// Gets or sets the password hash of the user
-    /// </summary>
-    public string PasswordHash { get; set; } = null!;
-
-    /// <summary>
-    /// Gets or sets the national id of the user
-    /// </summary>
-    public string? NationalId { get; set; }
-
-    /// <summary>
-    /// Gets or sets the phone number of the user
-    /// </summary>
-    public string? PhoneNumber { get; set; }
-
-    /// <summary>
-    /// Gets or sets the social status of the user
-    /// </summary>
-    public SocialStatus SocialStatus { get; set; } = SocialStatus.Unspecified;
-
-    /// <summary>
-    /// Gets or sets the job of the user
-    /// </summary>
-    public string? Job { get; set; }
-
-    /// <summary>
-    /// Gets or sets the access level of the user
+    /// Gets or stes the access level of the user
     /// </summary>
     public AccessLevel AccessLevel { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the user is active or not
+    /// Gets or sets the user status
     /// </summary>
-    public bool IsActive { get; set; } = false;
+    public UserStatus UserStatus { get; set; }
 
     /// <summary>
     /// Gets or sets the supervisor
@@ -59,10 +29,15 @@ public sealed class User : AuditableEntity
     /// Gets or sets the collection of subusers under this user
     /// </summary>
     public ICollection<User> SubUsers { get; set; } = new List<User>();
+
+    /// <summary>
+    /// Gets or sets the collection of accounts under this user
+    /// </summary>
+    public ICollection<Account> Accounts { get; set; } = new List<Account>();
 }
 
 /// <summary>
-/// An enum to represent the access level
+/// An enum to represent the user status
 /// </summary>
 public enum AccessLevel : int
 {
@@ -77,13 +52,11 @@ public enum AccessLevel : int
 }
 
 /// <summary>
-/// An enum to represent social status
+/// An enum to represent the access level
 /// </summary>
-public enum SocialStatus
+public enum UserStatus
 {
-    Unspecified,
-    Unmarried,
-    Married,
-    Divorced,
-    Widowed,
+    Active,
+    Inactive,
+    Terminated ,
 }

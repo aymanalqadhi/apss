@@ -16,10 +16,6 @@ public sealed class UserValidator : Validator<User>
             .NotEmpty()
             .WithMessage("user name cannot be empty");
 
-        RuleFor(user => user.NationalId)
-            .NotEmpty()
-            .WithMessage("user national ID cannot be empty");
-
         RuleFor(u => u.SupervisedBy)
             .NotNull()
             .When(u => u.AccessLevel != AccessLevel.Root)
