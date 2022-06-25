@@ -13,36 +13,36 @@ public interface IUsersService
     /// <summary>
     /// Asynchronosuly creates a user
     /// </summary>
-    /// <param name="superUserId">The id of the user to add the new user under</param>
+    /// <param name="accountId">The id of the account to add the new user under</param>
     /// <param name="name">The name of the user</param>
     /// <param name="password">The password of the new user</param>
     /// <param name="accessLevel">The access level of the new user</param>
     /// <returns>The created user</returns>
-    Task<User> CreateUserAsync(long superUserId, string name, string password, AccessLevel accessLevel);
+    Task<User> CreateUserAsync(long accountId, string name, string password, AccessLevel accessLevel);
 
     /// <summary>
-    /// Gets a query for the users set
+    /// Asynchronously gets a query for the users set
     /// </summary>
-    /// <param name="superuserId">The id of the superuser which to get the subusers for</param>
+    /// <param name="accountId">The id of the account which to get the subusers for</param>
     /// <returns></returns>
-    IQueryBuilder<User> GetSubuser(int superuserId);
+    Task<IQueryBuilder<User>> GetSubuserAsync(int accountId);
 
     /// <summary>
     /// Asynchronously set the user status of a user
     /// </summary>
-    /// <param name="accountId">The id of id superuser</param>
+    /// <param name="accountId">The id of id account of the superuser</param>
     /// <param name="userId">The id of the user to change</param>
-    /// <param name="newActiveStatus">The new active value</param>
+    /// <param name="newStatus">The new status value</param>
     /// <returns></returns>
-    Task SetUserStatusAsync(long accountId, long userId, bool newActiveStatus);
+    Task<User> SetUserStatusAsync(long accountId, long userId, UserStatus newStatus);
 
     /// <summary>
     /// Asynchronously updates a user
     /// </summary>
-    /// <param name="superUserId">The id of the superuser of the user to update</param>
+    /// <param name="accountId">The id of the superuser of the user to update</param>
     /// <param name="user">The user to udpate</param>
     /// <returns>The updated user</returns>
-    Task<User> UpdateUserAsync(long superUserId, User user);
+    Task<User> UpdateUserAsync(long accountId, User user);
 
     /// <summary>
     /// Asyncrhnnously gets a user's upwards hierarchy (all users above)
