@@ -3,6 +3,7 @@ using APSS.Domain.Repositories;
 using APSS.Domain.Repositories.Extensions;
 using APSS.Domain.Services;
 using APSS.Domain.Services.Exceptions;
+using APSS.Domain.ValueTypes;
 
 namespace APSS.Application.App;
 
@@ -32,8 +33,7 @@ internal class LandService : ILandService
     public async Task<Land> AddLandAsync(
         long accountId,
         long area,
-        double longitude,
-        double latitude,
+        Coordinates coordinates,
         string address,
         string name,
         bool isUsable = true,
@@ -47,8 +47,8 @@ internal class LandService : ILandService
         {
             Name = name,
             Area = area,
-            Longitude = longitude,
-            Latitude = latitude,
+           Latitude= coordinates.Latitude,
+           Longitude= coordinates.Longitude,
             Address = address,
             IsUsable = isUsable,
             IsUsed = isUsed,

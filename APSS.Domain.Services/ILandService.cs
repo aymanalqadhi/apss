@@ -11,7 +11,7 @@ public interface ILandService
     /// <summary>
     /// Asynchronously adds a new land
     /// </summary>
-    /// <param name="userId">The id of the user who owns the land</param>
+    /// <param name="accountId">The id of the user who owns the land</param>
     /// <param name="area">The area of the land (in m2)</param>
     /// <param name="coordinates">The coordinates of the land</param>
     /// <param name="address">The ad physical dress of the land</param>
@@ -22,8 +22,7 @@ public interface ILandService
     Task<Land> AddLandAsync(
         long accountId,
         long area,
-        double longitude,
-        double latitude,
+        Coordinates coordinates,
         string address,
         string name,
         bool isUsable = true,
