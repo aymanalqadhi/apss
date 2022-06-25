@@ -3,13 +3,13 @@
 namespace APSS.Domain.Services.Exceptions;
 
 /// <summary>
-/// An exception to be thrown when a user lacks sufficient permissions to perform an operation
+/// An exception to be thrown when a user account lacks sufficient permissions to perform an operation
 /// </summary>
 public sealed class InsufficientPermissionsException : Exception
 {
     #region Fields
 
-    private readonly long _userId;
+    private readonly long _accountId;
 
     #endregion Fields
 
@@ -18,12 +18,12 @@ public sealed class InsufficientPermissionsException : Exception
     /// <summary>
     /// Default constructor
     /// </summary>
-    /// <param name="userId">The id of the user who lacks permissions</param>
+    /// <param name="accountId">The id of the account who lacks permissions</param>
     /// <param name="message">An optional message to clarify the error</param>
-    public InsufficientPermissionsException(long userId, string? message)
+    public InsufficientPermissionsException(long accountId, string? message)
         : base(message)
     {
-        _userId = userId;
+        _accountId = accountId;
     }
 
     #endregion Public Constructors
@@ -33,7 +33,7 @@ public sealed class InsufficientPermissionsException : Exception
     /// <summary>
     /// Gets the id of the user who lacks sufficient permissions
     /// </summary>
-    public long UserId => _userId;
+    public long AccountId => _accountId;
 
     #endregion Properties
 }

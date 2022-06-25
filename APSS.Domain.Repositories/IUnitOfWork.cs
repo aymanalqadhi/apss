@@ -7,14 +7,14 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     #region Properties
 
     /// <summary>
+    /// Gets the accounts repository
+    /// </summary>
+    IRepository<Account> Accounts { get; }
+
+    /// <summary>
     /// Gets the users repository
     /// </summary>
     IRepository<User> Users { get; }
-
-    /// <summary>
-    /// Gets the users' permission inheritances repository
-    /// </summary>
-    IRepository<PermissionInheritance> PermissionInheritances { get; }
 
     /// <summary>
     /// Gets the lands repository

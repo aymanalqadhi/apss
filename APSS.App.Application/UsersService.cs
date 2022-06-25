@@ -47,11 +47,11 @@ public sealed class UsersService : IUsersService
         => _uow.Users.Query().Where(u => u.SupervisedBy!.Id == superuserId);
 
     /// <inheritdoc/>
-    public async Task SetUserActiveStatusAsync(long superuserId, long userId, bool newActiveStatus)
+    public async Task SetUserStatusAsync(long superuserId, long userId, bool newActiveStatus)
     {
         var user = await _uow.Users.Query().FindAsync(userId);
 
-        user.IsActive = newActiveStatus;
+        user.UserStatus = newActiveStatus;
         await UpdateUserAsync(superuserId, user);
     }
 
