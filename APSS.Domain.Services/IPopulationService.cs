@@ -20,7 +20,7 @@ public interface IPopulationService
     /// <param name="accountId">The id of the account which to get the added fammily  by its</param>
     /// <param name="familyId">The id of the family which to get the individuals for </param>
     /// <returns></returns>
-    Task<IQueryBuilder<FamilyIndividual>> GetFamilyIndividuals(long accountId, long familyId);
+    Task<IQueryBuilder<FamilyIndividual>> GetFamilyIndividualsAsync(long accountId, long familyId);
 
     /// <summary>
     ///  Asynchronosuly add a new Individuals
