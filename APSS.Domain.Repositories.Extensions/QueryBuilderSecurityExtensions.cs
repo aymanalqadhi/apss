@@ -40,6 +40,27 @@ public static class QueryBuilderSecurityExtensions
     }
 
     /// <summary>
+    /// Asynchrnonously validates an account permissions
+    /// </summary>
+    /// <param name="self"></param>
+    /// <param name="accountId">The id of the account to validate its permissions</param>
+    /// <param name="permissions">the expected permissions</param>
+    /// <returns>The account with the supplied id</returns>
+    /// <exception cref="InvalidPermissionsExceptions"></exception>
+    public static async Task<Account> FindWithPermissionsValidationAsync(
+        this IQueryBuilder<Account> self,
+        long accountId,
+        PermissionType permissions)
+    {
+        var account = await self.FindAsync(accountId);
+
+        if (!account.Permissions.HasFlag(permissions))
+            throw new InvalidPermissionsExceptions(accountId, permissions, account.Permissions);
+
+        return account;
+    }
+
+    /// <summary>
     /// Asynchronously gets an item with ownership validation
     /// </summary>
     /// <typeparam name="T">The type of the item</typeparam>
