@@ -74,7 +74,7 @@ public sealed class LandServiceTest
         var land = await addLandTask;
 
         Assert.True(await _uow.Lands.Query().ContainsAsync(land));
-        Assert.Equal(templateLand.OwnedBy.Id, account.User.Id);
+        Assert.Equal(account.User.Id, land.OwnedBy.Id);
         Assert.Equal(templateLand.Area, land.Area);
         Assert.Equal(templateLand.Name, land.Name);
         Assert.Equal(templateLand.Address, land.Address);
@@ -87,11 +87,16 @@ public sealed class LandServiceTest
     [Fact]
     public async Task LandRemovedFact()
     {
-        var (account, land) = await LandAddedTheory();
+        var (account, land) = await LandAddedTheory(
+            AccessLevel.Farmer,
+            PermissionType.Create | PermissionType.Delete,
+            true);
 
         Assert.True(await _uow.Lands.Query().ContainsAsync(land!));
-        await Assert.ThrowsAsync<InsufficientPermissionsException>(async () =>
-            await _landSvc.RemoveLandAsync(account.Id + 1, land!.Id)
+
+        var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+            _landSvc.RemoveLandAsync(otherAccount.Id, land!.Id)
         );
 
         await _landSvc.RemoveLandAsync(account.Id, land!.Id);

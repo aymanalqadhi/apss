@@ -27,7 +27,7 @@ public static class QueryBuilderExtensions
     public static Task<TEntity> FindAsync<TEntity>(this IQueryBuilder<TEntity> self, long id)
         where TEntity : AuditableEntity
     {
-        return self.Find(id).FirstAsync();
+        return self.FirstAsync(i => i.Id == id);
     }
 
     /// <summary>

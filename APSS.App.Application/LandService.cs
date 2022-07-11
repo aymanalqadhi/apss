@@ -122,7 +122,10 @@ public class LandService : ILandService
     /// <inheritdoc/>
     public async Task<Land> RemoveLandAsync(long accountId, long landId)
     {
-        var land = await _uow.Lands.Query().Include(l => l.OwnedBy).FindAsync(landId);
+        var land = await _uow.Lands.Query()
+            .Include(l => l.OwnedBy)
+            .FindAsync(landId);
+
         await _permissionsSvc.ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Delete);
 
         _uow.Lands.Remove(land);

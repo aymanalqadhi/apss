@@ -1,5 +1,6 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Tests.Utils;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +18,10 @@ public static class ValidEntitiesFactory
     {
         return new User
         {
-            Name = RandomGenerator.NextString(0xff),
+            Name = RandomGenerator.NextString(30),
             AccessLevel = accessLevel,
             SupervisedBy = accessLevel != AccessLevel.Root
-                ? new User { AccessLevel = (AccessLevel)(((int)accessLevel) - 1) }
+                ? CreateValidUser(accessLevel.NextLevelUpove())
                 : null,
         };
     }
@@ -129,15 +130,14 @@ public static class ValidEntitiesFactory
             Name = RandomGenerator.NextString(0xff),
             Address = RandomGenerator.NextString(0xff),
             Area = RandomGenerator.NextLong(),
-            Longitude = RandomGenerator.NextDouble(-180, 180),
             Latitude = RandomGenerator.NextDouble(-90, 90),
+            Longitude = RandomGenerator.NextDouble(-180, 180),
             IsUsable = true,
             IsUsed = true,
             OwnedBy = CreateValidUser(AccessLevel.Farmer),
         };
     }
 
-    
     /// <summary>
     /// Creates a valid land product object
     /// </summary>
@@ -175,7 +175,6 @@ public static class ValidEntitiesFactory
             Name = RandomGenerator.NextString(0xff),
         };
     }
-
 
     /// <summary>
     /// Creates a valid season object
