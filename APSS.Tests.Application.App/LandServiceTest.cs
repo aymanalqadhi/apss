@@ -2,16 +2,17 @@
 using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
 using APSS.Domain.Services;
-using APSS.Tests.Utils;
 using APSS.Tests.Domain.Entities.Validators;
 using APSS.Tests.Extensions;
 using APSS.Domain.ValueTypes;
-
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+using APSS.Domain.Repositories.Extensions.Exceptions;
+using APSS.Domain.Repositories.Extensions;
+using APSS.Domain.Services.Exceptions;
 
 using Xunit;
+
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace APSS.Tests.Application.App;
 
@@ -59,18 +60,18 @@ public sealed class LandServiceTest
             new Coordinates(templateLand.Latitude, templateLand.Longitude),
             templateLand.Address,
             templateLand.Name,
-            templateLand.IsUseable,
+            templateLand.IsUsable,
             templateLand.IsUsed);
 
         if (!shouldSucceed)
         {
-            Assert.ThrowsAsync<InvalidAccessLevelException>(await addLandTask);
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await addLandTask);
             return (account, null);
         }
 
         var land = await addLandTask;
 
-        Assert.True(_uow.Lands.Query().ContainsAsync(land));
+        Assert.True(await _uow.Lands.Query().ContainsAsync(land));
         Assert.Equal(templateLand.OwnedBy.Id, account.User.Id);
         Assert.Equal(templateLand.Area, land.Area);
         Assert.Equal(templateLand.Name, land.Name);
@@ -86,12 +87,12 @@ public sealed class LandServiceTest
     {
         var (account, land) = await LandAddedTheory();
 
-        Assert.True(await _uow.Lands.Query().ContainsAsync(land));
-        Assert.ThrowsAsync<InsufficientPermissionsException>(() async =>
-            await _landService.RemoveLandAsync(account.Id + 1, land.Id)
+        Assert.True(await _uow.Lands.Query().ContainsAsync(land!));
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(async () =>
+            await _landService.RemoveLandAsync(account.Id + 1, land!.Id)
         );
 
-        await _landService.RemoveLandAsync(account.Id, land.Id);
+        await _landService.RemoveLandAsync(account.Id, land!.Id);
         Assert.False(await _uow.Lands.Query().ContainsAsync(land));
     }
 
