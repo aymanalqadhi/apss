@@ -216,7 +216,7 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public  IQueryBuilder<Family>GetFamilies(long accountId)
+    public  IQueryBuilder<Family>GetFamiliesAsync(long accountId)
     {
         var family=  _uow.Families
             .Query()
@@ -227,7 +227,7 @@ public sealed class PopulationService : IPopulationService
 
 
     ///<inheritdoc/>
-    public async Task<IQueryBuilder<FamilyIndividual>> GetFamilyIndividuals(long accountId, long familyId)
+    public async Task<IQueryBuilder<FamilyIndividual>> GetFamilyIndividualsAsync(long accountId, long familyId)
     {
         var family = await _uow.Families.Query().Include(f => f.AddedBy).FindAsync(familyId);
         var account = await _permissionsSvc
