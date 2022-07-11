@@ -1,6 +1,7 @@
 ﻿using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
 using APSS.Domain.Repositories.Exceptions;
+
 using Microsoft.EntityFrameworkCore;
 
 using System.Linq.Expressions;
@@ -92,11 +93,11 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
     }
 
     /// <inheritdoc/>
-    public Task<T> FirstAsync(CancellationToken cancellationToken = default)
+    public async Task<T> FirstAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            return _query.FirstAsync(cancellationToken);
+            return await _query.FirstAsync(cancellationToken);
         }
         catch (InvalidOperationException ex)
         {
@@ -105,13 +106,13 @@ public sealed class QueryBuilder<T> : IQueryBuilder<T> where T : AuditableEntity
     }
 
     /// <inheritdoc/>
-    public Task<T> FirstAsync(
+    public async Task<T> FirstAsync(
         Expression<Func<T, bool>> pred,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            return _query.FirstAsync(pred, cancellationToken);
+            return await _query.FirstAsync(pred, cancellationToken);
         }
         catch (InvalidOperationException ex)
         {
