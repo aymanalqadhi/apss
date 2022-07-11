@@ -149,6 +149,7 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     /// Commits changes to the database
     /// </summary>
     /// <returns></returns>
+    [Obsolete("Synchronous method to be removed")]
     int Commit();
 
     /// <summary>
