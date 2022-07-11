@@ -18,15 +18,29 @@ public static class ValidEntitiesFactory
         return new User
         {
             Name = RandomGenerator.NextString(0xff),
-            NationalId = RandomGenerator.NextString(0xff),
             AccessLevel = accessLevel,
             SupervisedBy = accessLevel != AccessLevel.Root
                 ? new User { AccessLevel = (AccessLevel)(((int)accessLevel) - 1) }
                 : null,
+        };
+    }
+
+    /// <summary>
+    /// Creates a valid account object
+    /// </summary>
+    /// <param name="permissions">The account permissions</param>
+    /// <returns>The created account object</returns>
+    public static Account CreateValidAccount(PermissionType permissions)
+    {
+        return new Account
+        {
+            HolderName = RandomGenerator.NextString(0xff),
+            NationalId = RandomGenerator.NextString(0xff),
             PasswordHash = string.Empty,
             PhoneNumber = string.Empty,
             SocialStatus = SocialStatus.Unspecified,
             Job = string.Empty,
+            Permissions = permissions,
         };
     }
 
@@ -55,9 +69,21 @@ public static class ValidEntitiesFactory
         {
             Name = RandomGenerator.NextString(0xff),
             Quantity = RandomGenerator.NextInt(1),
-            Unit = new AnimalProductUnit { Name = RandomGenerator.NextString(0xff) },
+            Unit = CreateValidAnimalProductUnit(),
             PeriodTaken = new TimeSpan(RandomGenerator.NextLong()),
             Producer = CreateValidAnimalGroup(),
+        };
+    }
+
+    /// <summary>
+    /// Creates a valid animal product unit object
+    /// </summary>
+    /// <returns>The created animal product unit object</returns>
+    public static AnimalProductUnit CreateValidAnimalProductUnit()
+    {
+        return new AnimalProductUnit
+        {
+            Name = RandomGenerator.NextString(0xff),
         };
     }
 
@@ -111,6 +137,7 @@ public static class ValidEntitiesFactory
         };
     }
 
+    
     /// <summary>
     /// Creates a valid land product object
     /// </summary>
@@ -122,7 +149,7 @@ public static class ValidEntitiesFactory
             CropName = RandomGenerator.NextString(0xff),
             Quantity = RandomGenerator.NextInt(1),
             StoringMethod = RandomGenerator.NextString(0xff),
-            Unit = RandomGenerator.NextString(0xff),
+            Unit = CreateValidLandProductUnit(),
             Category = RandomGenerator.NextString(0xff),
             IrrigationMethod = RandomGenerator.NextString(0xff),
             IrrigationCount = RandomGenerator.NextDouble(),
@@ -134,6 +161,19 @@ public static class ValidEntitiesFactory
             ProducedIn = CreateValidSeason()
         };
     }
+
+    /// <summary>
+    /// Creates a valid land product unit object
+    /// </summary>
+    /// <returns>The created land product unit object</returns>
+    public static LandProductUnit CreateValidLandProductUnit()
+    {
+        return new LandProductUnit
+        {
+            Name = RandomGenerator.NextString(0xff),
+        };
+    }
+
 
     /// <summary>
     /// Creates a valid season object

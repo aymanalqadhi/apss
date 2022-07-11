@@ -38,6 +38,15 @@ public class ValidEntitiesFactoryTests
     }
 
     [TestMethod]
+    public void ValidateCreateValidAnimalProductUnitShouldSucceed()
+    {
+        var validator = new AnimalProductUnitValidator();
+        var animalProductUnit = ValidEntitiesFactory.CreateValidAnimalProductUnit();
+
+        Assert.IsTrue(validator.Validate(animalProductUnit).IsValid);
+    }
+
+    [TestMethod]
     public void ValidateCreateValidFamilyShouldSucceed()
     {
         var validator = new FamilyValidator();
@@ -71,6 +80,15 @@ public class ValidEntitiesFactoryTests
         var landProduct = ValidEntitiesFactory.CreateValidLandProduct();
 
         Assert.IsTrue(validator.Validate(landProduct).IsValid);
+    }
+
+    [TestMethod]
+    public void ValidateCreateValidLandProductUnitShouldSucceed()
+    {
+        var validator = new LandProductUnitValidator();
+        var landProductUnit = ValidEntitiesFactory.CreateValidLandProductUnit();
+
+        Assert.IsTrue(validator.Validate(landProductUnit).IsValid);
     }
 
     [TestMethod]
