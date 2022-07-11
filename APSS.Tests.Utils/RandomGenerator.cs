@@ -98,12 +98,12 @@ public static class RandomGenerator
 [Flags]
 public enum RandomStringOptions : int
 {
-    Alpha = 1,
-    Numeric = 2,
-    Symbol = 4,
+    Alpha = 1 << 0,
+    Numeric = 1 << 1,
+    Symbol = 1 << 3,
     AlphaNumeric = Alpha | Numeric,
-    Lowercase = 8,
-    Uppercase = 16,
+    Lowercase = 1 << 4,
+    Uppercase = 1 << 5,
     Mixedcase = Lowercase | Uppercase,
     Mixed = Alpha | Numeric | Lowercase | Uppercase | Symbol,
 };
