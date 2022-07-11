@@ -6,6 +6,7 @@ using APSS.Tests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace APSS.Tests.Infrastructure.Repositories.EntityFramework;
 
@@ -13,7 +14,7 @@ namespace APSS.Tests.Infrastructure.Repositories.EntityFramework;
 public class RepositoryTests
 {
     [TestMethod]
-    public void AddShouldSucceed()
+    public async Task AddShouldSucceed()
     {
         using var ctx = TestDbContext.Create();
         using var uow = new ApssUnitOfWork(ctx);
@@ -22,12 +23,12 @@ public class RepositoryTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, await uow.CommitAsync());
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
     }
 
     [TestMethod]
-    public void UpdateShouldSucceed()
+    public async Task UpdateShouldSucceed()
     {
         using var ctx = TestDbContext.Create();
         using var uow = new ApssUnitOfWork(ctx);
@@ -36,19 +37,19 @@ public class RepositoryTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, await uow.CommitAsync());
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
 
         log.Message = RandomGenerator.NextString(0xff);
 
         uow.Logs.Update(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, await uow.CommitAsync());
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id && l.Message == log.Message));
     }
 
     [TestMethod]
-    public void DeleteShouldSucceed()
+    public async Task DeleteShouldSucceed()
     {
         using var ctx = TestDbContext.Create();
         using var uow = new ApssUnitOfWork(ctx);
@@ -57,12 +58,12 @@ public class RepositoryTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, await uow.CommitAsync());
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
 
         uow.Logs.Remove(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, uow.CommitAsync());
         Assert.IsFalse(ctx.Logs.Any(l => l.Id == log.Id));
     }
 }

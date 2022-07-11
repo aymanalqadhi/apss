@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace APSS.Tests.Infrastructure.Repositories.EntityFramework;
 
@@ -13,7 +14,7 @@ namespace APSS.Tests.Infrastructure.Repositories.EntityFramework;
 public class QueryBuilderTests
 {
     [TestMethod]
-    public void FirstShouldSucceed()
+    public async Task FirstShouldSucceed()
     {
         using var uow = TestUnitOfWork.Create();
 
@@ -26,7 +27,7 @@ public class QueryBuilderTests
 
         uow.Logs.Add(logs);
 
-        Assert.AreEqual(3, uow.Commit());
+        Assert.AreEqual(3, await uow.CommitAsync());
         Assert.AreEqual(uow.Logs.Query().FirstAsync().Result.Id, logs[0].Id);
 
         foreach (var log in logs)
@@ -41,7 +42,7 @@ public class QueryBuilderTests
     }
 
     [TestMethod]
-    public void FirstShouldFail()
+    public async Task FirstShouldFail()
     {
         using var uow = TestUnitOfWork.Create();
 
@@ -54,7 +55,7 @@ public class QueryBuilderTests
         var log = ValidEntitiesFactory.CreateValidLog();
 
         uow.Logs.Add(log);
-        Assert.AreEqual(1, uow.Commit());
+        Assert.AreEqual(1, await uow.CommitAsync());
 
         exception = Assert.ThrowsException<AggregateException>(() =>
         {
@@ -66,7 +67,7 @@ public class QueryBuilderTests
     }
 
     [TestMethod]
-    public void CountShouldSucceed()
+    public async Task CountShouldSucceed()
     {
         using var uow = TestUnitOfWork.Create();
 
@@ -77,7 +78,7 @@ public class QueryBuilderTests
 
         uow.Logs.Add(logs);
 
-        Assert.AreEqual(logs.Length, uow.Commit());
+        Assert.AreEqual(logs.Length, await uow.CommitAsync());
         Assert.AreEqual(logs.Length, uow.Logs.Query().CountAsync().Result);
         Assert.AreEqual(
             logs.Count(l => l.Message.Length % 2 == 0),
@@ -86,7 +87,7 @@ public class QueryBuilderTests
     }
 
     [TestMethod]
-    public void HasItemsShouldSucceed()
+    public async Task HasItemsShouldSucceed()
     {
         using var uow = TestUnitOfWork.Create();
 
@@ -95,12 +96,12 @@ public class QueryBuilderTests
         var log = ValidEntitiesFactory.CreateValidLog();
         uow.Logs.Add(log);
 
-        Assert.AreEqual(1, uow.Commit());
+        Assert.AreEqual(1, await uow.CommitAsync());
         Assert.IsTrue(uow.Logs.Query().HasItemsAsync().Result);
     }
 
     [TestMethod]
-    public void AnyShouldSucceed()
+    public async Task AnyShouldSucceed()
     {
         using var uow = TestUnitOfWork.Create();
 
@@ -110,12 +111,12 @@ public class QueryBuilderTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(1, uow.Commit());
+        Assert.AreEqual(1, await uow.CommitAsync());
         Assert.IsTrue(uow.Logs.Query().AnyAsync(l => l.Message == log.Message).Result);
     }
 
     [TestMethod]
-    public void AllShouldSucceed()
+    public async Task AllShouldSucceed()
     {
         using var uow = TestUnitOfWork.Create();
 
@@ -127,7 +128,7 @@ public class QueryBuilderTests
 
         uow.Logs.Add(logs);
 
-        Assert.AreEqual(logs.Length, uow.Commit());
+        Assert.AreEqual(logs.Length, await uow.CommitAsync());
         Assert.IsTrue(uow.Logs.Query().AllAsync(l => l.Message.Length % 2 == 0).Result);
     }
 }
