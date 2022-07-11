@@ -58,5 +58,5 @@ public enum UserStatus
 {
     Active,
     Inactive,
-    Terminated ,
+    Terminated,
 }
