@@ -102,9 +102,10 @@ public class LandService : ILandService
         DateTime startsAt,
         DateTime endsAt)
     {
-        var account = await _uow.Accounts
+        await _uow.Accounts
             .Query()
             .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Create);
+
         var season = new Season
         {
             Name = name,
@@ -133,13 +134,15 @@ public class LandService : ILandService
     /// <inheritdoc/>
     public async Task<LandProduct> RemoveLandProductAsync(long accountId, long landProductId)
     {
+        var account = await _uow.Accounts
+            .Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Delete);
+
         var landProduct = await _uow.LandProducts
             .Query()
             .Include(p => p.Producer)
             .Include(p => p.Producer.OwnedBy)
-            .FindAsync(landProductId);
-
-        await _permissionsSvc.ValidatePermissionsAsync(accountId, landProduct.Producer.OwnedBy.Id, PermissionType.Delete);
+            .FindWithOwnershipValidationAync(landProductId, p => p.Producer.OwnedBy, account);
 
         _uow.LandProducts.Remove(landProduct);
         await _uow.CommitAsync();
@@ -150,21 +153,15 @@ public class LandService : ILandService
     /// <inheritdoc/>
     public async Task<Season> RemoveSeasonAsync(long accountId, long seasonId)
     {
-        var account = await _uow.Accounts
+        await _uow.Accounts
             .Query()
-            .Include(u => u.User)
-            .FindAsync(accountId);
-        if (account.User.AccessLevel != AccessLevel.Root)
-        {
-            throw new InsufficientPermissionsException(
-                accountId,
-                $"user#{accountId} cannot get land becuase he dose not have read permissions on #{seasonId}");
-        }
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Delete);
 
         var season = await _uow.Sessions.Query().FindAsync(seasonId);
 
         _uow.Sessions.Remove(season);
         await _uow.CommitAsync();
+
         return season;
     }
 
