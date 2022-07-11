@@ -11,14 +11,14 @@ public interface IUsersService
     #region Public Methods
 
     /// <summary>
-    /// Asynchronosuly creates a user
+    /// Asynchronosly creates a new user
     /// </summary>
-    /// <param name="accountId">The id of the account to add the new user under</param>
-    /// <param name="name">The name of the user</param>
-    /// <param name="password">The password of the new user</param>
-    /// <param name="accessLevel">The access level of the new user</param>
-    /// <returns>The created user</returns>
-    Task<User> CreateUserAsync(long accountId, string name, string password, AccessLevel accessLevel);
+    /// <param name="accountId">
+    /// The id of the account of the user to add the new user under
+    /// </param>
+    /// <param name="name">The name of the user to be created</param>
+    /// <returns>The created user object</returns>
+    Task<User> CreateAsync(long accountId, string name);
 
     /// <summary>
     /// Asynchronously gets a query for the users set
