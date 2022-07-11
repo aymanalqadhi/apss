@@ -29,4 +29,17 @@ public static class QueryBuilderExtensions
     {
         return self.Find(id).FirstAsync();
     }
+
+    /// <summary>
+    /// An extension to asynchrnously check for an item's existence
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <param name="self"></param>
+    /// <param name="item">The item to check for</param>
+    /// <returns>True if the item exists in the data store, false otherwise</returns>
+    public static Task<bool> ContainsAsync<TEntity>(this IQueryBuilder<TEntity> self, TEntity item)
+        where TEntity : AuditableEntity
+    {
+        return self.AnyAsync(i => i.Id == item.Id);
+    }
 }
