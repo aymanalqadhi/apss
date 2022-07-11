@@ -76,18 +76,9 @@ public class LandService : ILandService
         var account = await _uow.Accounts
             .Query()
             .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Create);
+        var land = await _uow.Lands.Query().FindWithOwnershipValidationAync(landId, account);
 
-        var land = await _uow.Lands.Query().FindAsync(landId);
-
-        if (account.User.Id != land.OwnedBy.Id)
-        {
-            throw new InsufficientPermissionsException(account.User.Id,
-                $"User #{account.User.Id} can not add land product to land #{landId} becuase they do not own it");
-        }
-
-        var season = await _uow.Sessions.Query().FindAsync(seasonId);
-
-        var landproduct = new LandProduct
+        var product = new LandProduct
         {
             Quantity = quantity,
             IrrigationCount = irrigationCount,
@@ -95,13 +86,13 @@ public class LandService : ILandService
             IrrigationPowerSource = irrigationPowerSource,
             IrrigationWaterSource = irrigationWaterSource,
             IsGovernmentFunded = isGovernmentFunded,
-            ProducedIn = season,
+            ProducedIn = await _uow.Sessions.Query().FindAsync(seasonId),
         };
 
-        _uow.LandProducts.Add(landproduct);
+        _uow.LandProducts.Add(product);
         await _uow.CommitAsync();
 
-        return landproduct;
+        return product;
     }
 
     /// <inheritdoc/>
@@ -111,9 +102,10 @@ public class LandService : ILandService
         DateTime startsAt,
         DateTime endsAt)
     {
-        var account = await _uow.Accounts
+        await _uow.Accounts
             .Query()
             .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Create);
+
         var season = new Season
         {
             Name = name,
@@ -142,13 +134,15 @@ public class LandService : ILandService
     /// <inheritdoc/>
     public async Task<LandProduct> RemoveLandProductAsync(long accountId, long landProductId)
     {
+        var account = await _uow.Accounts
+            .Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Delete);
+
         var landProduct = await _uow.LandProducts
             .Query()
             .Include(p => p.Producer)
             .Include(p => p.Producer.OwnedBy)
-            .FindAsync(landProductId);
-
-        await _permissionsSvc.ValidatePermissionsAsync(accountId, landProduct.Producer.OwnedBy.Id, PermissionType.Delete);
+            .FindWithOwnershipValidationAync(landProductId, p => p.Producer.OwnedBy, account);
 
         _uow.LandProducts.Remove(landProduct);
         await _uow.CommitAsync();
@@ -159,36 +153,33 @@ public class LandService : ILandService
     /// <inheritdoc/>
     public async Task<Season> RemoveSeasonAsync(long accountId, long seasonId)
     {
-        var account = await _uow.Accounts
+        await _uow.Accounts
             .Query()
-            .Include(u => u.User)
-            .FindAsync(accountId);
-        if (account.User.AccessLevel != AccessLevel.Root)
-        {
-            throw new InsufficientPermissionsException(
-                accountId,
-                $"user#{accountId} cannot get land becuase he dose not have read permissions on #{seasonId}");
-        }
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Delete);
 
         var season = await _uow.Sessions.Query().FindAsync(seasonId);
 
         _uow.Sessions.Remove(season);
         await _uow.CommitAsync();
+
         return season;
     }
 
     /// <inheritdoc/>
-    public async Task<IQueryBuilder<Land>> GetLand(long accountId, long landId)
+    public async Task<IQueryBuilder<Land>> GetLandAsync(long accountId, long landId)
     {
-        var land = await _uow.Lands.Query().Include(l => l.OwnedBy).FindAsync(landId);
+        var land = await _uow.Lands.Query()
+            .Include(l => l.OwnedBy)
+            .FindAsync(landId);
 
-        await _permissionsSvc.ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Read);
+        await _permissionsSvc
+            .ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Read);
 
         return _uow.Lands.Query().Where(l => l.Id == landId);
     }
 
     /// <inheritdoc/>
-    public async Task<IQueryBuilder<LandProduct>> GetLandProducts(long accountId, long landId)
+    public async Task<IQueryBuilder<LandProduct>> GetLandProductsAsync(long accountId, long landId)
     {
         var land = await _uow.Lands
             .Query()
@@ -201,33 +192,21 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<Land> UpdateLandAsync(long userId, Land land)
+    public async Task<Land> UpdateLandAsync(long accountId, Land land)
     {
-        var user = await _uow.Users.Query().FindAsync(userId);
-        var landlast = await _uow.Lands.Query().Include(l => l.OwnedBy).FindAsync(land.Id);
-        if (user.Id != landlast.OwnedBy.Id || user.AccessLevel != AccessLevel.Root)
-        {
-            throw new InsufficientPermissionsException(
-                userId,
-                $"user #{userId} cannot update land becuase he dose not have Write or root accessLevel on #{land.Id} ");
-        }
+        await _permissionsSvc.ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Update);
+
         _uow.Lands.Update(land);
         await _uow.CommitAsync();
+
         return land;
     }
 
     /// <inheritdoc/>
-    public async Task<LandProduct> UpdateLandProductAsync(long userId, LandProduct landProduct)
+    public async Task<LandProduct> UpdateLandProductAsync(long accountId, LandProduct landProduct)
     {
-        var user = await _uow.Users.Query().FindAsync(userId);
-        var owner = await _uow.LandProducts.Query().Include(l => l.Producer.OwnedBy).FindAsync(landProduct.Id);
+        await _permissionsSvc.ValidatePermissionsAsync(accountId, landProduct.Producer.OwnedBy.Id, PermissionType.Update);
 
-        if (user.Id != owner.Producer.OwnedBy.Id || user.AccessLevel != AccessLevel.Root)
-        {
-            throw new InsufficientPermissionsException(
-                userId,
-                $"user #{userId} cannot update landPtoduct becuase he dose not have Write or root accessLevel on #{landProduct.Id} ");
-        }
         _uow.LandProducts.Update(landProduct);
         await _uow.CommitAsync();
 
