@@ -23,7 +23,9 @@ public class LandProductValidatorTests
         var landProduct = new LandProduct
         {
             CropName = RandomGenerator.NextString(0xff),
-            Quantity = RandomGenerator.NextInt(1)
+            Quantity = RandomGenerator.NextInt(1),
+            HarvestStart = System.DateTime.Now ,
+            HarvestEnd = System.DateTime.Now.AddHours(2),
         };
 
         Assert.IsTrue(_validator.Validate(landProduct).IsValid);

@@ -158,7 +158,9 @@ public static class ValidEntitiesFactory
             Fertilizer = RandomGenerator.NextString(0xff),
             Insecticide = RandomGenerator.NextString(0xff),
             Producer = CreateValidLand(),
-            ProducedIn = CreateValidSeason()
+            ProducedIn = CreateValidSeason(),
+            HarvestStart = DateTime.Now,
+            HarvestEnd = DateTime.Now.AddHours(2)
         };
     }
 
