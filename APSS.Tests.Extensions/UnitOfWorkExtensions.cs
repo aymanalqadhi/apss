@@ -6,6 +6,8 @@ namespace APSS.Tests.Extensions;
 
 public static class UnitOfWorkExtensions
 {
+    #region Public Methods
+
     /// <summary>
     /// Asynchronously adds a testing account
     /// </summary>
@@ -19,12 +21,27 @@ public static class UnitOfWorkExtensions
         PermissionType permissions)
     {
         var account = ValidEntitiesFactory.CreateValidAccount(permissions);
-        account.User = ValidEntitiesFactory.CreateValidUser(accessLevel); ;
+        account.User = ValidEntitiesFactory.CreateValidUser(accessLevel);
 
-        self.Users.Add(account.User);
+        self.Users.Add(GetUsersChain(account.User).Reverse().ToArray());
         self.Accounts.Add(account);
         await self.CommitAsync();
 
         return account;
     }
+
+    #endregion Public Methods
+
+    #region Private Methods
+
+    private static IEnumerable<User> GetUsersChain(User? user)
+    {
+        while (user is not null)
+        {
+            yield return user;
+            user = user.SupervisedBy;
+        }
+    }
+
+    #endregion Private Methods
 }
