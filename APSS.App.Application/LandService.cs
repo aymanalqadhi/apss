@@ -76,18 +76,9 @@ public class LandService : ILandService
         var account = await _uow.Accounts
             .Query()
             .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Create);
+        var land = await _uow.Lands.Query().FindWithOwnershipValidationAync(landId, account);
 
-        var land = await _uow.Lands.Query().FindAsync(landId);
-
-        if (account.User.Id != land.OwnedBy.Id)
-        {
-            throw new InsufficientPermissionsException(account.User.Id,
-                $"User #{account.User.Id} can not add land product to land #{landId} becuase they do not own it");
-        }
-
-        var season = await _uow.Sessions.Query().FindAsync(seasonId);
-
-        var landproduct = new LandProduct
+        var product = new LandProduct
         {
             Quantity = quantity,
             IrrigationCount = irrigationCount,
@@ -95,13 +86,13 @@ public class LandService : ILandService
             IrrigationPowerSource = irrigationPowerSource,
             IrrigationWaterSource = irrigationWaterSource,
             IsGovernmentFunded = isGovernmentFunded,
-            ProducedIn = season,
+            ProducedIn = await _uow.Sessions.Query().FindAsync(seasonId),
         };
 
-        _uow.LandProducts.Add(landproduct);
+        _uow.LandProducts.Add(product);
         await _uow.CommitAsync();
 
-        return landproduct;
+        return product;
     }
 
     /// <inheritdoc/>
@@ -178,7 +169,7 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<IQueryBuilder<Land>> GetLand(long accountId, long landId)
+    public async Task<IQueryBuilder<Land>> GetLandAsync(long accountId, long landId)
     {
         var land = await _uow.Lands.Query().Include(l => l.OwnedBy).FindAsync(landId);
 
@@ -188,7 +179,7 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<IQueryBuilder<LandProduct>> GetLandProducts(long accountId, long landId)
+    public async Task<IQueryBuilder<LandProduct>> GetLandProductsAsync(long accountId, long landId)
     {
         var land = await _uow.Lands
             .Query()
