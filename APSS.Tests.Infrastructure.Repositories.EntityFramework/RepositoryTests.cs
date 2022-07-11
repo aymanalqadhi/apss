@@ -14,7 +14,7 @@ namespace APSS.Tests.Infrastructure.Repositories.EntityFramework;
 public class RepositoryTests
 {
     [TestMethod]
-    public async Task AddShouldSucceed()
+    public void AddShouldSucceed()
     {
         using var ctx = TestDbContext.Create();
         using var uow = new ApssUnitOfWork(ctx);
@@ -23,12 +23,12 @@ public class RepositoryTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(1, await uow.CommitAsync());
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
     }
 
     [TestMethod]
-    public async Task UpdateShouldSucceed()
+    public void UpdateShouldSucceed()
     {
         using var ctx = TestDbContext.Create();
         using var uow = new ApssUnitOfWork(ctx);
@@ -37,19 +37,19 @@ public class RepositoryTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(1, await uow.CommitAsync());
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
 
         log.Message = RandomGenerator.NextString(0xff);
 
         uow.Logs.Update(log);
 
-        Assert.AreEqual(1, await uow.CommitAsync());
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id && l.Message == log.Message));
     }
 
     [TestMethod]
-    public async Task DeleteShouldSucceed()
+    public void DeleteShouldSucceed()
     {
         using var ctx = TestDbContext.Create();
         using var uow = new ApssUnitOfWork(ctx);
@@ -58,12 +58,12 @@ public class RepositoryTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(1, await uow.CommitAsync());
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
 
         uow.Logs.Remove(log);
 
-        Assert.AreEqual(1, uow.CommitAsync());
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsFalse(ctx.Logs.Any(l => l.Id == log.Id));
     }
 }
