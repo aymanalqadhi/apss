@@ -21,15 +21,17 @@ public sealed class LandServiceTest
     #region Private fields
 
     private readonly IUnitOfWork _uow;
-    private readonly LandService _landService;
-    private readonly IPermissionsService _permissionsSvc;
+    private readonly ILandService _landSvc;
 
     #endregion Private fields
 
     #region Constructors
 
-    public LandServiceTest(IUnitOfWork uow, IPermissionsService permissionsSvc)
-        => _landService = new LandService(_uow = uow, _permissionsSvc = permissionsSvc);
+    public LandServiceTest(IUnitOfWork uow, ILandService landsSvc)
+    {
+        _uow = uow;
+        _landSvc = landsSvc;
+    }
 
     #endregion Constructors
 
@@ -54,7 +56,7 @@ public sealed class LandServiceTest
         var account = await _uow.CreateTestingAccountAsync(accessLevel, permissions);
         var templateLand = ValidEntitiesFactory.CreateValidLand();
 
-        var addLandTask = _landService.AddLandAsync(
+        var addLandTask = _landSvc.AddLandAsync(
             account.Id,
             templateLand.Area,
             new Coordinates(templateLand.Latitude, templateLand.Longitude),
@@ -89,10 +91,10 @@ public sealed class LandServiceTest
 
         Assert.True(await _uow.Lands.Query().ContainsAsync(land!));
         await Assert.ThrowsAsync<InsufficientPermissionsException>(async () =>
-            await _landService.RemoveLandAsync(account.Id + 1, land!.Id)
+            await _landSvc.RemoveLandAsync(account.Id + 1, land!.Id)
         );
 
-        await _landService.RemoveLandAsync(account.Id, land!.Id);
+        await _landSvc.RemoveLandAsync(account.Id, land!.Id);
         Assert.False(await _uow.Lands.Query().ContainsAsync(land));
     }
 
