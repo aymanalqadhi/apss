@@ -76,34 +76,6 @@ public sealed class SurveysService : ISurveysService
     }
 
     /// <inheritdoc/>
-    public async Task<TQuesiton> AddQuestionAsync<TQuesiton>(
-        IRepository<TQuesiton> repo,
-        long accountId,
-        long surveyId,
-        string text,
-        bool isRequired) where TQuesiton : Question, new()
-    {
-        var (survey, _) = await GetSurveyWithAuthorizationAsync(
-            accountId,
-            surveyId,
-            PermissionType.Create | PermissionType.Update);
-
-        var question = new TQuesiton
-        {
-            Text = text,
-            IsRequired = isRequired,
-            Survey = survey,
-        };
-
-        repo.Add(question);
-        survey.Questions.Add(question);
-        _uow.Surveys.Update(survey);
-        await _uow.CommitAsync();
-
-        return question;
-    }
-
-    /// <inheritdoc/>
     public Task<TextQuestion> AddTextQuestionAsync(
         long accountId,
         long surveyId,
@@ -386,6 +358,34 @@ public sealed class SurveysService : ISurveysService
     #endregion Public Methods
 
     #region Private Methods
+
+    /// <inheritdoc/>
+    private async Task<TQuesiton> AddQuestionAsync<TQuesiton>(
+        IRepository<TQuesiton> repo,
+        long accountId,
+        long surveyId,
+        string text,
+        bool isRequired) where TQuesiton : Question, new()
+    {
+        var (survey, _) = await GetSurveyWithAuthorizationAsync(
+            accountId,
+            surveyId,
+            PermissionType.Create | PermissionType.Update);
+
+        var question = new TQuesiton
+        {
+            Text = text,
+            IsRequired = isRequired,
+            Survey = survey,
+        };
+
+        repo.Add(question);
+        survey.Questions.Add(question);
+        _uow.Surveys.Update(survey);
+        await _uow.CommitAsync();
+
+        return question;
+    }
 
     private async Task<IQueryBuilder<Survey>> DoGetAvailableSurveysAsync(long userId)
     {

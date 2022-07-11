@@ -6,6 +6,7 @@ using APSS.Tests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace APSS.Tests.Infrastructure.Repositories.EntityFramework;
 
@@ -22,7 +23,7 @@ public class RepositoryTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
     }
 
@@ -36,14 +37,14 @@ public class RepositoryTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
 
         log.Message = RandomGenerator.NextString(0xff);
 
         uow.Logs.Update(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id && l.Message == log.Message));
     }
 
@@ -57,12 +58,12 @@ public class RepositoryTests
 
         uow.Logs.Add(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsTrue(ctx.Logs.Any(l => l.Id == log.Id));
 
         uow.Logs.Remove(log);
 
-        Assert.AreEqual(uow.Commit(), 1);
+        Assert.AreEqual(1, uow.CommitAsync().Result);
         Assert.IsFalse(ctx.Logs.Any(l => l.Id == log.Id));
     }
 }

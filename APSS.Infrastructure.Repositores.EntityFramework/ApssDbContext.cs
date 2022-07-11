@@ -157,4 +157,17 @@ public sealed class ApssDbContext : DbContext
     public DbSet<LogTag> LogTags => Set<LogTag>();
 
     #endregion Public properties
+
+    /// <inheritdoc/>
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Account>()
+            .HasOne(a => a.User)
+            .WithMany(a => a.Accounts);
+        modelBuilder.Entity<Account>()
+            .HasOne(a => a.AddedBy)
+            .WithMany();
+
+        base.OnModelCreating(modelBuilder);
+    }
 }

@@ -23,7 +23,6 @@ public class UserValidatorTests
         var user = new User
         {
             Name = RandomGenerator.NextString(0xff),
-            NationalId = RandomGenerator.NextString(0xff),
             AccessLevel = AccessLevel.Farmer,
             SupervisedBy = new User { AccessLevel = AccessLevel.Group },
         };
@@ -37,7 +36,6 @@ public class UserValidatorTests
         var user = new User
         {
             Name = "",
-            NationalId = "",
             AccessLevel = AccessLevel.Root,
             SupervisedBy = new User { AccessLevel = AccessLevel.Presedint },
         };
@@ -45,7 +43,6 @@ public class UserValidatorTests
         var result = _validator.TestValidate(user);
 
         result.ShouldHaveValidationErrorFor(l => l.Name);
-        result.ShouldHaveValidationErrorFor(l => l.NationalId);
         result.ShouldHaveValidationErrorFor(l => l.AccessLevel);
         result.ShouldHaveValidationErrorFor(l => l.SupervisedBy);
     }
