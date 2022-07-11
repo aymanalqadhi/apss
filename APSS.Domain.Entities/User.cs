@@ -39,16 +39,17 @@ public sealed class User : AuditableEntity
 /// <summary>
 /// An enum to represent the user status
 /// </summary>
-public enum AccessLevel : int
+[Flags]
+public enum AccessLevel : uint
 {
-    Root = 0,
-    Presedint = 1,
-    Governorate = 2,
-    Directorate = 3,
-    District = 4,
-    Village = 5,
-    Group = 6,
-    Farmer = 7,
+    Farmer = 1 << 0,
+    Group = 1 << 1,
+    Village = 1 << 2,
+    District = 1 << 3,
+    Directorate = 1 << 4,
+    Governorate = 1 << 5,
+    Presedint = 1 << 6,
+    Root = 0xFFFFFFFF,
 }
 
 /// <summary>
