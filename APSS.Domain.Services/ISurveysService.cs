@@ -131,11 +131,11 @@ public interface ISurveysService
     Task<IQueryBuilder<Survey>> GetSurveyAsync(long accountId, long surveyId);
 
     /// <summary>
-    /// Gets survey entries for a user
+    /// Asynchrnonously gets survey entries for a user
     /// </summary>
     /// <param name="accountId">The id of the account which to get the entries for</param>
     /// <returns>A query builder for the survey entries of the user</returns>
-    IQueryBuilder<SurveyEntry> GetSurveyEntries(long accountId);
+    Task<IQueryBuilder<SurveyEntry>> GetSurveyEntriesAsync(long accountId);
 
     /// <summary>
     /// Asynchronously checks whether an entry is complete or not

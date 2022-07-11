@@ -20,12 +20,13 @@ public interface IPermissionsService
     Task<bool> HasPermissionsAsync(long accountId, long userId, PermissionType permissions);
 
     /// <summary>
-    /// Asynchronously validates
+    /// Asynchronously validates permissions of an account
     /// </summary>
-    /// <param name="accountId"></param>
-    /// <param name="userId"></param>
-    /// <param name="permissions"></param>
-    /// <returns></returns>
+    /// <param name="accountId">The id of the account to validate</param>
+    /// <param name="userId">The id of the user to check access to</param>
+    /// <param name="permissions">The permissions to check</param>
+    /// <returns>The validated account</returns>
+    /// <exception cref="InsufficientPermissionsException"></exception>
     Task<Account> ValidatePermissionsAsync(long accountId, long userId, PermissionType permissions);
 
     #endregion Public Methods

@@ -2,7 +2,6 @@
 using APSS.Domain.Repositories;
 using APSS.Domain.Repositories.Extensions;
 using APSS.Domain.Services;
-using APSS.Domain.Services.Exceptions;
 
 namespace APSS.Application.App;
 
@@ -34,7 +33,7 @@ public sealed class UsersService : IUsersService
 
     /// <inheritdoc/>
     public Task<User> CreateUserAsync(
-        long superUserId,
+        long accountId,
         string name,
         string password,
         AccessLevel accessLevel)
@@ -43,16 +42,23 @@ public sealed class UsersService : IUsersService
     }
 
     /// <inheritdoc/>
-    public IQueryBuilder<User> GetSubuser(int superuserId)
-        => _uow.Users.Query().Where(u => u.SupervisedBy!.Id == superuserId);
+    public async Task<IQueryBuilder<User>> GetSubuserAsync(int accountId)
+    {
+        await _uow.Accounts.Query().FindWithPermissionsValidationAsync(accountId, PermissionType.Read);
+
+        return _uow.Users.Query().Where(u => u.SupervisedBy!.Id == accountId);
+    }
 
     /// <inheritdoc/>
-    public async Task SetUserStatusAsync(long superuserId, long userId, bool newActiveStatus)
+    public async Task<User> SetUserStatusAsync(long accountId, long userId, UserStatus newStatus)
     {
+        await _permissionsSvc.ValidatePermissionsAsync(accountId, userId, PermissionType.Update);
         var user = await _uow.Users.Query().FindAsync(userId);
 
-        user.UserStatus = newActiveStatus;
-        await UpdateUserAsync(superuserId, user);
+        user.UserStatus = newStatus;
+        await UpdateUserAsync(accountId, user);
+
+        return user;
     }
 
     /// <inheritdoc/>
@@ -68,9 +74,15 @@ public sealed class UsersService : IUsersService
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<User> GetUserUpwardHierarchyAsync(
-        long userId,
+        long accountId,
         Func<IQueryBuilder<User>, IQueryBuilder<User>>? builder = null)
     {
+        var account = await _uow.Accounts.Query()
+            .Include(a => a.User)
+            .FindWithPermissionsValidationAsync(accountId, PermissionType.Read);
+
+        var userId = account.User.Id;
+
         while (true)
         {
             var query = _uow.Users.Query().Include(u => u.SupervisedBy!);
