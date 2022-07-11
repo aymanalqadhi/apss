@@ -7,7 +7,7 @@ using APSS.Domain.ValueTypes;
 
 namespace APSS.Application.App;
 
-internal class LandService : ILandService
+public class LandService : ILandService
 {
     private readonly IPermissionsService _permissionsSvc;
     private readonly IUnitOfWork _uow;
@@ -47,8 +47,8 @@ internal class LandService : ILandService
         {
             Name = name,
             Area = area,
-           Latitude= coordinates.Latitude,
-           Longitude= coordinates.Longitude,
+            Latitude = coordinates.Latitude,
+            Longitude = coordinates.Longitude,
             Address = address,
             IsUsable = isUsable,
             IsUsed = isUsed,
@@ -201,7 +201,7 @@ internal class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<Land> UpdateLand(long userId, Land land)
+    public async Task<Land> UpdateLandAsync(long userId, Land land)
     {
         var user = await _uow.Users.Query().FindAsync(userId);
         var landlast = await _uow.Lands.Query().Include(l => l.OwnedBy).FindAsync(land.Id);
@@ -217,7 +217,7 @@ internal class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<LandProduct> UpdateLandProductAsynic(long userId, LandProduct landProduct)
+    public async Task<LandProduct> UpdateLandProductAsync(long userId, LandProduct landProduct)
     {
         var user = await _uow.Users.Query().FindAsync(userId);
         var owner = await _uow.LandProducts.Query().Include(l => l.Producer.OwnedBy).FindAsync(landProduct.Id);

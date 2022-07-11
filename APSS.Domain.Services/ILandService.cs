@@ -36,7 +36,7 @@ public interface ILandService
     /// <param name="userId">The id of the user who owns the land</param>
     /// <param name="land">The land</param>
     /// <returns>The updated land</returns>
-    Task<Land> UpdateLand(long userId, Land land);
+    Task<Land> UpdateLandAsync(long userId, Land land);
 
     /// <summary>
     /// Delete the land
@@ -52,7 +52,7 @@ public interface ILandService
     /// <param name="userId">The id of the user who owns the land product</param>
     /// <param name="landProduct">The id of the land product</param>
     /// <returns>The updated land product</returns>
-    Task<LandProduct> UpdateLandProductAsynic(long userId, LandProduct landProduct);
+    Task<LandProduct> UpdateLandProductAsync(long userId, LandProduct landProduct);
 
     /// <summary>
     /// Gets the user`s land products by land
