@@ -23,7 +23,9 @@ public class LandValidatorTests
         var land = new Land
         {
             Name = RandomGenerator.NextString(0xff),
-            OwnedBy = new User { AccessLevel = AccessLevel.Farmer }
+            OwnedBy = new User { AccessLevel = AccessLevel.Farmer },
+            Latitude = RandomGenerator.NextInt(-90, 90),
+            Longitude = RandomGenerator.NextInt(-180, 180)            
         };
 
         Assert.IsTrue(_validator.Validate(land).IsValid);
@@ -35,13 +37,17 @@ public class LandValidatorTests
         var land = new Land
         {
             Name = "",
-            OwnedBy = new User { AccessLevel = AccessLevel.Group }
+            OwnedBy = new User { AccessLevel = AccessLevel.Group },
+            Latitude = RandomGenerator.NextInt(-100),
+            Longitude = RandomGenerator.NextInt(200)
         };
 
         var result = _validator.TestValidate(land);
 
         result.ShouldHaveValidationErrorFor(a => a.Name);
         result.ShouldHaveValidationErrorFor(a => a.OwnedBy.AccessLevel);
+        result.ShouldHaveValidationErrorFor(a => a.Longitude);
+        result.ShouldHaveValidationErrorFor(a => a.Latitude);
     }
 
     #endregion Tests
