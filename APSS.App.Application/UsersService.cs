@@ -2,6 +2,7 @@
 using APSS.Domain.Repositories;
 using APSS.Domain.Repositories.Extensions;
 using APSS.Domain.Services;
+using APSS.Domain.Services.Exceptions;
 
 namespace APSS.Application.App;
 
@@ -32,25 +33,46 @@ public sealed class UsersService : IUsersService
     #region Public Methods
 
     /// <inheritdoc/>
-    public Task<User> CreateUserAsync(
-        long accountId,
-        string name,
-        string password,
-        AccessLevel accessLevel)
+    public async Task<User> CreateAsync(long accountId, string name)
     {
-        throw new NotImplementedException();
+        var superAccount = await _uow.Accounts.Query()
+            .Include(a => a.User)
+            .FindAsync(accountId);
+
+        if (superAccount.User.AccessLevel == AccessLevel.Farmer)
+        {
+            throw new InsufficientPermissionsException(
+                accountId,
+                $"farmer #{superAccount.User.Id} with account #{accountId} cannot add subusers");
+        }
+
+        var user = new User
+        {
+            Name = name,
+            SupervisedBy = superAccount.User,
+            AccessLevel = (AccessLevel)(((int)superAccount.User.AccessLevel) + 1)
+        };
+
+        _uow.Users.Add(user);
+        await _uow.CommitAsync();
+
+        return user;
     }
 
     /// <inheritdoc/>
     public async Task<IQueryBuilder<User>> GetSubuserAsync(int accountId)
     {
-        await _uow.Accounts.Query().FindWithPermissionsValidationAsync(accountId, PermissionType.Read);
+        await _uow.Accounts.Query()
+            .FindWithPermissionsValidationAsync(accountId, PermissionType.Read);
 
         return _uow.Users.Query().Where(u => u.SupervisedBy!.Id == accountId);
     }
 
     /// <inheritdoc/>
-    public async Task<User> SetUserStatusAsync(long accountId, long userId, UserStatus newStatus)
+    public async Task<User> SetUserStatusAsync(
+        long accountId,
+        long userId,
+        UserStatus newStatus)
     {
         await _permissionsSvc.ValidatePermissionsAsync(accountId, userId, PermissionType.Update);
         var user = await _uow.Users.Query().FindAsync(userId);
