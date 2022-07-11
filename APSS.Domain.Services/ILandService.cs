@@ -28,7 +28,7 @@ public interface ILandService
         bool isUsable = true,
         bool isUsed = false);
 
-    Task<IQueryBuilder<Land>> GetLand(long userId, long landId);
+    Task<IQueryBuilder<Land>> GetLandAsync(long userId, long landId);
 
     /// <summary>
     /// Update the land
@@ -60,7 +60,7 @@ public interface ILandService
     /// <param name="userId">The id of the user who owns the land</param>
     /// <param name="landId">The id of the land</param>
     /// <returns>The land products that belong to the land</returns>
-    Task<IQueryBuilder<LandProduct>> GetLandProducts(long userId, long landId);
+    Task<IQueryBuilder<LandProduct>> GetLandProductsAsync(long userId, long landId);
 
     /// <summary>
     /// Delete the land product
