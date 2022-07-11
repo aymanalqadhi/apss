@@ -12,17 +12,17 @@ public sealed class PopulationService : IPopulationService
 
     private readonly IPermissionsService _permissionsSvc;
     private readonly IUnitOfWork _uow;
-    private readonly IUsersService _userSvc;
+    
 
     #endregion Fields
 
     #region Public Constructors
 
-    public PopulationService(IUnitOfWork uow, IPermissionsService permissions, IUsersService userSvc)
+    public PopulationService(IUnitOfWork uow, IPermissionsService permissions)
     {
         _uow = uow;
         _permissionsSvc = permissions;
-        _userSvc = userSvc;
+
     }
 
     #endregion Public Constructors
