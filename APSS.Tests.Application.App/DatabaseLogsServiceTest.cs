@@ -23,8 +23,11 @@ public sealed class DatabaseLogsServiceTest : IDisposable
 
     #region Constructors
 
-    public DatabaseLogsServiceTest(IUnitOfWork uow)
-        => _logsSvc = new DatabaseLogsService(_uow = uow);
+    public DatabaseLogsServiceTest(IUnitOfWork uow, ILogsService logsSvc)
+    {
+        _uow = uow;
+        _logsSvc = logsSvc;
+    }
 
     #endregion Constructors
 
