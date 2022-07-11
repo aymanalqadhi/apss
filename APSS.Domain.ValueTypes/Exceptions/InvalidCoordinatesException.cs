@@ -20,7 +20,7 @@ public sealed class InvalidCoordinatesException : Exception
     /// <param name="latitude">The coordinates latitude value</param>
     /// <param name="longitude">The coordinates longitude value</param>
     public InvalidCoordinatesException(double latitude, double longitude)
-        : base($"invalid coordinates ({latitude}:{longitude}}")
+        : base($"invalid coordinates ({latitude}:{longitude})")
     {
         _latitude = latitude;
         _longitude = longitude;
