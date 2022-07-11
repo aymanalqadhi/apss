@@ -1,6 +1,7 @@
 using APSS.Application.App;
 using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
+using APSS.Domain.Repositories.Extensions;
 using APSS.Domain.Services;
 using APSS.Tests.Utils;
 
@@ -46,7 +47,7 @@ public sealed class DatabaseLogsServiceTest : IDisposable
 
         Assert.Equal(severity, log.Severity);
         Assert.Equal(message, log.Message);
-        Assert.True(await _uow.Logs.Query().AnyAsync(l => l.Id == log.Id));
+        Assert.True(await _uow.Logs.Query().ContainsAsync(log));
     }
 
     [Fact]
