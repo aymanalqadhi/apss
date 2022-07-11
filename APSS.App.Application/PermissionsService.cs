@@ -32,7 +32,9 @@ public sealed class PermissionsService : IPermissionsService
     /// <inheritdoc/>
     public async Task<bool> HasPermissionsAsync(long accountId, long userId, PermissionType permissions)
     {
-        var account = await _uow.Accounts.Query().FindAsync(accountId);
+        var account = await _uow.Accounts.Query()
+            .Include(a => a.User)
+            .FindAsync(accountId);
         var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
 
         return CorrelateDistanceWithPermissions(distance, permissions);
@@ -44,15 +46,14 @@ public sealed class PermissionsService : IPermissionsService
         var account = await _uow.Accounts.Query()
             .Include(a => a.User)
             .FindAsync(accountId);
+
         var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
 
         if (!CorrelateDistanceWithPermissions(distance, permissions))
         {
-            var pemStr = permissions.ToFormattedString();
-
             throw new InsufficientPermissionsException(
                 accountId,
-                $"account #{account} of user #{account.User.Id} does not have permissions {pemStr} on user #{userId}");
+                $"account #{accountId} of user #{account.User.Id} with permissions {account.Permissions.ToFormattedString()} does not have permissions {permissions.ToFormattedString()} on user #{userId}");
         }
 
         return account;
@@ -70,11 +71,14 @@ public sealed class PermissionsService : IPermissionsService
         if (distance == 0)
             return true;
 
-        return permissions == PermissionType.Read;
+        return permissions.HasFlag(PermissionType.Read);
     }
 
     private async Task<int> GetSubuserDistanceAsync(long superuserId, long subuserId)
     {
+        if (superuserId == subuserId)
+            return 0;
+
         var superuser = await _uow.Users.Query().FindAsync(superuserId);
 
         if (superuser.AccessLevel == AccessLevel.Root)
@@ -85,7 +89,7 @@ public sealed class PermissionsService : IPermissionsService
             .Include(u => u.SupervisedBy!)
             .FindAsync(subuserId);
 
-        if ((int)superuser.AccessLevel > (int)subuser.AccessLevel)
+        if (superuser.AccessLevel.IsBelow(subuser.AccessLevel))
             return -1;
 
         for (int i = 0; ; ++i)
