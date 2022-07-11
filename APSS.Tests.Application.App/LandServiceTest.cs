@@ -84,12 +84,16 @@ public sealed class LandServiceTest
         return (account, land);
     }
 
-    [Fact]
-    public async Task LandRemovedFact()
+    [Theory]
+    [InlineData(PermissionType.Delete, true)]
+    [InlineData(PermissionType.Create, false)]
+    [InlineData(PermissionType.Read, false)]
+    [InlineData(PermissionType.Update, false)]
+    public async Task LandRemovedTheory(PermissionType permissions, bool shouldSucceed)
     {
         var (account, land) = await LandAddedTheory(
             AccessLevel.Farmer,
-            PermissionType.Create | PermissionType.Delete,
+            PermissionType.Create | permissions,
             true);
 
         Assert.True(await _uow.Lands.Query().ContainsAsync(land!));
@@ -99,7 +103,15 @@ public sealed class LandServiceTest
             _landSvc.RemoveLandAsync(otherAccount.Id, land!.Id)
         );
 
-        await _landSvc.RemoveLandAsync(account.Id, land!.Id);
+        var removeLandTask = _landSvc.RemoveLandAsync(account.Id, land!.Id);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await removeLandTask);
+            return;
+        }
+
+        await removeLandTask;
         Assert.False(await _uow.Lands.Query().ContainsAsync(land));
     }
 
