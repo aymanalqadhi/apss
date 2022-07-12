@@ -9,16 +9,25 @@ namespace APSS.Application.App;
 
 public class AnimalService : IAnimalService
 {
-
+    #region private Properties
     private readonly IUnitOfWork _uow;
     private readonly IPermissionsService _permissionsService;
+
+    #endregion private Properties
+
+    #region Public constructor
     public AnimalService(IUnitOfWork uow,IPermissionsService permissionsService)
     {
         _uow = uow;
         _permissionsService = permissionsService;
     }
+    #endregion Public Constructor
+
+    #region Public Method
+
+    /// <inheritdoc/>
     public async Task<AnimalProduct> AddAnimalProductAsync(
-        long userId,
+        long accountId,
         long animalGroupId,
         string name,
         double quantity,
@@ -29,13 +38,16 @@ public class AnimalService : IAnimalService
     {
         var farmer = await _uow.Accounts.Query()
             .Include(u=>u.User)
-            .FindWithAccessLevelValidationAsync(userId,
+            .FindWithAccessLevelValidationAsync(accountId,
             AccessLevel.Farmer,
             PermissionType.Create);
+
        
 
+        
+        var animal = await _uow.AnimalGroups.Query().FindWithOwnershipValidationAync(animalGroupId, farmer);
+
         var animalgroup = await _uow.AnimalGroups.Query().FindAsync(animalGroupId);
-       
         AnimalProduct animalProduct = new AnimalProduct
 
         {
@@ -55,7 +67,7 @@ public class AnimalService : IAnimalService
     }
 
   
-
+    /// <inheritdoc/>
     public async Task<AnimalGroup> AddAnimalGroupAsync(
         long accountId,
         string type,
@@ -83,7 +95,7 @@ public class AnimalService : IAnimalService
         await _uow.CommitAsync();
         return animalGroup;
     }
-
+    /// <inheritdoc/>
     public async Task DeleteAnimalGroupAsync(long accountId, long animalGroupId)
     {
         
@@ -96,19 +108,25 @@ public class AnimalService : IAnimalService
 
         
     }
-
-    public async Task DeleteAnimalProductAsync(long userId, long animalProductId)
+    /// <inheritdoc/>
+    public async Task DeleteAnimalProductAsync(long accountId, long animalProductId)
     {
         
-        var animalProduct = await _uow.AnimalProducts.Query().FindAsync(animalProductId);
+        var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId,AccessLevel.Farmer,PermissionType.Delete);
 
-         await _permissionsService.ValidatePermissionsAsync(userId,animalProduct.Producer.OwnedBy.Id , PermissionType.Delete);
+       
+       var animalProduct = await _uow.AnimalProducts
+            .Query()
+            .Include(a => a.Producer)
+            .Include(a => a.Producer.OwnedBy)
+            .FindWithOwnershipValidationAync(animalProductId, a => a.Producer.OwnedBy, account);
+
 
         _uow.AnimalProducts.Remove(animalProduct);
         await _uow.CommitAsync();
         
     }
-
+    /// <inheritdoc/>
     public async Task<IQueryBuilder<AnimalGroup>> GetAllAnimalGroupAsync(long accountId, long userId)
     {
 
@@ -117,15 +135,14 @@ public class AnimalService : IAnimalService
         return _uow.AnimalGroups.Query().Where(i => i.OwnedBy.Id == userId);
     }
 
-  
-
-
-
-    public async Task<IQueryBuilder<AnimalGroup>> GetAnimalGroupAsync( long AccountId, long animalGroupId)
+    /// <inheritdoc/>
+    public async Task<IQueryBuilder<AnimalGroup>> GetAnimalGroupAsync(long AccountId, long animalGroupId)
     {
 
 
-        var animalgroup = await _uow.AnimalGroups.Query().Include(i => i.OwnedBy).FindAsync(animalGroupId);
+        var animalgroup = await _uow.AnimalGroups.Query()
+            .Include(i => i.OwnedBy)
+            .FindAsync(animalGroupId);
 
          await _permissionsService.ValidatePermissionsAsync(AccountId, animalgroup.OwnedBy.Id, PermissionType.Read);
 
@@ -134,23 +151,26 @@ public class AnimalService : IAnimalService
       return  _uow.AnimalGroups.Query().Where(i => i.Id==animalGroupId);
      
     }
-
-    public async Task<AnimalProduct> GetAnimalProductAsync(long farmerId, long animalProductId)
+    /// <inheritdoc/>
+    public async Task<AnimalProduct> GetAnimalProductAsync(long accpountId, long animalProductId)
     {
 
-        var animalproduct = await _uow.AnimalProducts.Query().Include(a=>a.Producer.OwnedBy).FindAsync(animalProductId);
-        await _permissionsService.ValidatePermissionsAsync(farmerId, animalproduct.Producer.OwnedBy.Id, PermissionType.Read);
+        var animalproduct = await _uow.AnimalProducts.Query()
+            .Include(a=>a.Producer.OwnedBy)
+            .FindAsync(animalProductId);
+
+        await _permissionsService.ValidatePermissionsAsync(accpountId, animalproduct.Producer.OwnedBy.Id, PermissionType.Read);
 
 
         return animalproduct;
     }
-
+    /// <inheritdoc/>
     public async Task<AnimalGroup> UpdateAnimalGroupAsync(long accountId, AnimalGroup animalGroup)
     {
 
-        var animalgroup = await _uow.AnimalGroups.Query().Include(a => a.OwnedBy).FindAsync(animalGroup.Id);
+        
 
-         await _permissionsService.ValidatePermissionsAsync(accountId, animalgroup.OwnedBy.Id, PermissionType.Update);
+         await _permissionsService.ValidatePermissionsAsync(accountId, animalGroup.OwnedBy.Id, PermissionType.Update);
 
         
        _uow.AnimalGroups.Update(animalGroup);
@@ -160,13 +180,13 @@ public class AnimalService : IAnimalService
 
 
     }
-
-    public async Task<AnimalProduct> UpdateAnimalProductAsync(long userId, AnimalProduct animalProduct)
+    /// <inheritdoc/>
+    public async Task<AnimalProduct> UpdateAnimalProductAsync(long accountId, AnimalProduct animalProduct)
     {
 
-        var animalProducts=await _uow.AnimalProducts.Query().Include(u=>u.Producer.OwnedBy).FindAsync(animalProduct.Id);
+
         
-        await _permissionsService.ValidatePermissionsAsync(userId, animalProducts.Producer.OwnedBy.Id,PermissionType.Update);
+        await _permissionsService.ValidatePermissionsAsync(accountId, animalProduct.Producer.OwnedBy.Id,PermissionType.Update);
        
 
 
@@ -176,4 +196,5 @@ public class AnimalService : IAnimalService
 
         return animalProduct;
     }
+    #endregion Public Method
 }
