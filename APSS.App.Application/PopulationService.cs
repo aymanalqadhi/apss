@@ -2,7 +2,6 @@
 using APSS.Domain.Repositories;
 using APSS.Domain.Repositories.Extensions;
 using APSS.Domain.Services;
-using APSS.Domain.Services.Exceptions;
 
 namespace APSS.Application.App;
 
@@ -12,7 +11,7 @@ public sealed class PopulationService : IPopulationService
 
     private readonly IPermissionsService _permissionsSvc;
     private readonly IUnitOfWork _uow;
-    
+
 
     #endregion Fields
 
@@ -32,7 +31,7 @@ public sealed class PopulationService : IPopulationService
     ///<inheritdoc/>
     public async Task<Family> AddFamilyAsync(long accountId, string name, string livingLocation)
     {
-        var account = await _uow.Accounts.Query().Include(a=>a.User).FindWithAccessLevelValidationAsync(
+        var account = await _uow.Accounts.Query().Include(a => a.User).FindWithAccessLevelValidationAsync(
             accountId,
             AccessLevel.Group,
             PermissionType.Create);
@@ -60,14 +59,9 @@ public sealed class PopulationService : IPopulationService
         bool isParent = false,
         bool isProvider = false)
     {
-        var account = await _uow.Accounts.Query().Include(a=>a.User).FindAsync(accountId);
-
-        var family = await _uow.Families.Query()
-            .Include(f => f.AddedBy)
-            .FindAsync(familyId);
-
-        account = await _permissionsSvc.ValidatePermissionsAsync(accountId, account.User.Id, PermissionType.Create);
-
+        var account = await _uow.Accounts
+            .Query().
+            FindWithAccessLevelValidationAsync(accountId, AccessLevel.Group, PermissionType.Create); 
         var individual = new Individual
         {
             Name = name,
@@ -75,6 +69,10 @@ public sealed class PopulationService : IPopulationService
             Sex = sex,
             AddedBy = account.User,
         };
+
+        var family = await _uow.Families.Query()
+           .Include(f => f.AddedBy)
+           .FindAsync(familyId);
 
         var familyIndividual = new FamilyIndividual
         {
@@ -127,7 +125,7 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<Voluntary> AddVoluntaryAsync(long accountId,long individualId, string name, string field)
+    public async Task<Voluntary> AddVoluntaryAsync(long accountId, long individualId, string name, string field)
     {
         var individual = await _uow.Individuals.Query()
             .Include(i => i.AddedBy)
@@ -137,13 +135,13 @@ public sealed class PopulationService : IPopulationService
             accountId,
             individual.AddedBy.Id,
             PermissionType.Create | PermissionType.Update);
-       
+
 
         var voluntary = new Voluntary
         {
             Name = name,
             Field = field,
-             OfferedBy= individual
+            OfferedBy = individual
         };
 
         _uow.Volantaries.Add(voluntary);
@@ -158,7 +156,7 @@ public sealed class PopulationService : IPopulationService
     ///<inheritdoc/>
     public async Task RemoveFamilyAsync(long accountId, long familyId)
     {
-        var family = await _uow.Families.Query().Include(f=>f.AddedBy).FindAsync(familyId);
+        var family = await _uow.Families.Query().Include(f => f.AddedBy).FindAsync(familyId);
         var account = await _permissionsSvc.ValidatePermissionsAsync(
             accountId,
             family.AddedBy.Id,
@@ -167,13 +165,13 @@ public sealed class PopulationService : IPopulationService
         _uow.Families.Remove(family);
         await _uow.CommitAsync();
 
-        
+
     }
 
     ///<inheritdoc/>
-    public async Task RemoveIndividualAsync(long accountId,long individualId)
+    public async Task RemoveIndividualAsync(long accountId, long individualId)
     {
-        var individual = await _uow.Individuals.Query().Include(i=>i.AddedBy).FindAsync(individualId);
+        var individual = await _uow.Individuals.Query().Include(i => i.AddedBy).FindAsync(individualId);
         var account = await _permissionsSvc
             .ValidatePermissionsAsync(
             accountId,
@@ -184,9 +182,9 @@ public sealed class PopulationService : IPopulationService
         await _uow.CommitAsync();
 
     }
-   
+
     ///<inheritdoc/>
-    public async Task RemoveSkillAsync(long accountId,long skillId)
+    public async Task RemoveSkillAsync(long accountId, long skillId)
     {
         var skill = await _uow.Skills.Query().Include(s => s.BelongsTo).FindAsync(skillId);
 
@@ -194,14 +192,14 @@ public sealed class PopulationService : IPopulationService
             .ValidatePermissionsAsync(accountId,
             skill.BelongsTo.Id,
             PermissionType.Delete);
-      
+
         _uow.Skills.Remove(skill);
         await _uow.CommitAsync();
 
     }
 
     ///<inheritdoc/>
-    public async Task RemoveVoluntaryAsync(long accountId,long voluntaryId)
+    public async Task RemoveVoluntaryAsync(long accountId, long voluntaryId)
     {
         var voluntary = await _uow.Volantaries.Query().Include(v => v.OfferedBy).FindAsync(voluntaryId);
 
@@ -216,12 +214,12 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public  IQueryBuilder<Family>GetFamiliesAsync(long accountId)
+    public IQueryBuilder<Family> GetFamiliesAsync(long accountId)
     {
-        var family=  _uow.Families
+        var family = _uow.Families
             .Query()
-            .Include(f=>f.AddedBy)
-            .Where( f=> GetSubuserDistanceAsync(accountId,f.AddedBy.Id).Result>=0); 
+            .Include(f => f.AddedBy)
+            .Where(f => GetSubuserDistanceAsync(accountId, f.AddedBy.Id).Result >= 0);
         return family;
     }
 
@@ -232,11 +230,11 @@ public sealed class PopulationService : IPopulationService
         var family = await _uow.Families.Query().Include(f => f.AddedBy).FindAsync(familyId);
         var account = await _permissionsSvc
             .ValidatePermissionsAsync(
-            accountId, 
+            accountId,
             family.AddedBy.Id,
             PermissionType.Read);
-       
-       return _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId);
+
+        return _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId);
 
     }
     ///<inheritdoc/>
@@ -255,14 +253,14 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<Individual> UpdateIndividualAsync(long accountId,Individual individual)
+    public async Task<Individual> UpdateIndividualAsync(long accountId, Individual individual)
     {
         var account = await _permissionsSvc
             .ValidatePermissionsAsync(
             accountId,
             individual.AddedBy.Id,
             PermissionType.Update);
-       
+
         _uow.Individuals.Update(individual);
         await _uow.CommitAsync();
 
@@ -270,7 +268,7 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<Skill> UpdateSkillAsync(long accountId,Skill skill)
+    public async Task<Skill> UpdateSkillAsync(long accountId, Skill skill)
     {
         var account = await _permissionsSvc
             .ValidatePermissionsAsync(
@@ -285,14 +283,14 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<Voluntary> UpdateVoluntaryAsync(long accountId,Voluntary voluntary)
+    public async Task<Voluntary> UpdateVoluntaryAsync(long accountId, Voluntary voluntary)
     {
         var account = await _permissionsSvc
             .ValidatePermissionsAsync(
             accountId,
             voluntary.OfferedBy.Id,
             PermissionType.Update);
-        
+
 
         _uow.Volantaries.Update(voluntary);
         await _uow.CommitAsync();
@@ -305,7 +303,7 @@ public sealed class PopulationService : IPopulationService
     #region Private Methods
     private async Task<int> GetSubuserDistanceAsync(long accountId, long subuserId)
     {
-        var account = await _uow.Accounts.Query().Include(s=>s.User).FindAsync(accountId);
+        var account = await _uow.Accounts.Query().Include(s => s.User).FindAsync(accountId);
         var superuser = account.User;
 
         if (superuser.AccessLevel == AccessLevel.Root)
