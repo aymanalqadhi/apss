@@ -146,12 +146,6 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     #region Methods
 
     /// <summary>
-    /// Commits changes to the database
-    /// </summary>
-    /// <returns></returns>
-    int Commit();
-
-    /// <summary>
     /// Asynchronously commits changes to data backend
     /// </summary>
     /// <param name="cancellationToken">The task cancellation token</param>
