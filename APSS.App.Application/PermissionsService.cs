@@ -32,10 +32,12 @@ public sealed class PermissionsService : IPermissionsService
     /// <inheritdoc/>
     public async Task<bool> HasPermissionsAsync(long accountId, long userId, PermissionType permissions)
     {
-        var account = await _uow.Accounts.Query().FindAsync(accountId);
+        var account = await _uow.Accounts.Query()
+            .Include(a => a.User)
+            .FindAsync(accountId);
         var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
 
-        return CorrelateDistanceWithPermissions(distance, permissions);
+        return CorrelateDistanceWithPermissions(distance, permissions, account.Permissions);
     }
 
     /// <inheritdoc/>
@@ -44,15 +46,14 @@ public sealed class PermissionsService : IPermissionsService
         var account = await _uow.Accounts.Query()
             .Include(a => a.User)
             .FindAsync(accountId);
+
         var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
 
-        if (!CorrelateDistanceWithPermissions(distance, permissions))
+        if (!CorrelateDistanceWithPermissions(distance, permissions, account.Permissions))
         {
-            var pemStr = permissions.ToFormattedString();
-
             throw new InsufficientPermissionsException(
                 accountId,
-                $"account #{account} of user #{account.User.Id} does not have permissions {pemStr} on user #{userId}");
+                $"account #{accountId} of user #{account.User.Id} with permissions {account.Permissions.ToFormattedString()} does not have permissions {permissions.ToFormattedString()} on user #{userId}");
         }
 
         return account;
@@ -62,19 +63,25 @@ public sealed class PermissionsService : IPermissionsService
 
     #region Private Methods
 
-    private static bool CorrelateDistanceWithPermissions(int distance, PermissionType permissions)
+    private static bool CorrelateDistanceWithPermissions(
+        int distance,
+        PermissionType expectedPermissions,
+        PermissionType actualPermissions)
     {
         if (distance < 0)
             return false;
 
         if (distance == 0)
-            return true;
+            return actualPermissions.HasFlag(expectedPermissions);
 
-        return permissions == PermissionType.Read;
+        return actualPermissions.HasFlag(expectedPermissions) && actualPermissions.HasFlag(PermissionType.Read);
     }
 
     private async Task<int> GetSubuserDistanceAsync(long superuserId, long subuserId)
     {
+        if (superuserId == subuserId)
+            return 0;
+
         var superuser = await _uow.Users.Query().FindAsync(superuserId);
 
         if (superuser.AccessLevel == AccessLevel.Root)
@@ -85,7 +92,7 @@ public sealed class PermissionsService : IPermissionsService
             .Include(u => u.SupervisedBy!)
             .FindAsync(subuserId);
 
-        if ((int)superuser.AccessLevel > (int)subuser.AccessLevel)
+        if (superuser.AccessLevel.IsBelow(subuser.AccessLevel))
             return -1;
 
         for (int i = 0; ; ++i)

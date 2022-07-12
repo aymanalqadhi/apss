@@ -1,4 +1,5 @@
-﻿using APSS.Tests.Domain.Entities.Validators;
+﻿using APSS.Domain.Repositories.Exceptions;
+using APSS.Tests.Domain.Entities.Validators;
 using APSS.Tests.Infrastructure.Repositories.EntityFramework.Util;
 using APSS.Tests.Utils;
 
@@ -50,7 +51,7 @@ public class QueryBuilderTests
         {
             uow.Logs.Query().FirstAsync().Wait();
         });
-        Assert.IsInstanceOfType(exception.InnerException, typeof(InvalidOperationException));
+        Assert.IsInstanceOfType(exception.InnerException, typeof(NotFoundException));
 
         var log = ValidEntitiesFactory.CreateValidLog();
 
@@ -63,7 +64,7 @@ public class QueryBuilderTests
         });
 
         Assert.AreEqual(uow.Logs.Query().FirstAsync(l => l.Id == log.Id).Result.Id, log.Id);
-        Assert.IsInstanceOfType(exception.InnerException, typeof(InvalidOperationException));
+        Assert.IsInstanceOfType(exception.InnerException, typeof(NotFoundException));
     }
 
     [TestMethod]
