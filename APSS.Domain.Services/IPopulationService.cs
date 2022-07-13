@@ -42,14 +42,15 @@ public interface IPopulationService
         bool isParent = false,
         bool isProvider = false
     );
-
+    
     /// <summary>
-    /// Asynchronosuly update a Individual
+    ///  Asynchronosuly update a Individual
     /// </summary>
     /// <param name="accountId">The id of the account of the individual to update</param>
-    /// <param name="individual">The individual to update</param>
+    /// <param name="individualId">The id of individual to update</param>
+    /// <param name="updater">The updating callback</param>
     /// <returns>The Updated individual</returns>
-    Task<Individual> UpdateIndividualAsync(long accountId, Individual individual);
+    Task<Individual> UpdateIndividualAsync(long accountId, long individualId,Action<Individual> updater);
 
     /// <summary>
     /// Asynchronosuly  delete a Individual
@@ -72,9 +73,10 @@ public interface IPopulationService
     /// Asynchronosy update a family
     /// </summary>
     /// <param name="accountId">The id of account of family to update</param>
-    /// <param name="family">The family to update</param>
+    /// <param name="familyId">The id of family to update</param>
+    /// <param name="updater">The updating callback</param>
     /// <returns>The updated family</returns>
-    Task<Family> UpdateFamilyAsync(long accountId, Family family);
+    Task<Family> UpdateFamilyAsync(long accountId, long familyId, Action<Family> updater);
 
     /// <summary>
     /// Asynchronosy delete a family
@@ -104,9 +106,10 @@ public interface IPopulationService
     /// Asynchronosy update a skill
     /// </summary>
     /// <param name="accountId">The id of account of the individual which this skill to</param>
-    /// <param name="skill">The skill to update</param>
-    /// <returns>The updeted skill</returns>
-    Task<Skill> UpdateSkillAsync(long accountId, Skill skill);
+    /// <param name="skillId">The id of skill to update</param>
+    /// <param name="updater">The updating callback</param>
+    /// <returns>The updated family</returns>
+    Task<Skill> UpdateSkillAsync(long accountId, long skillId, Action<Skill>updater);
 
     /// <summary>
     /// Asynchronosy delete a skill
@@ -129,14 +132,20 @@ public interface IPopulationService
         long IndividualId,
         string name,
         string field);
-
     /// <summary>
     /// Asyncronosy update a voluntry
     /// </summary>
     /// <param name="accountId">The id of account of individual which this voluntry to </param>
     /// <param name="voluntary">The voluntry to update</param>
     /// <returns>The updated voluntry</returns>
-    Task<Voluntary> UpdateVoluntaryAsync(long accountId, Voluntary voluntary);
+    /// <summary>
+    /// Asyncronosy update a voluntry
+    /// </summary>
+    /// <param name="accountId">The id of account of individual which this voluntry to </param>
+    /// <param name="voluntaryId">The id of voluntry to update</param>
+    /// <param name="updater">The updating callback</param>
+    /// <returns>The updated family</returns>
+    Task<Voluntary> UpdateVoluntaryAsync(long accountId, long voluntaryId,Action<Voluntary> updater);
 
     /// <summary>
     /// Asyncronosy delete a voluntry
