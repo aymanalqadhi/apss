@@ -254,6 +254,7 @@ public sealed class SurveysService : ISurveysService
 
         var survey = new Survey
         {
+            CreatedBy = account.User,
             Name = name,
             ExpirationDate = expiresAt,
         };
@@ -390,7 +391,7 @@ public sealed class SurveysService : ISurveysService
     private async Task<IQueryBuilder<Survey>> DoGetAvailableSurveysAsync(long userId)
     {
         var usersHierarchyIds = await _usersSvc
-            .GetUserUpwardHierarchyAsync(userId)
+            .GetUpwardHierarchyAsync(userId)
             .Select(u => u.Id)
             .ToListAsync();
 

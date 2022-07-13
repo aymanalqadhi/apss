@@ -6,14 +6,16 @@ using APSS.Domain.Services;
 using APSS.Domain.Services.Exceptions;
 using APSS.Tests.Domain.Entities.Validators;
 using APSS.Tests.Extensions;
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace APSS.Tests.Application.App;
 
-public sealed class PopulationServiceTest: IDisposable
+public sealed class PopulationServiceTest : IDisposable
 {
     #region Private fields
 
@@ -79,17 +81,18 @@ public sealed class PopulationServiceTest: IDisposable
     [InlineData(PermissionType.Create, true)]
     [InlineData(PermissionType.Update, false)]
     [InlineData(PermissionType.Read, false)]
-    [InlineData(PermissionType.Delete,false)]
-  
+    [InlineData(PermissionType.Delete, false)]
     public async Task<(Account, Individual?)> IndividualAddedTheory(
-        PermissionType permissions,
-        bool shouldSucceed)
+        PermissionType permissions = PermissionType.Create,
+        bool shouldSucceed = true)
     {
-        var (account,family)=await FamilyaddedTheory(AccessLevel.Group,PermissionType.Create | permissions,true);
+        var (familyAccount, family) = await FamilyaddedTheory();
 
         Assert.True(await _uow.Families.Query().ContainsAsync(family!));
 
+        var account = await _uow.CreateTestingAccountForUserAsync(familyAccount.User.Id, permissions);
         var templateIndividual = ValidEntitiesFactory.CreateValidIndividual();
+
         var addIndividualTask = _populationSvc
             .AddIndividualAsync(
             account.Id,
@@ -98,11 +101,17 @@ public sealed class PopulationServiceTest: IDisposable
             templateIndividual.Address,
             templateIndividual.Sex,
             false,
-            false
-            );
+            false);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await addIndividualTask);
+            return (account, null);
+        }
 
         var individual = await addIndividualTask;
-        Assert.True(await _uow.FamilyIndividuals.Query().AnyAsync(f =>  f.Individual.Id == individual.Id &  f.Family.Id==family.Id));
+
+        Assert.True(await _uow.FamilyIndividuals.Query().AnyAsync(f => f.Individual.Id == individual.Id && f.Family.Id == family.Id));
         Assert.True(await _uow.Individuals.Query().ContainsAsync(individual));
         Assert.Equal(account.User.Id, individual.AddedBy.Id);
         Assert.Equal(templateIndividual.Name, individual.Name);
@@ -113,20 +122,21 @@ public sealed class PopulationServiceTest: IDisposable
     }
 
     [Theory]
-    [InlineData(PermissionType.Create,false)]
-    [InlineData(PermissionType.Update,true)]
-    [InlineData(PermissionType.Delete,false)]
-    [InlineData(PermissionType.Read,false)]
-    public async Task<(Account,Skill?)> SkillAddedTheory(
-        PermissionType permission,
-        bool shouldSucceed)
+    [InlineData(PermissionType.Create | PermissionType.Update, true)]
+    [InlineData(PermissionType.Update, false)]
+    [InlineData(PermissionType.Delete, false)]
+    [InlineData(PermissionType.Read, false)]
+    public async Task<(Account, Skill?)> SkillAddedTheory(
+        PermissionType permission = PermissionType.Create | PermissionType.Update,
+        bool shouldSucceed = true)
     {
-       
-        var (account,individual) = await IndividualAddedTheory(PermissionType.Create|permission,true);
+        var (individualAccount, individual) = await IndividualAddedTheory();
 
         Assert.True(await _uow.Individuals.Query().ContainsAsync(individual!));
 
+        var account = await _uow.CreateTestingAccountForUserAsync(individualAccount.User.Id, permission);
         var templateSkill = ValidEntitiesFactory.CreateValidSkill();
+
         var addSkillTask = _populationSvc
             .AddSkillAsync(
             account.Id,
@@ -138,18 +148,19 @@ public sealed class PopulationServiceTest: IDisposable
         if (!shouldSucceed)
         {
             await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await addSkillTask);
-            return (account,null);
+            return (account, null);
         }
 
         var skill = await addSkillTask;
+
         Assert.True(await _uow.Skills.Query().ContainsAsync(await addSkillTask));
-        Assert.Contains(individual.Skills,s=>s.Id==skill.Id);
+        Assert.Contains(individual.Skills, s => s.Id == skill.Id);
         Assert.Equal(individual.Id, skill.BelongsTo.Id);
         Assert.Equal(templateSkill.Name, skill.Name);
         Assert.Equal(templateSkill.Field, skill.Field);
         Assert.Equal(templateSkill.Description, skill.Description);
 
-        return (account,skill);    
+        return (account, skill);
     }
 
     [Theory]
@@ -157,12 +168,11 @@ public sealed class PopulationServiceTest: IDisposable
     [InlineData(PermissionType.Update, true)]
     [InlineData(PermissionType.Delete, false)]
     [InlineData(PermissionType.Read, false)]
-    public async Task<(Account,Voluntary?)> VoluntaryAddedTheory(
+    public async Task<(Account, Voluntary?)> VoluntaryAddedTheory(
        PermissionType permission,
        bool shouldSucceed)
     {
-
-        var (account, individual) = await IndividualAddedTheory(PermissionType.Create|permission,true);
+        var (account, individual) = await IndividualAddedTheory(PermissionType.Create | permission, true);
 
         Assert.True(await _uow.Individuals.Query().ContainsAsync(individual!));
 
@@ -173,12 +183,11 @@ public sealed class PopulationServiceTest: IDisposable
             individual!.Id,
             templateVoluntary.Name,
             templateVoluntary.Field);
-        
 
         if (!shouldSucceed)
         {
             await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await addVoluntaryTask);
-            return (account,null);
+            return (account, null);
         }
 
         var voluntary = await addVoluntaryTask;
@@ -188,7 +197,7 @@ public sealed class PopulationServiceTest: IDisposable
         Assert.Equal(templateVoluntary.Name, voluntary.Name);
         Assert.Equal(templateVoluntary.Field, voluntary.Field);
 
-        return(account, voluntary);
+        return (account, voluntary);
     }
 
     [Theory]
@@ -200,7 +209,7 @@ public sealed class PopulationServiceTest: IDisposable
         PermissionType permission,
         bool shouldSucceed)
     {
-        var (account,family)=await FamilyaddedTheory(AccessLevel.Group,PermissionType.Create|permission,true);
+        var (account, family) = await FamilyaddedTheory(AccessLevel.Group, PermissionType.Create | permission, true);
 
         Assert.True(await _uow.Families.Query().ContainsAsync(family!));
 
@@ -231,7 +240,7 @@ public sealed class PopulationServiceTest: IDisposable
        PermissionType permission,
        bool shouldSucceed)
     {
-        var (account, individual) = await IndividualAddedTheory(PermissionType.Create|permission,true);
+        var (account, individual) = await IndividualAddedTheory(PermissionType.Create | permission, true);
         Assert.True(await _uow.Individuals.Query().ContainsAsync(individual!));
 
         var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Group, PermissionType.Delete);
@@ -254,6 +263,7 @@ public sealed class PopulationServiceTest: IDisposable
     }
 
     #endregion Tests
+
     #region IDisposable Members
 
     /// <inheritdoc/>
