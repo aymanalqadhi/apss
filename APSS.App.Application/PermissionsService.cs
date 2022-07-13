@@ -54,7 +54,7 @@ public sealed class PermissionsService : IPermissionsService
             .Include(a => a.User)
             .FindAsync(accountId);
 
-        var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
+        var distance = await GetSubuserDistanceAsync(account.User.Id, userId, false);
 
         if (!CorrelateDistanceWithPermissions(distance, permissions, account.Permissions))
         {
@@ -73,16 +73,13 @@ public sealed class PermissionsService : IPermissionsService
             .Include(a => a.User)
             .FindAsync(accountId);
 
-        if (account.User.Id != userId)
-        {
-            var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
+        var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
 
-            if (!CorrelateDistanceWithPermissions(distance, permissions, account.Permissions))
-            {
-                throw new InsufficientPermissionsException(
-                    accountId,
-                    $"account #{accountId} of user #{account.User.Id} with permissions {account.Permissions.ToFormattedString()} does not have permissions {permissions.ToFormattedString()} on user #{userId}");
-            }
+        if (!CorrelateDistanceWithPermissions(distance, permissions, account.Permissions))
+        {
+            throw new InsufficientPermissionsException(
+                accountId,
+                $"account #{accountId} of user #{account.User.Id} with permissions {account.Permissions.ToFormattedString()} does not have permissions {permissions.ToFormattedString()} on user #{userId}");
         }
 
         return account;
@@ -106,8 +103,11 @@ public sealed class PermissionsService : IPermissionsService
         return actualPermissions.HasFlag(expectedPermissions) && actualPermissions.HasFlag(PermissionType.Read);
     }
 
-    private async Task<int> GetSubuserDistanceAsync(long superuserId, long subuserId)
+    private async Task<int> GetSubuserDistanceAsync(long superuserId, long subuserId, bool checkSelf = true)
     {
+        if (checkSelf && superuserId == subuserId)
+            return 0;
+
         var superuser = await _uow.Users.Query().FindAsync(superuserId);
 
         if (superuser.AccessLevel == AccessLevel.Root)
