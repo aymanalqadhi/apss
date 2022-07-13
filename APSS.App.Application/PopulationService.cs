@@ -12,18 +12,14 @@ public sealed class PopulationService : IPopulationService
     private readonly IPermissionsService _permissionsSvc;
     private readonly IUnitOfWork _uow;
 
-
     #endregion Fields
 
     #region Public Constructors
-
     public PopulationService(IUnitOfWork uow, IPermissionsService permissions)
     {
         _uow = uow;
         _permissionsSvc = permissions;
-
     }
-
     #endregion Public Constructors
 
     #region Public Methods
@@ -31,10 +27,9 @@ public sealed class PopulationService : IPopulationService
     ///<inheritdoc/>
     public async Task<Family> AddFamilyAsync(long accountId, string name, string livingLocation)
     {
-        var account = await _uow.Accounts.Query().Include(a => a.User).FindWithAccessLevelValidationAsync(
-            accountId,
-            AccessLevel.Group,
-            PermissionType.Create);
+        var account = await _uow.Accounts.
+            Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Group, PermissionType.Create);
 
         var family = new Family
         {
@@ -60,8 +55,9 @@ public sealed class PopulationService : IPopulationService
         bool isProvider = false)
     {
         var account = await _uow.Accounts
-            .Query().
-            FindWithAccessLevelValidationAsync(accountId, AccessLevel.Group, PermissionType.Create); 
+            .Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Group, PermissionType.Create); 
+
         var individual = new Individual
         {
             Name = name,
@@ -70,11 +66,13 @@ public sealed class PopulationService : IPopulationService
             AddedBy = account.User,
         };
 
-        var family = await _uow.Families.Query()
+        var family = await _uow.Families
+            .Query()
            .Include(f => f.AddedBy)
            .FindAsync(familyId);
 
-       account=await _permissionsSvc.ValidatePermissionsAsync(accountId, family.AddedBy.Id, PermissionType.Create);
+       account = await _permissionsSvc
+            .ValidatePermissionsAsync(accountId, family.AddedBy.Id, PermissionType.Create);
 
         var familyIndividual = new FamilyIndividual
         {
@@ -104,10 +102,7 @@ public sealed class PopulationService : IPopulationService
             .FindAsync(individualId);
 
         var account = await _permissionsSvc
-            .ValidatePermissionsAsync(
-            accountId,
-            individual.AddedBy.Id,
-            PermissionType.Create | PermissionType.Update);
+            .ValidatePermissionsAsync(accountId,individual.AddedBy.Id, PermissionType.Create | PermissionType.Update);
 
         var skill = new Skill
         {
@@ -120,7 +115,6 @@ public sealed class PopulationService : IPopulationService
         _uow.Skills.Add(skill);
         individual.Skills.Add(skill);
         _uow.Individuals.Update(individual);
-
         await _uow.CommitAsync();
 
         return skill;
@@ -133,11 +127,8 @@ public sealed class PopulationService : IPopulationService
             .Include(i => i.AddedBy)
             .FindAsync(individualId);
 
-        await _permissionsSvc.ValidatePermissionsAsync(
-            accountId,
-            individual.AddedBy.Id,
-            PermissionType.Create | PermissionType.Update);
-
+        await _permissionsSvc
+            .ValidatePermissionsAsync(accountId,individual.AddedBy.Id, PermissionType.Create | PermissionType.Update);
 
         var voluntary = new Voluntary
         {
@@ -149,7 +140,6 @@ public sealed class PopulationService : IPopulationService
         _uow.Volantaries.Add(voluntary);
         individual.Voluntary.Add(voluntary);
         _uow.Individuals.Update(individual);
-
         await _uow.CommitAsync();
 
         return voluntary;
@@ -159,15 +149,12 @@ public sealed class PopulationService : IPopulationService
     public async Task RemoveFamilyAsync(long accountId, long familyId)
     {
         var family = await _uow.Families.Query().Include(f => f.AddedBy).FindAsync(familyId);
-        var account = await _permissionsSvc.ValidatePermissionsAsync(
-            accountId,
-            family.AddedBy.Id,
-            PermissionType.Delete);
+
+        var account = await _permissionsSvc
+            .ValidatePermissionsAsync(accountId, family.AddedBy.Id, PermissionType.Delete);
 
         _uow.Families.Remove(family);
         await _uow.CommitAsync();
-
-
     }
 
     ///<inheritdoc/>
@@ -175,14 +162,10 @@ public sealed class PopulationService : IPopulationService
     {
         var individual = await _uow.Individuals.Query().Include(i => i.AddedBy).FindAsync(individualId);
         var account = await _permissionsSvc
-            .ValidatePermissionsAsync(
-            accountId,
-            individual.AddedBy.Id,
-            PermissionType.Delete);
+            .ValidatePermissionsAsync(accountId, individual.AddedBy.Id, PermissionType.Delete);
 
         _uow.Individuals.Remove(individual);
         await _uow.CommitAsync();
-
     }
 
     ///<inheritdoc/>
@@ -191,13 +174,10 @@ public sealed class PopulationService : IPopulationService
         var skill = await _uow.Skills.Query().Include(s => s.BelongsTo).FindAsync(skillId);
 
         var account = await _permissionsSvc
-            .ValidatePermissionsAsync(accountId,
-            skill.BelongsTo.Id,
-            PermissionType.Delete);
+            .ValidatePermissionsAsync(accountId, skill.BelongsTo.Id, PermissionType.Delete);
 
         _uow.Skills.Remove(skill);
         await _uow.CommitAsync();
-
     }
 
     ///<inheritdoc/>
@@ -206,10 +186,7 @@ public sealed class PopulationService : IPopulationService
         var voluntary = await _uow.Volantaries.Query().Include(v => v.OfferedBy).FindAsync(voluntaryId);
 
         var account = await _permissionsSvc
-             .ValidatePermissionsAsync(
-            accountId,
-            voluntary.OfferedBy.Id,
-            PermissionType.Delete);
+            .ValidatePermissionsAsync(accountId, voluntary.OfferedBy.Id, PermissionType.Delete);
 
         _uow.Volantaries.Remove(voluntary);
         await _uow.CommitAsync();
@@ -222,22 +199,19 @@ public sealed class PopulationService : IPopulationService
             .Query()
             .Include(f => f.AddedBy)
             .Where(f => GetSubuserDistanceAsync(accountId, f.AddedBy.Id).Result >= 0);
+
         return family;
     }
-
-
+    
     ///<inheritdoc/>
     public async Task<IQueryBuilder<FamilyIndividual>> GetFamilyIndividualsAsync(long accountId, long familyId)
     {
         var family = await _uow.Families.Query().Include(f => f.AddedBy).FindAsync(familyId);
+
         var account = await _permissionsSvc
-            .ValidatePermissionsAsync(
-            accountId,
-            family.AddedBy.Id,
-            PermissionType.Read);
+            .ValidatePermissionsAsync(accountId, family.AddedBy.Id, PermissionType.Read);
 
         return _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId);
-
     }
     ///<inheritdoc/>
     public async Task<Family> UpdateFamilyAsync(long accountId, long familyId, Action<Family> updater)
@@ -245,9 +219,7 @@ public sealed class PopulationService : IPopulationService
         var family = await _uow.Families.Query().Include(f => f.AddedBy).FindAsync(familyId);
 
         var account = await _permissionsSvc
-            .ValidatePermissionsAsync(accountId,
-            family.AddedBy.Id,
-            PermissionType.Update);
+            .ValidatePermissionsAsync(accountId, family.AddedBy.Id, PermissionType.Update);
 
         updater(family);
 
@@ -263,10 +235,7 @@ public sealed class PopulationService : IPopulationService
         var individual=await _uow.Individuals.Query().Include(i=>i.AddedBy).FindAsync(individualId);
 
         var account = await _permissionsSvc
-            .ValidatePermissionsAsync(
-            accountId,
-            individual.AddedBy.Id,
-            PermissionType.Update);
+            .ValidatePermissionsAsync(accountId,individual.AddedBy.Id,PermissionType.Update);
 
         updater(individual);
 
@@ -280,11 +249,9 @@ public sealed class PopulationService : IPopulationService
     public async Task<Skill> UpdateSkillAsync(long accountId, long skillId,Action<Skill>updater)
     {
         var skill=await _uow.Skills.Query().Include(s=>s.BelongsTo.AddedBy).FindAsync(skillId);
+
         var account = await _permissionsSvc
-            .ValidatePermissionsAsync(
-            accountId,
-            skill.BelongsTo.Id,
-            PermissionType.Update);
+            .ValidatePermissionsAsync(accountId, skill.BelongsTo.Id, PermissionType.Update);
 
         updater(skill);
 
@@ -300,10 +267,7 @@ public sealed class PopulationService : IPopulationService
         var voluntary = await _uow.Volantaries.Query().Include(v => v.OfferedBy.AddedBy).FindAsync(voluntaryId);
 
         var account = await _permissionsSvc
-            .ValidatePermissionsAsync(
-            accountId,
-            voluntary.OfferedBy.Id,
-            PermissionType.Update);
+            .ValidatePermissionsAsync(accountId, voluntary.OfferedBy.Id, PermissionType.Update);
 
         updater(voluntary);
 
