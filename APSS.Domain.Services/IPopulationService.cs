@@ -132,12 +132,7 @@ public interface IPopulationService
         long IndividualId,
         string name,
         string field);
-    /// <summary>
-    /// Asyncronosy update a voluntry
-    /// </summary>
-    /// <param name="accountId">The id of account of individual which this voluntry to </param>
-    /// <param name="voluntary">The voluntry to update</param>
-    /// <returns>The updated voluntry</returns>
+    
     /// <summary>
     /// Asyncronosy update a voluntry
     /// </summary>
