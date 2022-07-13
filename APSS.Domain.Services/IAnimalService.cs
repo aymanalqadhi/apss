@@ -96,7 +96,7 @@ public interface IAnimalService
 	/// <param name="userId">the id of account deleting animal group</param>
 	/// <param name="animalGroupId">the id of animal group</param>
 	/// <returns></returns>
-	Task DeleteAnimalGroupAsync(long userId, long animalGroupId);
+	Task<AnimalGroup> DeleteAnimalGroupAsync(long userId, long animalGroupId);
 
 
 
