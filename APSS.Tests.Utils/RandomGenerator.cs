@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using APSS.Domain.Entities;
+
+using System.Text;
 
 namespace APSS.Tests.Utils;
 
@@ -10,6 +12,18 @@ public static class RandomGenerator
     private const string _uppercaseAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private const string _numbers = "1234567890";
     private const string _symbols = "`~!@#$%^&*()-_=+\"\\/?.>,<";
+
+    private static readonly AccessLevel[] _accessLevels = new[]
+    {
+        AccessLevel.Farmer,
+        AccessLevel.Group,
+        AccessLevel.Village,
+        AccessLevel.District,
+        AccessLevel.Directorate,
+        AccessLevel.Governorate,
+        AccessLevel.Presedint,
+        AccessLevel.Root,
+    };
 
     /// <summary>
     /// Generates a random string value
@@ -90,6 +104,27 @@ public static class RandomGenerator
     /// <returns>The generated value</returns>
     public static bool NextBool()
         => NextInt(0, 1) == 1;
+
+    /// <summary>
+    /// Generates a random access level
+    /// </summary>
+    /// <param name="min">The minimum boundary</param>
+    /// <param name="max">The maximum boundary</param>
+    /// <returns>The generated value</returns>
+    public static AccessLevel NextAccessLevel(
+        AccessLevel min = AccessLevel.Farmer,
+        AccessLevel max = AccessLevel.Root)
+    {
+        while (true)
+        {
+            var idx = NextInt(0, _accessLevels.Length - 1);
+
+            if (_accessLevels[idx].IsBelow(min) || _accessLevels[idx].IsAbove(max))
+                continue;
+
+            return _accessLevels[idx];
+        }
+    }
 }
 
 /// <summary>

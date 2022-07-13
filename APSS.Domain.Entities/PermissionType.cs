@@ -10,6 +10,7 @@ public enum PermissionType
     Delete = 2,
     Update = 4,
     Create = 8,
+    Full = Read | Delete | Update | Create,
 }
 
 public static class PermissionTypeExtensions
