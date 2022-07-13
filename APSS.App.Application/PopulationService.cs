@@ -240,13 +240,16 @@ public sealed class PopulationService : IPopulationService
 
     }
     ///<inheritdoc/>
-    public async Task<Family> UpdateFamilyAsync(long accountId, Family family)
+    public async Task<Family> UpdateFamilyAsync(long accountId, long familyId, Action<Family> updater)
     {
+        var family = await _uow.Families.Query().Include(f => f.AddedBy).FindAsync(familyId);
 
         var account = await _permissionsSvc
             .ValidatePermissionsAsync(accountId,
             family.AddedBy.Id,
             PermissionType.Update);
+
+        updater(family);
 
         _uow.Families.Update(family);
         await _uow.CommitAsync();
@@ -255,13 +258,17 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<Individual> UpdateIndividualAsync(long accountId, Individual individual)
+    public async Task<Individual> UpdateIndividualAsync(long accountId, long individualId,Action<Individual>updater)
     {
+        var individual=await _uow.Individuals.Query().Include(i=>i.AddedBy).FindAsync(individualId);
+
         var account = await _permissionsSvc
             .ValidatePermissionsAsync(
             accountId,
             individual.AddedBy.Id,
             PermissionType.Update);
+
+        updater(individual);
 
         _uow.Individuals.Update(individual);
         await _uow.CommitAsync();
@@ -270,13 +277,16 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<Skill> UpdateSkillAsync(long accountId, Skill skill)
+    public async Task<Skill> UpdateSkillAsync(long accountId, long skillId,Action<Skill>updater)
     {
+        var skill=await _uow.Skills.Query().Include(s=>s.BelongsTo.AddedBy).FindAsync(skillId);
         var account = await _permissionsSvc
             .ValidatePermissionsAsync(
             accountId,
             skill.BelongsTo.Id,
             PermissionType.Update);
+
+        updater(skill);
 
         _uow.Skills.Update(skill);
         await _uow.CommitAsync();
@@ -285,14 +295,17 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<Voluntary> UpdateVoluntaryAsync(long accountId, Voluntary voluntary)
+    public async Task<Voluntary> UpdateVoluntaryAsync(long accountId, long voluntaryId,Action<Voluntary> updater)
     {
+        var voluntary = await _uow.Volantaries.Query().Include(v => v.OfferedBy.AddedBy).FindAsync(voluntaryId);
+
         var account = await _permissionsSvc
             .ValidatePermissionsAsync(
             accountId,
             voluntary.OfferedBy.Id,
             PermissionType.Update);
 
+        updater(voluntary);
 
         _uow.Volantaries.Update(voluntary);
         await _uow.CommitAsync();
