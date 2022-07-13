@@ -254,6 +254,7 @@ public sealed class SurveysService : ISurveysService
 
         var survey = new Survey
         {
+            CreatedBy = account.User,
             Name = name,
             ExpirationDate = expiresAt,
         };
