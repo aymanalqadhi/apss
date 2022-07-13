@@ -93,9 +93,9 @@ namespace APSS.Tests.Application.App
             Assert.True(await _uow.AnimalGroups.Query().ContainsAsync(animalGroup!));
 
             var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
-            await Assert.ThrowsAsync<InsufficientExecutionStackException>(() => _animal.DeleteAnimalGroupAsync(otherAccount.Id,animalGroup!.Id));
+            await Assert.ThrowsAsync<InsufficientExecutionStackException>(() => _animal.RemoveAnimalGroupAsync(otherAccount.Id,animalGroup!.Id));
 
-            var DeleteAnimalTask=_animal.DeleteAnimalGroupAsync(account.Id,animalGroup!.Id);
+            var DeleteAnimalTask=_animal.RemoveAnimalGroupAsync(account.Id,animalGroup!.Id);
 
             if (!ShouldSuccess)
             {
@@ -173,11 +173,11 @@ namespace APSS.Tests.Application.App
             Assert.True(await _uow.AnimalProducts.Query().ContainsAsync(animalProduct!));
 
             var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
-            await Assert.ThrowsAsync<InsufficientExecutionStackException>(async () => await _animal.DeleteAnimalProductAsync(
+            await Assert.ThrowsAsync<InsufficientExecutionStackException>(async () => await _animal.RemoveAnimalProductAsync(
                 otherAccount.Id,
                 animalProduct!.Id));
 
-            var removeAninalProductTask = _animal.DeleteAnimalProductAsync(account.Id, animalProduct!.Id);
+            var removeAninalProductTask = _animal.RemoveAnimalProductAsync(account.Id, animalProduct!.Id);
 
             if (!shouldSuccess)
             {
