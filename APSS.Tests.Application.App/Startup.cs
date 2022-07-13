@@ -15,5 +15,7 @@ public class Startup
         services.AddTransient<ILogsService, DatabaseLogsService>();
         services.AddTransient<IPermissionsService, PermissionsService>();
         services.AddTransient<ILandService, LandService>();
+        services.AddTransient<IUsersService, UsersService>();
+        services.AddTransient<ISurveysService, SurveysService>();
     }
 }
