@@ -2,20 +2,19 @@
 using APSS.Domain.Repositories;
 using APSS.Domain.Repositories.Extensions;
 using APSS.Domain.Services;
-using APSS.Domain.Services.Exceptions;
 
 namespace APSS.Application.App;
 
 public class AnimalService : IAnimalService
 {
-    #region private Properties
+    #region Fields
 
-    private readonly IUnitOfWork _uow;
     private readonly IPermissionsService _permissionsService;
+    private readonly IUnitOfWork _uow;
 
-    #endregion private Properties
+    #endregion Fields
 
-    #region Public constructor
+    #region Public Constructors
 
     public AnimalService(IUnitOfWork uow, IPermissionsService permissionsService)
     {
@@ -23,45 +22,9 @@ public class AnimalService : IAnimalService
         _permissionsService = permissionsService;
     }
 
-    #endregion Public constructor
+    #endregion Public Constructors
 
-    #region Public Method
-
-    /// <inheritdoc/>
-    public async Task<AnimalProduct> AddAnimalProductAsync(
-        long accountId,
-        long animalGroupId,
-        string name,
-        double quantity,
-        AnimalProductUnit unit,
-        TimeSpan periodTaken
-
-        )
-    {
-        var farmer = await _uow.Accounts.Query()
-            .Include(u => u.User)
-            .FindWithAccessLevelValidationAsync(accountId,
-            AccessLevel.Farmer,
-            PermissionType.Create);
-
-        var animal = await _uow.AnimalGroups.Query().FindWithOwnershipValidationAync(animalGroupId, farmer);
-
-        var animalgroup = await _uow.AnimalGroups.Query().FindAsync(animalGroupId);
-        AnimalProduct animalProduct = new AnimalProduct
-
-        {
-            Name = name,
-            Quantity = quantity,
-            Unit = unit,
-            PeriodTaken = periodTaken,
-            Producer = animalgroup,
-        };
-
-        _uow.AnimalProducts.Add(animalProduct);
-        await _uow.CommitAsync();
-
-        return animalProduct;
-    }
+    #region Public Methods
 
     /// <inheritdoc/>
     public async Task<AnimalGroup> AddAnimalGroupAsync(
@@ -89,20 +52,75 @@ public class AnimalService : IAnimalService
     }
 
     /// <inheritdoc/>
-    public async Task<AnimalGroup> DeleteAnimalGroupAsync(long accountId, long animalGroupId)
+    public async Task<AnimalProduct> AddAnimalProductAsync(
+        long accountId,
+        long animalGroupId,
+        long animalProductUnitId,
+        string name,
+        double quantity,
+        TimeSpan periodTaken)
     {
-        var animalgroup = await _uow.AnimalGroups.Query().FindAsync(animalGroupId);
+        var farmer = await _uow.Accounts.Query()
+            .Include(u => u.User)
+            .FindWithAccessLevelValidationAsync(accountId,
+            AccessLevel.Farmer,
+            PermissionType.Create);
 
-        await _permissionsService.ValidatePermissionsAsync(accountId, animalgroup.OwnedBy.Id, PermissionType.Delete);
+        var animalGroup = await _uow.AnimalGroups.Query()
+            .FindWithOwnershipValidationAync(animalGroupId, farmer);
+        var unit = await _uow.AnimalProductUnits.Query().FindAsync(animalProductUnitId);
 
-        _uow.AnimalGroups.Remove(animalgroup);
+        AnimalProduct animalProduct = new AnimalProduct
+
+        {
+            Name = name,
+            Quantity = quantity,
+            PeriodTaken = periodTaken,
+            Unit = unit,
+            Producer = animalGroup,
+        };
+
+        _uow.AnimalProducts.Add(animalProduct);
         await _uow.CommitAsync();
 
-        return animalgroup;
+        return animalProduct;
     }
 
     /// <inheritdoc/>
-    public async Task DeleteAnimalProductAsync(long accountId, long animalProductId)
+    public async Task<IQueryBuilder<AnimalGroup>> GetAnimalGroupsAsync(long accountId, long userId)
+    {
+        await _permissionsService.ValidatePermissionsAsync(accountId, userId, PermissionType.Read);
+
+        return _uow.AnimalGroups.Query().Where(i => i.OwnedBy.Id == userId);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IQueryBuilder<AnimalProduct>> GetAnimalProductsAsync(
+        long accountId,
+        long userId,
+        long animalGroupId)
+    {
+        await _permissionsService.ValidatePermissionsAsync(accountId, userId, PermissionType.Read);
+
+        return _uow.AnimalProducts.Query()
+            .Where(p => p.Producer.Id == animalGroupId && p.Producer.OwnedBy.Id == userId);
+    }
+
+    /// <inheritdoc/>
+    public async Task RemoveAnimalGroupAsync(long accountId, long animalGroupId)
+    {
+        var account = await _uow.Accounts.Query()
+            .FindWithPermissionsValidationAsync(accountId, PermissionType.Delete);
+
+        var animalgroup = await _uow.AnimalGroups.Query()
+            .FindWithOwnershipValidationAync(animalGroupId, account);
+
+        _uow.AnimalGroups.Remove(animalgroup);
+        await _uow.CommitAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task RemoveAnimalProductAsync(long accountId, long animalProductId)
     {
         var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Delete);
 
@@ -114,38 +132,6 @@ public class AnimalService : IAnimalService
 
         _uow.AnimalProducts.Remove(animalProduct);
         await _uow.CommitAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<IQueryBuilder<AnimalGroup>> GetAllAnimalGroupAsync(long accountId, long userId)
-    {
-        var validate = await _permissionsService.ValidatePermissionsAsync(accountId, userId, PermissionType.Read);
-
-        return _uow.AnimalGroups.Query().Where(i => i.OwnedBy.Id == userId);
-    }
-
-    /// <inheritdoc/>
-    public async Task<IQueryBuilder<AnimalGroup>> GetAnimalGroupAsync(long AccountId, long animalGroupId)
-    {
-        var animalgroup = await _uow.AnimalGroups.Query()
-            .Include(i => i.OwnedBy)
-            .FindAsync(animalGroupId);
-
-        await _permissionsService.ValidatePermissionsAsync(AccountId, animalgroup.OwnedBy.Id, PermissionType.Read);
-
-        return _uow.AnimalGroups.Query().Where(i => i.Id == animalGroupId);
-    }
-
-    /// <inheritdoc/>
-    public async Task<AnimalProduct> GetAnimalProductAsync(long accpountId, long animalProductId)
-    {
-        var animalproduct = await _uow.AnimalProducts.Query()
-            .Include(a => a.Producer.OwnedBy)
-            .FindAsync(animalProductId);
-
-        await _permissionsService.ValidatePermissionsAsync(accpountId, animalproduct.Producer.OwnedBy.Id, PermissionType.Read);
-
-        return animalproduct;
     }
 
     /// <inheritdoc/>
@@ -170,5 +156,5 @@ public class AnimalService : IAnimalService
         return animalProduct;
     }
 
-    #endregion Public Method
+    #endregion Public Methods
 }
