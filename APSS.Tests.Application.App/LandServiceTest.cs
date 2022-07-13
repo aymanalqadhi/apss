@@ -39,9 +39,7 @@ public sealed class LandServiceTest
 
     [Theory]
     [InlineData(AccessLevel.Farmer, PermissionType.Create, true)]
-    [InlineData(AccessLevel.Farmer, PermissionType.Read, false)]
-    [InlineData(AccessLevel.Farmer, PermissionType.Delete, false)]
-    [InlineData(AccessLevel.Farmer, PermissionType.Update, false)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
     [InlineData(AccessLevel.Group, PermissionType.Create, false)]
     [InlineData(AccessLevel.Village, PermissionType.Create, false)]
     [InlineData(AccessLevel.District, PermissionType.Create, false)]
@@ -86,9 +84,7 @@ public sealed class LandServiceTest
 
     [Theory]
     [InlineData(PermissionType.Delete, true)]
-    [InlineData(PermissionType.Create, false)]
-    [InlineData(PermissionType.Read, false)]
-    [InlineData(PermissionType.Update, false)]
+    [InlineData(PermissionType.Create | PermissionType.Read | PermissionType.Update, false)]
     public async Task LandRemovedTheory(PermissionType permissions, bool shouldSucceed)
     {
         var (account, land) = await LandAddedTheory(

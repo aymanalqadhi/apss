@@ -30,18 +30,25 @@ public sealed class PermissionsService : IPermissionsService
     #region Public Methods
 
     /// <inheritdoc/>
-    public async Task<bool> HasPermissionsAsync(long accountId, long userId, PermissionType permissions)
+    public async Task<(Account, Account)> ValidateAccountPatenthoodAsync(
+        long superUserAccountId,
+        long accountId,
+        PermissionType permissions)
     {
         var account = await _uow.Accounts.Query()
             .Include(a => a.User)
             .FindAsync(accountId);
-        var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
 
-        return CorrelateDistanceWithPermissions(distance, permissions, account.Permissions);
+        var superUserAccount = await ValidateUserPatenthoodAsync(superUserAccountId, account.User.Id, permissions);
+
+        return (superUserAccount, account);
     }
 
     /// <inheritdoc/>
-    public async Task<Account> ValidatePermissionsAsync(long accountId, long userId, PermissionType permissions)
+    public async Task<Account> ValidateUserPatenthoodAsync(
+        long accountId,
+        long userId,
+        PermissionType permissions)
     {
         var account = await _uow.Accounts.Query()
             .Include(a => a.User)
@@ -52,8 +59,30 @@ public sealed class PermissionsService : IPermissionsService
         if (!CorrelateDistanceWithPermissions(distance, permissions, account.Permissions))
         {
             throw new InsufficientPermissionsException(
-                accountId,
-                $"account #{accountId} of user #{account.User.Id} with permissions {account.Permissions.ToFormattedString()} does not have permissions {permissions.ToFormattedString()} on user #{userId}");
+             accountId,
+             $"account #{accountId} of user #{account.User.Id} with permissions {account.Permissions.ToFormattedString()} does not have permissions {permissions.ToFormattedString()} on or does not own user #{userId}");
+        }
+
+        return account;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Account> ValidatePermissionsAsync(long accountId, long userId, PermissionType permissions)
+    {
+        var account = await _uow.Accounts.Query()
+            .Include(a => a.User)
+            .FindAsync(accountId);
+
+        if (account.User.Id != userId)
+        {
+            var distance = await GetSubuserDistanceAsync(account.User.Id, userId);
+
+            if (!CorrelateDistanceWithPermissions(distance, permissions, account.Permissions))
+            {
+                throw new InsufficientPermissionsException(
+                    accountId,
+                    $"account #{accountId} of user #{account.User.Id} with permissions {account.Permissions.ToFormattedString()} does not have permissions {permissions.ToFormattedString()} on user #{userId}");
+            }
         }
 
         return account;
@@ -79,9 +108,6 @@ public sealed class PermissionsService : IPermissionsService
 
     private async Task<int> GetSubuserDistanceAsync(long superuserId, long subuserId)
     {
-        if (superuserId == subuserId)
-            return 0;
-
         var superuser = await _uow.Users.Query().FindAsync(superuserId);
 
         if (superuser.AccessLevel == AccessLevel.Root)
