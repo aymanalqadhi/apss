@@ -74,6 +74,8 @@ public sealed class PopulationService : IPopulationService
            .Include(f => f.AddedBy)
            .FindAsync(familyId);
 
+       account=await _permissionsSvc.ValidatePermissionsAsync(accountId, family.AddedBy.Id, PermissionType.Create);
+
         var familyIndividual = new FamilyIndividual
         {
             Individual = individual,
