@@ -83,13 +83,10 @@ public sealed class PopulationServiceTest : IDisposable
     [InlineData(PermissionType.Read, false)]
     [InlineData(PermissionType.Delete, false)]
     public async Task<(Account, Individual?)> IndividualAddedTheory(
-        PermissionType permissions,
-        bool shouldSucceed)
+        PermissionType permissions = PermissionType.Create,
+        bool shouldSucceed = true)
     {
-        var (familyAccount, family) = await FamilyaddedTheory(
-            AccessLevel.Group,
-            PermissionType.Create,
-            true);
+        var (familyAccount, family) = await FamilyaddedTheory();
 
         Assert.True(await _uow.Families.Query().ContainsAsync(family!));
 
@@ -125,19 +122,21 @@ public sealed class PopulationServiceTest : IDisposable
     }
 
     [Theory]
-    [InlineData(PermissionType.Create, false)]
-    [InlineData(PermissionType.Update, true)]
+    [InlineData(PermissionType.Create | PermissionType.Update, true)]
+    [InlineData(PermissionType.Update, false)]
     [InlineData(PermissionType.Delete, false)]
     [InlineData(PermissionType.Read, false)]
     public async Task<(Account, Skill?)> SkillAddedTheory(
-        PermissionType permission,
-        bool shouldSucceed)
+        PermissionType permission = PermissionType.Create | PermissionType.Update,
+        bool shouldSucceed = true)
     {
-        var (account, individual) = await IndividualAddedTheory(PermissionType.Create | permission, true);
+        var (individualAccount, individual) = await IndividualAddedTheory();
 
         Assert.True(await _uow.Individuals.Query().ContainsAsync(individual!));
 
+        var account = await _uow.CreateTestingAccountForUserAsync(individualAccount.User.Id, permission);
         var templateSkill = ValidEntitiesFactory.CreateValidSkill();
+
         var addSkillTask = _populationSvc
             .AddSkillAsync(
             account.Id,
@@ -153,6 +152,7 @@ public sealed class PopulationServiceTest : IDisposable
         }
 
         var skill = await addSkillTask;
+
         Assert.True(await _uow.Skills.Query().ContainsAsync(await addSkillTask));
         Assert.Contains(individual.Skills, s => s.Id == skill.Id);
         Assert.Equal(individual.Id, skill.BelongsTo.Id);
