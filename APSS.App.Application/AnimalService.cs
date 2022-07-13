@@ -96,7 +96,7 @@ public class AnimalService : IAnimalService
         return animalGroup;
     }
     /// <inheritdoc/>
-    public async Task DeleteAnimalGroupAsync(long accountId, long animalGroupId)
+    public async Task<AnimalGroup> DeleteAnimalGroupAsync(long accountId, long animalGroupId)
     {
         
         var animalgroup=await _uow.AnimalGroups.Query().FindAsync(animalGroupId);
@@ -106,6 +106,7 @@ public class AnimalService : IAnimalService
         _uow.AnimalGroups.Remove(animalgroup);
         await _uow.CommitAsync();
 
+        return animalgroup;
         
     }
     /// <inheritdoc/>
