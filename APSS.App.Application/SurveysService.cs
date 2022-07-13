@@ -391,7 +391,7 @@ public sealed class SurveysService : ISurveysService
     private async Task<IQueryBuilder<Survey>> DoGetAvailableSurveysAsync(long userId)
     {
         var usersHierarchyIds = await _usersSvc
-            .GetUserUpwardHierarchyAsync(userId)
+            .GetUpwardHierarchyAsync(userId)
             .Select(u => u.Id)
             .ToListAsync();
 
