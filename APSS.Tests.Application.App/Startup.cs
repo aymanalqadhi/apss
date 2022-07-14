@@ -12,6 +12,8 @@ public class Startup
     {
         services.AddScoped(_ => TestUnitOfWork.Create());
 
+        services.AddTransient<IAccountsService, AccountsService>();
+        services.AddTransient<IUsersService, UsersService>();
         services.AddTransient<ILogsService, DatabaseLogsService>();
         services.AddTransient<IPermissionsService, PermissionsService>();
         services.AddTransient<ILandService, LandService>();

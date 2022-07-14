@@ -19,9 +19,5 @@ public sealed class LandProductValidator : Validator<LandProduct>
         RuleFor(l => l.Quantity)
             .GreaterThan(0)
             .WithMessage("land product quantity must be higher than 0");
-
-        RuleFor(l => l.HarvestEnd)
-           .GreaterThan(l => l.HarvestStart)
-           .WithMessage("land harvest end date must be higher than harvest start date");
     }
 }
