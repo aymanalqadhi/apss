@@ -48,8 +48,12 @@ public sealed class Account : AuditableEntity
     /// <summary>
     /// Gets or sets the permissions of the account
     /// </summary>
-    public PermissionType Permissions { get; set; } 
+    public PermissionType Permissions { get; set; }
 
+    /// <summary>
+    /// Gets or set the current active status of the account
+    /// </summary>
+    public bool IsActive { get; set; } = false;
 }
 
 /// <summary>

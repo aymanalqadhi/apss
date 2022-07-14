@@ -48,7 +48,7 @@ public sealed class AccountsService : IAccountsService
     }
 
     /// <inheritdoc/>
-    public async Task<Account> CreateAccountAsync(
+    public async Task<Account> CreateAsync(
         long superUserAccountId,
         long userId,
         string holderName,
@@ -69,6 +69,48 @@ public sealed class AccountsService : IAccountsService
         };
 
         _uow.Accounts.Add(account);
+        await _uow.CommitAsync();
+
+        return account;
+    }
+
+    /// <inheritdoc/>
+    public async Task RemoveAsync(long superUserAccountId, long accountId)
+    {
+        var (_, account) = await _permissionsSvc.ValidateAccountPatenthoodAsync(
+            superUserAccountId,
+            accountId,
+            PermissionType.Delete);
+
+        _uow.Accounts.Remove(account);
+        await _uow.CommitAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<Account> SetActiveAsync(long superUserAccountId, long accountId, bool newActiveStatus)
+        => await UpdateAsync(
+            superUserAccountId,
+            accountId,
+            a => a.IsActive = newActiveStatus);
+
+    /// <inheritdoc/>
+    public async Task<Account> SetPermissionsAsync(long superUserAccountId, long accountId, PermissionType permissions)
+        => await UpdateAsync(
+            superUserAccountId,
+            accountId,
+            a => a.Permissions = permissions);
+
+    /// <inheritdoc/>
+    public async Task<Account> UpdateAsync(long superUserAccountId, long accountId, Action<Account> updater)
+    {
+        var (_, account) = await _permissionsSvc.ValidateAccountPatenthoodAsync(
+            superUserAccountId,
+            accountId,
+            PermissionType.Update);
+
+        updater(account);
+
+        _uow.Accounts.Update(account);
         await _uow.CommitAsync();
 
         return account;

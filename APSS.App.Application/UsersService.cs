@@ -74,19 +74,17 @@ public sealed class UsersService : IUsersService
         long userId,
         UserStatus newStatus)
     {
-        await _permissionsSvc.ValidatePermissionsAsync(accountId, userId, PermissionType.Update);
-        var user = await _uow.Users.Query().FindAsync(userId);
-
-        user.UserStatus = newStatus;
-        await UpdateUserAsync(accountId, user);
-
-        return user;
+        return await UpdateAsync(accountId, userId, u => u.UserStatus = newStatus);
     }
 
     /// <inheritdoc/>
-    public async Task<User> UpdateUserAsync(long superuserId, User user)
+    public async Task<User> UpdateAsync(long accountId, long userId, Action<User> updater)
     {
-        await _permissionsSvc.ValidatePermissionsAsync(superuserId, user.Id, PermissionType.Update);
+        await _permissionsSvc.ValidatePermissionsAsync(accountId, userId, PermissionType.Update);
+
+        var user = await _uow.Users.Query().FindAsync(userId);
+
+        updater(user);
 
         _uow.Users.Update(user);
         await _uow.CommitAsync();
@@ -95,7 +93,7 @@ public sealed class UsersService : IUsersService
     }
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<User> GetUserUpwardHierarchyAsync(
+    public async IAsyncEnumerable<User> GetUpwardHierarchyAsync(
         long accountId,
         Func<IQueryBuilder<User>, IQueryBuilder<User>>? builder = null)
     {
