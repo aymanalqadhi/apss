@@ -132,9 +132,9 @@ namespace APSS.Tests.Application.App
             var animalProductTask = _animal.AddAnimalProductAsync(
                 account.Id,
                 animalGroup!.Id,
+                animalProduct.Unit.Id,
                 animalProduct.Name,
                 animalProduct.Quantity,
-                animalProduct.Unit,
                 animalProduct.PeriodTaken
 
                 );
