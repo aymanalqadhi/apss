@@ -29,9 +29,7 @@ public sealed class PopulationService : IPopulationService
     ///<inheritdoc/>
     public async Task<Family> AddFamilyAsync(long accountId, string name, string livingLocation)
     {
-        var account = await _uow.Accounts.
-            Query()
-            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Group, PermissionType.Create);
+        var account = await GetAuthorizedGroupAccountAsync(accountId, PermissionType.Create);
 
         var family = new Family
         {
@@ -214,6 +212,32 @@ public sealed class PopulationService : IPopulationService
             .ValidatePermissionsAsync(accountId, family.AddedBy.Id, PermissionType.Read);
 
         return _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId);
+    }
+
+    ///<inheritdoc/>
+    public async Task<IQueryBuilder<Skill>> GetSkillOfindividual(long accountId, long individualId)
+    {
+        var individual = await _uow.Individuals.Query()
+            .Include(i => i.AddedBy)
+            .FindAsync(individualId);
+
+        await _permissionsSvc
+            .ValidatePermissionsAsync(accountId, individual.AddedBy.Id, PermissionType.Read);
+
+        return _uow.Skills.Query().Where(s => s.BelongsTo.Id == individualId);
+    }
+
+    ///<inheritdoc/>
+    public async Task<IQueryBuilder<Voluntary>> GetVoluntaryOfindividual(long accountId, long individualId)
+    {
+        var individual = await _uow.Individuals.Query()
+           .Include(i => i.AddedBy)
+           .FindAsync(individualId);
+
+        await _permissionsSvc
+            .ValidatePermissionsAsync(accountId, individual.AddedBy.Id, PermissionType.Read);
+
+        return _uow.Volantaries.Query().Where(v => v.OfferedBy.Id == individualId);
     }
 
     ///<inheritdoc/>
