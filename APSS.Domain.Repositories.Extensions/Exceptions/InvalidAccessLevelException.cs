@@ -23,14 +23,13 @@ public sealed class InvalidAccessLevelException : Exception
     /// <param name="actualAccessLevel">The access level found</param>
     /// <param name="expectedPermissions">Optional permisions</param>
     /// <param name="actualPermissions">The permissions of the account</param>
-    ///
     public InvalidAccessLevelException(
         long accountId,
         long userId,
         AccessLevel expectedAccessLevel,
         AccessLevel actualAccessLevel,
         PermissionType expectedPermissions,
-        PermissionType actualPermissions) : base($"account #{accountId} of user #{userId} either does not have access level {expectedAccessLevel} (got {actualAccessLevel} or has insufficient permissions {actualPermissions} (expected {actualPermissions}")
+        PermissionType actualPermissions) : base($"account #{accountId} of user #{userId} either does not have access level {expectedAccessLevel} (got {actualAccessLevel}) or has insufficient permissions {actualPermissions} (expected {actualPermissions})")
     {
         _accountId = accountId;
         _userId = userId;
