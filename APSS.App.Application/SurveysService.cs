@@ -59,16 +59,24 @@ public sealed class SurveysService : ISurveysService
     {
         await using var tx = await _uow.BeginTransactionAsync();
 
-        var question = await AddQuestionAsync(_uow.MultipleChoiceQuestions, accountId, surveyId, text, isRequired);
         var answers = candidateAnswers.Select(a => new MultipleChoiceAnswerItem
         {
             Value = a,
         }).ToArray();
 
         _uow.MultipleChoiceAnswerItems.Add(answers);
-        question.CandidateAnswers = answers;
-        question.CanMultiSelect = canMultiSelect;
-        _uow.MultipleChoiceQuestions.Update(question);
+
+        var question = await AddQuestionAsync(
+            _uow.MultipleChoiceQuestions,
+            accountId,
+            surveyId,
+            text,
+            isRequired,
+            q =>
+            {
+                q.CandidateAnswers = answers;
+                q.CanMultiSelect = canMultiSelect;
+            });
 
         await _uow.CommitAsync(tx);
 
@@ -365,7 +373,8 @@ public sealed class SurveysService : ISurveysService
         long accountId,
         long surveyId,
         string text,
-        bool isRequired) where TQuesiton : Question, new()
+        bool isRequired,
+        Action<TQuesiton>? builder = null) where TQuesiton : Question, new()
     {
         var (survey, _) = await GetSurveyWithAuthorizationAsync(
             accountId,
@@ -378,6 +387,8 @@ public sealed class SurveysService : ISurveysService
             IsRequired = isRequired,
             Survey = survey,
         };
+
+        builder?.Invoke(question);
 
         repo.Add(question);
         survey.Questions.Add(question);
