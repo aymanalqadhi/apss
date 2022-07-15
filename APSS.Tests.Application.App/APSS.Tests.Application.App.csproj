@@ -25,6 +25,7 @@
     <ProjectReference Include="..\APSS.App.Application\APSS.Application.App.csproj" />
     <ProjectReference Include="..\APSS.Domain.Repositories\APSS.Domain.Repositories.csproj" />
     <ProjectReference Include="..\APSS.Domain.Services\APSS.Domain.Services.csproj" />
+    <ProjectReference Include="..\APSS.Tests.Domain.Entities.Validators\APSS.Tests.Domain.Entities.Validators.csproj" />
     <ProjectReference Include="..\APSS.Tests.Extensions\APSS.Tests.Extensions.csproj" />
     <ProjectReference Include="..\APSS.Tests.Infrastructure.Repositories.EntityFramework\APSS.Tests.Infrastructure.Repositories.EntityFramework.csproj" />
   </ItemGroup>

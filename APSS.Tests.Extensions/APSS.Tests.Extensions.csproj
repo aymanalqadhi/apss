@@ -22,10 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\APSS.Domain.Entities.Validators.Test\APSS.Tests.Domain.Entities.Validators.csproj" />
     <ProjectReference Include="..\APSS.Domain.Entities\APSS.Domain.Entities.csproj" />
     <ProjectReference Include="..\APSS.Domain.Repositories.Extensions\APSS.Domain.Repositories.Extensions.csproj" />
     <ProjectReference Include="..\APSS.Domain.Repositories\APSS.Domain.Repositories.csproj" />
+    <ProjectReference Include="..\APSS.Tests.Domain.Entities.Validators\APSS.Tests.Domain.Entities.Validators.csproj" />
   </ItemGroup>
 
 </Project>

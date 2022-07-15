@@ -20,7 +20,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\APSS.Domain.Entities.Validators.Test\APSS.Tests.Domain.Entities.Validators.csproj" />
-    <ProjectReference Include="..\APSS.Infrastructure.Repositores.EntityFramework\APSS.Infrastructure.Repositores.EntityFramework.csproj" />
+    <ProjectReference Include="..\APSS.Infrastructure.Repositories.EntityFramework\APSS.Infrastructure.Repositories.EntityFramework.csproj" />
+    <ProjectReference Include="..\APSS.Tests.Domain.Entities.Validators\APSS.Tests.Domain.Entities.Validators.csproj" />
   </ItemGroup>
 
 </Project>
