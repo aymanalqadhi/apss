@@ -117,7 +117,7 @@ public sealed class PopulationService : IPopulationService
     ///<inheritdoc/>
     public async Task<Voluntary> AddVoluntaryAsync(long accountId, long individualId, string name, string field)
     {
-        var account = await GetAuthorizedGroupAccountAsync(accountId, PermissionType.Create);
+        var account = await GetAuthorizedGroupAccountAsync(accountId, PermissionType.Create | PermissionType.Update);
 
         var individual = await _uow.Individuals.Query()
             .Include(i => i.AddedBy)
