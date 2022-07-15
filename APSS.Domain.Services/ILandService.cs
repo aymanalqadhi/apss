@@ -85,19 +85,27 @@ public interface ILandService
         long landId,
         long seasonId,
         long landProductUnitId,
+        string cropName,
+        DateTime harvestStart,
+        DateTime HarvestEnd,
         double quantity,
         double irrigationCount,
         IrrigationWaterSource irrigationWaterSource,
         IrrigationPowerSource irrigationPowerSource,
-        bool isGovernmentFunded);
+        bool isGovernmentFunded,
+        string storingMethod,
+        string category,
+        bool hasGreenhouse,
+        string fertilizer,
+        string insecticide,
+        string irrigationMethod);
 
     /// <summary>
     ///  Asynchronously adds a new Season
     /// </summary>
     /// <param name="accountId">The id of the account who adds the Season</param>
     /// <param name="name">The name of the season</param>
-    /// <param name="startsAt">The starting date of the season</param>
-    /// <param name="endsAt">The end date of the season</param>
+    /// <param name="dateTimeRange">The starting date of the season and The end date of the season</param>
     /// <returns></returns>
     Task<Season> AddSeasonAsync(long accountId, string name, DateTime startsAt, DateTime endsAt);
 
