@@ -59,8 +59,8 @@ public sealed class PermissionsService : IPermissionsService
         if (!CorrelateDistanceWithPermissions(distance, permissions, account.Permissions))
         {
             throw new InsufficientPermissionsException(
-             accountId,
-             $"account #{accountId} of user #{account.User.Id} with permissions {account.Permissions.ToFormattedString()} does not have permissions {permissions.ToFormattedString()} on or does not own user #{userId}");
+                accountId,
+                 $"account #{accountId} of user #{account.User.Id} with permissions {account.Permissions.ToFormattedString()} does not have permissions {permissions.ToFormattedString()} on or does not own user #{userId}");
         }
 
         return account;
