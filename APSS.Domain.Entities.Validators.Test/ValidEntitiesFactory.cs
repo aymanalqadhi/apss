@@ -177,6 +177,21 @@ public static class ValidEntitiesFactory
     }
 
     /// <summary>
+    /// Creates a valid family individual object
+    /// </summary>
+    /// <returns>The created family individual object</returns>
+    public static FamilyIndividual CreateValidFamilyIndividual()
+    {
+        return new FamilyIndividual
+        {
+            Individual = ValidEntitiesFactory.CreateValidIndividual(),
+            Family = ValidEntitiesFactory.CreateValidFamily(),
+            IsParent = RandomGenerator.NextBool(),
+            IsProvider = RandomGenerator.NextBool(),
+        };
+    }
+
+    /// <summary>
     /// Creates a valid season object
     /// </summary>
     /// <returns>The created season object</returns>
