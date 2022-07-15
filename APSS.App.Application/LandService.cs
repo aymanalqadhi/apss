@@ -200,6 +200,17 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
+    public async Task<IQueryBuilder<Land>> GetLandsAsync(long accountId)
+    {
+        var user = await _uow.Accounts
+            .Query()
+            .Include(u => u.User)
+            .FindAsync(accountId);
+
+        return _uow.Lands.Query().Where(l => l.OwnedBy.Id == user.User.Id);
+    }
+
+    /// <inheritdoc/>
     public async Task<IQueryBuilder<LandProduct>> GetLandProductsAsync(long accountId, long landId)
     {
         var land = await _uow.Lands
@@ -210,6 +221,19 @@ public class LandService : ILandService
         await _permissionsSvc.ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Read);
 
         return _uow.LandProducts.Query().Where(p => p.Producer.Id == landId);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IQueryBuilder<LandProduct>> GetLandProductAsync(long accountId, long landProductId)
+    {
+        var account = await _uow.Accounts
+            .Query()
+            .Include(u => u.User)
+            .FindAsync(accountId);
+
+        await _permissionsSvc.ValidatePermissionsAsync(accountId, account.User.Id, PermissionType.Read);
+
+        return _uow.LandProducts.Query().Where(p => p.Id == landProductId);
     }
 
     /// <inheritdoc/>
