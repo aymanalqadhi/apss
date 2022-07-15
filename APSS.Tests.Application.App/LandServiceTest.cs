@@ -83,30 +83,16 @@ public sealed class LandServiceTest
     }
 
     [Theory]
-    [InlineData(AccessLevel.Farmer, PermissionType.Create, true)]
-    [InlineData(AccessLevel.Farmer, PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Group, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Root, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Village, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.District, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Directorate, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Governorate, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Presedint, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
+    [InlineData(PermissionType.Create, true)]
+    [InlineData(PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
     public async Task<(Account, LandProduct)> LandProductAddedTheroy(
-        AccessLevel accessLevel = AccessLevel.Farmer,
         PermissionType permissions = PermissionType.Create,
         bool shouldSucceed = true)
     {
-        var (account, land) = await LandAddedTheory(
-            AccessLevel.Farmer | accessLevel,
-            PermissionType.Create | permissions,
-            true);
-        var (season, Aaccount) = await SeasonAddedTheory(
-            AccessLevel.Root,
-            PermissionType.Create,
-            true);
+        var (account, land) = await LandAddedTheory();
+        var (season, Aaccount) = await SeasonAddedTheory();
 
-        //var otherAccounts = await _uow.CreateTestingAccountAsync(accessLevel, permissions);
+        account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissions);
 
         var landProductUnit = ValidEntitiesFactory.CreateValidLandProductUnit();
         var templateLandProduct = ValidEntitiesFactory.CreateValidLandProduct();
@@ -133,9 +119,8 @@ public sealed class LandServiceTest
 
         if (!shouldSucceed)
         {
-            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await addLandProductTask);
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await addLandProductTask);
 
-            //Assert.False(false, "shit happens");
             return (account, null!);
         }
 
@@ -197,9 +182,9 @@ public sealed class LandServiceTest
     [InlineData(AccessLevel.Governorate, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
     [InlineData(AccessLevel.Presedint, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
     public async Task<(Season, Account)> SeasonAddedTheory(
-        AccessLevel accessLevel,
-        PermissionType permissions,
-        bool shouldSucceed)
+        AccessLevel accessLevel = AccessLevel.Root,
+        PermissionType permissions = PermissionType.Create,
+        bool shouldSucceed = true)
     {
         var account = await _uow.CreateTestingAccountAsync(accessLevel, permissions);
         var tampletSeason = ValidEntitiesFactory.CreateValidSeason();
@@ -229,33 +214,24 @@ public sealed class LandServiceTest
     }
 
     [Theory]
-    [InlineData(AccessLevel.Root, PermissionType.Delete, true)]
-    [InlineData(AccessLevel.Root, PermissionType.Read | PermissionType.Create | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Farmer, PermissionType.Read | PermissionType.Create | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Group, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Village, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.District, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Directorate, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Governorate, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Presedint, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
+    [InlineData(PermissionType.Delete, true)]
+    [InlineData(PermissionType.Read | PermissionType.Update | PermissionType.Create, false)]
     public async Task SeasonRemovedTheory(
-        AccessLevel accessLevel,
         PermissionType permissionType,
         bool shouldSucceed)
     {
-        var (season, account) = await SeasonAddedTheory(
-            AccessLevel.Root,
-            PermissionType.Create,
-            true);
+        var (season, account) = await SeasonAddedTheory();
 
         Assert.True(await _uow.Sessions.Query().ContainsAsync(season!));
 
-        //var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
-        //await Assert.ThrowsAsync<InvalidAccessLevelException>(() =>
-        //    _landSvc.RemoveSeasonAsync(otherAccount.Id, season!.Id)
-        //);
-        var thiredAccount = await _uow.CreateTestingAccountAsync(accessLevel, permissionType);
-        var removeSeasonTask = _landSvc.RemoveSeasonAsync(thiredAccount.Id, season.Id);
+        account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
+
+        var differentAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
+        await Assert.ThrowsAsync<InvalidAccessLevelException>(() =>
+            _landSvc.RemoveSeasonAsync(differentAccount.Id, season!.Id)
+        );
+
+        var removeSeasonTask = _landSvc.RemoveSeasonAsync(account.Id, season.Id);
 
         if (!shouldSucceed)
         {
@@ -264,67 +240,32 @@ public sealed class LandServiceTest
         }
 
         await removeSeasonTask;
+
         Assert.False(await _uow.Sessions.Query().ContainsAsync(season!));
     }
 
     [Theory]
-    [InlineData(AccessLevel.Farmer, PermissionType.Delete, true)]
-    [InlineData(AccessLevel.Root, PermissionType.Read | PermissionType.Create | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Farmer, PermissionType.Read | PermissionType.Create | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Group, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Village, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.District, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Directorate, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Governorate, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    [InlineData(AccessLevel.Presedint, PermissionType.Create | PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-    public async Task LandProductRemovedTheory(
-        AccessLevel accessLevel,
+    [InlineData(PermissionType.Delete, true)]
+    [InlineData(PermissionType.Read | PermissionType.Update | PermissionType.Create, false)]
+    public async Task RemoveLandProductTheroy(
         PermissionType permissionType,
         bool shouldSucceed)
     {
-        var (account, land) = await LandAddedTheory(
-             AccessLevel.Farmer,
-             PermissionType.Create | permissionType,
-             true);
-        var (season, Aaccount) = await SeasonAddedTheory(
-            AccessLevel.Root,
-            PermissionType.Create,
-            true);
-        var landProductUnit = ValidEntitiesFactory.CreateValidLandProductUnit();
-        var templateLandProduct = ValidEntitiesFactory.CreateValidLandProduct();
-
-        var landProduct = await _landSvc.AddLandProductAsync(
-            account.Id,
-            land!.Id,
-            season.Id,
-            landProductUnit.Id!,
-            templateLandProduct.CropName,
-            templateLandProduct.HarvestStart,
-            templateLandProduct.HarvestEnd,
-            templateLandProduct.Quantity,
-            templateLandProduct.IrrigationCount,
-            templateLandProduct.IrrigationWaterSource,
-            templateLandProduct.IrrigationPowerSource,
-            templateLandProduct.IsGovernmentFunded,
-            templateLandProduct.StoringMethod,
-            templateLandProduct.Category,
-            templateLandProduct.HasGreenhouse,
-            templateLandProduct.Fertilizer,
-            templateLandProduct.Insecticide,
-            templateLandProduct.IrrigationMethod);
+        var (account, landProduct) = await LandProductAddedTheroy();
 
         Assert.True(await _uow.LandProducts.Query().ContainsAsync(landProduct!));
 
-        var otherAccount = await _uow.CreateTestingAccountAsync(accessLevel, permissionType);
-        await Assert.ThrowsAsync<InvalidAccessLevelException>(() =>
-            _landSvc.RemoveLandProductAsync(otherAccount.Id, landProduct!.Id)
-        );
+        account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
 
-        if (shouldSucceed)
+        var removeLandProductTask = _landSvc.RemoveLandProductAsync(account.Id, landProduct.Id);
+
+        if (!shouldSucceed)
         {
-            var deleteLandProductTask = await _landSvc.RemoveLandProductAsync(land.OwnedBy.Id, landProduct!.Id); // The Owner has to have both create and delete permissions
-            Assert.False(await _uow.LandProducts.Query().ContainsAsync(landProduct!));
+            //await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await removeLandProductTask);
         }
+
+        await removeLandProductTask;
+        Assert.False(await _uow.LandProducts.Query().ContainsAsync(landProduct!));
     }
 
     #endregion Tests
