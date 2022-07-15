@@ -1,19 +1,17 @@
-using APSS.Application.App;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
 using APSS.Domain.Repositories.Extensions;
 using APSS.Domain.Services;
 using APSS.Tests.Utils;
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
 using Xunit;
 
 namespace APSS.Tests.Application.App;
 
-public sealed class DatabaseLogsServiceTest : IDisposable
+public sealed class DatabaseLogsServiceTest
 {
     #region Private fields
 
@@ -73,12 +71,4 @@ public sealed class DatabaseLogsServiceTest : IDisposable
     }
 
     #endregion Tests
-
-    #region IDisposable Members
-
-    /// <inheritdoc/>
-    public void Dispose()
-        => _uow.Dispose();
-
-    #endregion IDisposable Members
 }
