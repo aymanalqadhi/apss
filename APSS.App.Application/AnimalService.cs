@@ -45,6 +45,7 @@ public class AnimalService : IAnimalService
             Name = name,
             Quantity = quantity,
             Sex = animalSex,
+            OwnedBy = farmer.User,
         };
         _uow.AnimalGroups.Add(animalGroup);
         await _uow.CommitAsync();
