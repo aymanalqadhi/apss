@@ -28,7 +28,20 @@ public interface ILandService
         bool isUsable = true,
         bool isUsed = false);
 
+    /// <summary>
+    /// Gets the land
+    /// </summary>
+    /// <param name="accountId">The id of the user`s account who whants to read the land</param>
+    /// <param name="landId">The id of the land</param>
+    /// <returns>The land that the account whants to read</returns>
     Task<IQueryBuilder<Land>> GetLandAsync(long accountId, long landId);
+
+    /// <summary>
+    /// Gets the lands that owned by the user
+    /// </summary>
+    /// <param name="accountId">The id of user`s account who owns the land</param>
+    /// <returns>the lands that owned by the user</returns>
+    Task<IQueryBuilder<Land>> GetLandsAsync(long accountId);
 
     /// <summary>
     /// Update the land
@@ -61,6 +74,14 @@ public interface ILandService
     /// <param name="landId">The id of the land</param>
     /// <returns>The land products that belong to the land</returns>
     Task<IQueryBuilder<LandProduct>> GetLandProductsAsync(long accountId, long landId);
+
+    /// <summary>
+    /// Gets the user`s land products by land product id
+    /// </summary>
+    /// <param name="landProductId">The id of land product </param>
+    /// <param name="accountId">The id of the user who owns the land product</param>
+    /// <returns>The land products that belong to the land</returns>
+    Task<IQueryBuilder<LandProduct>> GetLandProductAsync(long accountId, long landProductId);
 
     /// <summary>
     /// Delete the land product
