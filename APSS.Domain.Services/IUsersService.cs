@@ -13,9 +13,7 @@ public interface IUsersService
     /// <summary>
     /// Asynchronosly creates a new user
     /// </summary>
-    /// <param name="accountId">
-    /// The id of the account of the user to add the new user under
-    /// </param>
+    /// <param name="accountId">The id of the account of the user to add the new user under</param>
     /// <param name="name">The name of the user to be created</param>
     /// <returns>The created user object</returns>
     Task<User> CreateAsync(long accountId, string name);
@@ -48,11 +46,11 @@ public interface IUsersService
     /// <summary>
     /// Asyncrhnnously gets a user's upwards hierarchy (all users above)
     /// </summary>
-    /// <param name="userId">The id of the uesr to get the heirarchy for</param>
+    /// <param name="accountId">The id of the account to get the heirarchy for</param>
     /// <param name="builder">An optional query builder to manipulate the qurey</param>
     /// <returns>A stream of users in the hierarchy</returns>
     IAsyncEnumerable<User> GetUpwardHierarchyAsync(
-        long userId,
+        long accountId,
         Func<IQueryBuilder<User>, IQueryBuilder<User>>? builder = null);
 
     #endregion Public Methods
