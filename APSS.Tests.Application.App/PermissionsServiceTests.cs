@@ -1,11 +1,11 @@
-﻿using APSS.Domain.Entities;
+﻿using System.Threading.Tasks;
+
+using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
 using APSS.Domain.Services;
 using APSS.Domain.Services.Exceptions;
 using APSS.Tests.Extensions;
 using APSS.Tests.Utils;
-
-using System.Threading.Tasks;
 
 using Xunit;
 
@@ -78,9 +78,212 @@ public sealed class PermissionsServiceTests
         {
             var validatedAccount = await validatePermissionsTask;
 
-            Assert.Equal(validatedAccount.Id, account.Id);
-            Assert.Equal(validatedAccount.Permissions, account.Permissions);
+            Assert.Equal(account.Id, validatedAccount.Id);
+            Assert.Equal(account.Permissions, validatedAccount.Permissions);
             Assert.True(validatedAccount.Permissions.HasFlag(expectedPermissions));
+        }
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Create, PermissionType.Create, true)]
+    [InlineData(PermissionType.Read, PermissionType.Read, true)]
+    [InlineData(PermissionType.Update, PermissionType.Update, true)]
+    [InlineData(PermissionType.Delete, PermissionType.Delete, true)]
+    [InlineData(PermissionType.Full, PermissionType.Create, true)]
+    [InlineData(PermissionType.Full, PermissionType.Read, true)]
+    [InlineData(PermissionType.Full, PermissionType.Update, true)]
+    [InlineData(PermissionType.Full, PermissionType.Delete, true)]
+    [InlineData(PermissionType.Read, PermissionType.Full, false)]
+    [InlineData(PermissionType.Update, PermissionType.Full, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Full, false)]
+    [InlineData(PermissionType.Create, PermissionType.Update, false)]
+    [InlineData(PermissionType.Create, PermissionType.Read, false)]
+    [InlineData(PermissionType.Create, PermissionType.Delete, false)]
+    [InlineData(PermissionType.Read, PermissionType.Create, false)]
+    [InlineData(PermissionType.Read, PermissionType.Update, false)]
+    [InlineData(PermissionType.Read, PermissionType.Delete, false)]
+    [InlineData(PermissionType.Update, PermissionType.Create, false)]
+    [InlineData(PermissionType.Update, PermissionType.Read, false)]
+    [InlineData(PermissionType.Update, PermissionType.Delete, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Create, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Read, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Update, false)]
+    public async Task PermissionSelfValidationTheory(
+        PermissionType permissions,
+        PermissionType expectedPermissions,
+        bool shouldSucceed)
+    {
+        var accessLevel = RandomGenerator.NextAccessLevel(max: AccessLevel.Presedint);
+
+        var account = await _uow.CreateTestingAccountAsync(accessLevel, PermissionType.Full);
+        var otherAccount = await _uow.CreateTestingAccountForUserAsync(
+            account.User.Id,
+            permissions);
+
+        var validatePermissionsTask = _permissionsSvc.ValidatePermissionsAsync(
+            otherAccount.Id,
+            account.User.Id,
+            expectedPermissions);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await validatePermissionsTask);
+        }
+        else
+        {
+            var validatedAccount = await validatePermissionsTask;
+
+            Assert.Equal(otherAccount.Id, validatedAccount.Id);
+            Assert.Equal(otherAccount.Permissions, validatedAccount.Permissions);
+            Assert.True(validatedAccount.Permissions.HasFlag(expectedPermissions));
+        }
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Create, PermissionType.Create, true)]
+    [InlineData(PermissionType.Read, PermissionType.Read, true)]
+    [InlineData(PermissionType.Update, PermissionType.Update, true)]
+    [InlineData(PermissionType.Delete, PermissionType.Delete, true)]
+    [InlineData(PermissionType.Full, PermissionType.Create, true)]
+    [InlineData(PermissionType.Full, PermissionType.Read, true)]
+    [InlineData(PermissionType.Full, PermissionType.Update, true)]
+    [InlineData(PermissionType.Full, PermissionType.Delete, true)]
+    [InlineData(PermissionType.Read, PermissionType.Full, false)]
+    [InlineData(PermissionType.Update, PermissionType.Full, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Full, false)]
+    [InlineData(PermissionType.Create, PermissionType.Update, false)]
+    [InlineData(PermissionType.Create, PermissionType.Read, false)]
+    [InlineData(PermissionType.Create, PermissionType.Delete, false)]
+    [InlineData(PermissionType.Read, PermissionType.Create, false)]
+    [InlineData(PermissionType.Read, PermissionType.Update, false)]
+    [InlineData(PermissionType.Read, PermissionType.Delete, false)]
+    [InlineData(PermissionType.Update, PermissionType.Create, false)]
+    [InlineData(PermissionType.Update, PermissionType.Read, false)]
+    [InlineData(PermissionType.Update, PermissionType.Delete, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Create, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Read, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Update, false)]
+    public async Task PermissionsRootAccessValidationTheory(
+        PermissionType permissions,
+        PermissionType expectedPermissions,
+        bool shouldSucceed)
+    {
+        var account = await _uow.CreateTestingAccountAsync(
+            RandomGenerator.NextAccessLevel(),
+            PermissionType.Full);
+
+        var rootAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Root, permissions);
+
+        var validatePermissionsTask = _permissionsSvc.ValidatePermissionsAsync(
+            rootAccount.Id,
+            account.User.Id,
+            expectedPermissions);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await validatePermissionsTask);
+        }
+        else
+        {
+            var validatedAccount = await validatePermissionsTask;
+
+            Assert.Equal(rootAccount.Id, validatedAccount.Id);
+            Assert.Equal(AccessLevel.Root, validatedAccount.User.AccessLevel);
+            Assert.Equal(rootAccount.Permissions, validatedAccount.Permissions);
+            Assert.True(validatedAccount.Permissions.HasFlag(expectedPermissions));
+        }
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Create, PermissionType.Create, true)]
+    //[InlineData(PermissionType.Read, PermissionType.Read, true)]
+    [InlineData(PermissionType.Update, PermissionType.Update, true)]
+    [InlineData(PermissionType.Delete, PermissionType.Delete, true)]
+    [InlineData(PermissionType.Full, PermissionType.Create, true)]
+    //[InlineData(PermissionType.Full, PermissionType.Read, true)]
+    [InlineData(PermissionType.Full, PermissionType.Update, true)]
+    [InlineData(PermissionType.Full, PermissionType.Delete, true)]
+    [InlineData(PermissionType.Read, PermissionType.Full, false)]
+    [InlineData(PermissionType.Update, PermissionType.Full, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Full, false)]
+    [InlineData(PermissionType.Create, PermissionType.Update, false)]
+    [InlineData(PermissionType.Create, PermissionType.Read, false)]
+    [InlineData(PermissionType.Create, PermissionType.Delete, false)]
+    [InlineData(PermissionType.Read, PermissionType.Create, false)]
+    [InlineData(PermissionType.Read, PermissionType.Update, false)]
+    [InlineData(PermissionType.Read, PermissionType.Delete, false)]
+    [InlineData(PermissionType.Update, PermissionType.Create, false)]
+    [InlineData(PermissionType.Update, PermissionType.Read, false)]
+    [InlineData(PermissionType.Update, PermissionType.Delete, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Create, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Read, false)]
+    [InlineData(PermissionType.Delete, PermissionType.Update, false)]
+    public async Task ParenthoodValidationTheory(
+        PermissionType permissions,
+        PermissionType expectedPermissions,
+        bool shouldSucceed)
+    {
+        var superuserAccount = await _uow.CreateTestingAccountAsync(
+            RandomGenerator.NextAccessLevel(AccessLevel.Village, AccessLevel.Presedint),
+            permissions);
+
+        var accessLevel = shouldSucceed
+            ? superuserAccount.User.AccessLevel.NextLevelBelow()
+            : RandomGenerator.NextAccessLevel(max: superuserAccount.User.AccessLevel.NextLevelBelow().NextLevelBelow());
+
+        var account = await _uow.CreateTestingAccountAsync(accessLevel, PermissionType.Full);
+
+        var accountUser = account.User;
+
+        if (!shouldSucceed)
+        {
+            while (accountUser.AccessLevel != superuserAccount.User.AccessLevel.NextLevelBelow())
+                accountUser = accountUser.SupervisedBy!;
+        }
+
+        accountUser.SupervisedBy = superuserAccount.User;
+        await _uow.CommitAsync();
+
+        Assert.Equal(superuserAccount.User.Id, accountUser.SupervisedBy!.Id);
+
+        var userParenthoodValidationTask = _permissionsSvc.ValidateUserPatenthoodAsync(
+            superuserAccount.Id,
+            account.User.Id,
+            expectedPermissions);
+
+        var accountParenthoodValidationTask = _permissionsSvc.ValidateAccountPatenthoodAsync(
+            superuserAccount.Id,
+            account.Id,
+            expectedPermissions);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await userParenthoodValidationTask);
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await accountParenthoodValidationTask);
+        }
+        else
+        {
+            var validatedAccount = await userParenthoodValidationTask;
+
+            if (!shouldSucceed)
+                Assert.True(validatedAccount.Permissions.HasFlag(PermissionType.Read));
+
+            Assert.Equal(superuserAccount.Id, validatedAccount.Id);
+            Assert.Equal(superuserAccount.Permissions, validatedAccount.Permissions);
+            Assert.Equal(superuserAccount.User.AccessLevel, validatedAccount.User.AccessLevel);
+
+            var (validatedSuperuserAccount, validatedSubuserAccount) = await accountParenthoodValidationTask;
+
+            if (!shouldSucceed)
+                Assert.True(validatedSuperuserAccount.Permissions.HasFlag(PermissionType.Read));
+
+            Assert.Equal(validatedSuperuserAccount.Id, validatedAccount.Id);
+            Assert.Equal(validatedSuperuserAccount.Permissions, validatedAccount.Permissions);
+            Assert.Equal(validatedSuperuserAccount.User.AccessLevel, validatedAccount.User.AccessLevel);
+
+            Assert.Equal(validatedSubuserAccount.Id, account.Id);
+            Assert.Equal(validatedSubuserAccount.Permissions, account.Permissions);
+            Assert.Equal(validatedSubuserAccount.User.AccessLevel, account.User.AccessLevel);
         }
     }
 
