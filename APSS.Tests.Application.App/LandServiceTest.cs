@@ -1,18 +1,18 @@
-﻿using APSS.Application.App;
+﻿using System.Linq;
+using System.Threading.Tasks;
+
+using APSS.Application.App;
 using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
+using APSS.Domain.Repositories.Extensions;
+using APSS.Domain.Repositories.Extensions.Exceptions;
 using APSS.Domain.Services;
+using APSS.Domain.Services.Exceptions;
+using APSS.Domain.ValueTypes;
 using APSS.Tests.Domain.Entities.Validators;
 using APSS.Tests.Extensions;
-using APSS.Domain.ValueTypes;
-using APSS.Domain.Repositories.Extensions.Exceptions;
-using APSS.Domain.Repositories.Extensions;
-using APSS.Domain.Services.Exceptions;
 
 using Xunit;
-
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace APSS.Tests.Application.App;
 
@@ -158,7 +158,7 @@ public sealed class LandServiceTest
         var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
         await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
             _landSvc.RemoveLandAsync(otherAccount.Id, land!.Id)
-        );
+                                                                  );
 
         var removeLandTask = _landSvc.RemoveLandAsync(account.Id, land!.Id);
 
@@ -229,7 +229,7 @@ public sealed class LandServiceTest
         var differentAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
         await Assert.ThrowsAsync<InvalidAccessLevelException>(() =>
             _landSvc.RemoveSeasonAsync(differentAccount.Id, season!.Id)
-        );
+                                                             );
 
         var removeSeasonTask = _landSvc.RemoveSeasonAsync(account.Id, season.Id);
 
@@ -261,7 +261,8 @@ public sealed class LandServiceTest
 
         if (!shouldSucceed)
         {
-            //await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await removeLandProductTask);
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await removeLandProductTask);
+            return;
         }
 
         await removeLandProductTask;
