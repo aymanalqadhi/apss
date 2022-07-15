@@ -257,6 +257,10 @@ public sealed class LandServiceTest
 
         account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
 
+        var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+            _landSvc.RemoveLandProductAsync(otherAccount.Id, landProduct!.Id));
+
         var removeLandProductTask = _landSvc.RemoveLandProductAsync(account.Id, landProduct.Id);
 
         if (!shouldSucceed)
@@ -267,6 +271,44 @@ public sealed class LandServiceTest
 
         await removeLandProductTask;
         Assert.False(await _uow.LandProducts.Query().ContainsAsync(landProduct!));
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Read, true)]
+    [InlineData(PermissionType.Full, true)]
+    [InlineData(PermissionType.Create, false)]
+    [InlineData(PermissionType.Update, false)]
+    [InlineData(PermissionType.Delete, false)]
+    public async Task GetLandTheory(
+        PermissionType permissionType,
+        bool shouldSucceed)
+    {
+        var (account, land) = await LandAddedTheory();
+        var superviserAccount = await _uow.CreateTestingAccountForUserAsync(
+            account.User.SupervisedBy!.Id,
+            permissionType);
+
+        Assert.True(await _uow.Lands.Query().ContainsAsync(land!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
+
+        var otherFarmer = await _uow.CreateTestingAccountAsync(
+            AccessLevel.Farmer,
+            PermissionType.Create);
+        var otherAccount = await _uow.CreateTestingAccountForUserAsync(
+            otherFarmer.User.SupervisedBy!.Id, PermissionType.Read);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+            _landSvc.GetLandAsync(otherAccount.Id, land!.Id));
+
+        var getLandTask = _landSvc.GetLandAsync(superviserAccount.Id, land!.Id);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await getLandTask);
+            return;
+        }
+
+        await getLandTask;
     }
 
     #endregion Tests
