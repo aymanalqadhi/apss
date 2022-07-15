@@ -1,18 +1,20 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
 using APSS.Application.App;
 using APSS.Domain.Entities;
 using APSS.Domain.Repositories;
+using APSS.Domain.Repositories.Extensions;
+using APSS.Domain.Repositories.Extensions.Exceptions;
 using APSS.Domain.Services;
+using APSS.Domain.Services.Exceptions;
+using APSS.Domain.ValueTypes;
 using APSS.Tests.Domain.Entities.Validators;
 using APSS.Tests.Extensions;
-using APSS.Domain.ValueTypes;
-using APSS.Domain.Repositories.Extensions.Exceptions;
-using APSS.Domain.Repositories.Extensions;
-using APSS.Domain.Services.Exceptions;
+using APSS.Tests.Utils;
 
 using Xunit;
-
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace APSS.Tests.Application.App;
 
@@ -52,12 +54,13 @@ public sealed class SurveysServiceTest
     [InlineData(AccessLevel.Presedint, PermissionType.Create, true)]
     [InlineData(AccessLevel.Presedint, PermissionType.Delete | PermissionType.Read | PermissionType.Update, false)]
     public async Task<(Account, Survey?)> SurveyAddedTheory(
-         AccessLevel accessLevel = AccessLevel.Group,
+        AccessLevel accessLevel = AccessLevel.Group,
         PermissionType permissions = PermissionType.Create,
         bool shouldSucceed = true)
     {
         var account = await _uow.CreateTestingAccountAsync(accessLevel, permissions);
-        var templateSurvey = ValidEntitiesFactory.CreateValidSurvey();
+
+        var templateSurvey = ValidEntitiesFactory.CreateValidSurvey(TimeSpan.FromHours(3));
 
         var addSurveyTask = _surveySvc.CreateSurveyAsync(
             account.Id,
@@ -68,7 +71,7 @@ public sealed class SurveysServiceTest
         {
             if (accessLevel == AccessLevel.Farmer)
             {
-            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await addSurveyTask);
+                await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await addSurveyTask);
                 return (account, null);
             }
             else if (permissions != PermissionType.Create)
@@ -96,12 +99,24 @@ public sealed class SurveysServiceTest
         bool shouldSucceed = true)
     {
         var account = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, permissions);
-        var (surveyAccount, survey) = await SurveyAddedTheory(AccessLevel.Group);
+        var (surveyAccount, survey) = await SurveyAddedTheory(RandomGenerator.NextAccessLevel(min: AccessLevel.Group));
+
+        var accountUser = account.User;
+
+        while (accountUser.AccessLevel != surveyAccount.User.AccessLevel.NextLevelBelow())
+            accountUser = accountUser.SupervisedBy!;
+
+        accountUser.SupervisedBy = surveyAccount.User;
+        await _uow.CommitAsync();
+
+        Assert.Equal(surveyAccount.User.Id, accountUser.SupervisedBy!.Id);
+
         var templateEntry = new SurveyEntry
         {
             MadeBy = account.User,
-            Survey = survey!
+            Survey = survey!,
         };
+
         var addEntryTask = _surveySvc.CreateSurveyEntryAsync(
             account.Id,
             templateEntry.Survey.Id);
