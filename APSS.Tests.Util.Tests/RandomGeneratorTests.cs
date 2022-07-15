@@ -1,3 +1,4 @@
+using APSS.Domain.Entities;
 using APSS.Tests.Utils;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -128,6 +129,24 @@ public class RandomGeneratorTests
 
         Assert.IsTrue(value >= min);
         Assert.IsTrue(value <= max);
+    }
+
+    [TestMethod]
+    public void AccessLevelTest()
+    {
+        var min = RandomGenerator.NextAccessLevel(AccessLevel.Farmer, AccessLevel.Directorate);
+        var max = RandomGenerator.NextAccessLevel(AccessLevel.Governorate, AccessLevel.Root);
+
+        Assert.IsTrue(min.IsAboveOrEqual(AccessLevel.Farmer));
+        Assert.IsTrue(min.IsBelowOrEqual(AccessLevel.Directorate));
+
+        Assert.IsTrue(max.IsAboveOrEqual(AccessLevel.Governorate));
+        Assert.IsTrue(max.IsBelowOrEqual(AccessLevel.Root));
+
+        var value = RandomGenerator.NextAccessLevel(min, max);
+
+        Assert.IsTrue(max.IsAboveOrEqual(min));
+        Assert.IsTrue(max.IsBelowOrEqual(max));
     }
 
     #endregion Tests

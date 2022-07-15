@@ -105,12 +105,12 @@ public static class QueryBuilderSecurityExtensions
     public static async Task<T> FindWithOwnershipValidationAync<T>(
         this IQueryBuilder<T> self,
         long itemId,
-        Func<T, User> ownerSelector,
+        Func<T, User?> ownerSelector,
         Account account) where T : AuditableEntity
     {
         var item = await self.FindAsync(itemId);
 
-        if (account.User.Id != ownerSelector(item).Id)
+        if (ownerSelector(item)?.Id != account.User.Id)
         {
             throw new InsufficientPermissionsException(
                 account.Id,

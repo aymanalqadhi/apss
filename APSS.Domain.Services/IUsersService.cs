@@ -40,9 +40,10 @@ public interface IUsersService
     /// Asynchronously updates a user
     /// </summary>
     /// <param name="accountId">The id of the superuser of the user to update</param>
-    /// <param name="user">The user to udpate</param>
+    /// <param name="userId">The id of the user to udpate</param>
+    /// <param name="updater">The updating callback</param>
     /// <returns>The updated user</returns>
-    Task<User> UpdateUserAsync(long accountId, User user);
+    Task<User> UpdateAsync(long accountId, long userId, Action<User> updater);
 
     /// <summary>
     /// Asyncrhnnously gets a user's upwards hierarchy (all users above)
@@ -50,7 +51,7 @@ public interface IUsersService
     /// <param name="userId">The id of the uesr to get the heirarchy for</param>
     /// <param name="builder">An optional query builder to manipulate the qurey</param>
     /// <returns>A stream of users in the hierarchy</returns>
-    IAsyncEnumerable<User> GetUserUpwardHierarchyAsync(
+    IAsyncEnumerable<User> GetUpwardHierarchyAsync(
         long userId,
         Func<IQueryBuilder<User>, IQueryBuilder<User>>? builder = null);
 
