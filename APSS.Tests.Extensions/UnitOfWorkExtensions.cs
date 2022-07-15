@@ -53,6 +53,45 @@ public static class UnitOfWorkExtensions
         return account;
     }
 
+    /// <summary>
+    /// Asynchronously adds an account above a specific user
+    /// </summary>
+    /// <param name="self"></param>
+    /// <param name="userId">The id of the user to add the account above</param>
+    /// <param name="accessLevel">The access level of the account user</param>
+    /// <param name="permissions">The permissions of the account</param>
+    /// <returns>The created account</returns>
+    /// <exception cref="InvalidOperationException">Thrown when invalid access level is specified</exception>
+    public static async Task<Account> CreateTestingAccountAboveUserAsync(
+        this IUnitOfWork self,
+        long userId,
+        AccessLevel accessLevel,
+        PermissionType permissions)
+    {
+        var user = await self.Users.Query().FindAsync(userId);
+
+        if (user.AccessLevel.IsAboveOrEqual(accessLevel))
+            throw new InvalidOperationException($"user #{userId} access level {accessLevel} is above or equal to {accessLevel}");
+
+        var account = await self.CreateTestingAccountAsync(accessLevel, permissions);
+
+        while (user!.AccessLevel != accessLevel.NextLevelBelow())
+        {
+            user = (await self.Users
+                    .Query()
+                    .Include(u => u.SupervisedBy!)
+                    .FindAsync(user.Id)
+                   ).SupervisedBy;
+        }
+
+        user.SupervisedBy = account.User;
+        self.Users.Update(user);
+
+        await self.CommitAsync();
+
+        return account;
+    }
+
     #endregion Public Methods
 
     #region Private Methods
