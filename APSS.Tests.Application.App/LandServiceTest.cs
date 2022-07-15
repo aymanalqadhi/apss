@@ -133,9 +133,9 @@ public sealed class LandServiceTest
 
         if (!shouldSucceed)
         {
-            //await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await addLandProductTask);
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await addLandProductTask);
 
-            Assert.False(false, "shit happens");
+            //Assert.False(false, "shit happens");
             return (account, null!);
         }
 
