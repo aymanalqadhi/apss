@@ -81,7 +81,7 @@ namespace APSS.Tests.Application.App
         [Theory]
         [InlineData(PermissionType.Delete, true)]
         [InlineData(PermissionType.Create | PermissionType.Update | PermissionType.Read, false)]
-        public async Task AnimalDeleteTheory(PermissionType permissionType, bool ShouldSuccess)
+        public async Task AnimalDeleteTheory(PermissionType permissionType, bool ShouldSuccess = true)
         {
             var (account, animalGroup) = await AnimalAddedTheory(
                 AccessLevel.Farmer,
@@ -91,7 +91,8 @@ namespace APSS.Tests.Application.App
             Assert.True(await _uow.AnimalGroups.Query().ContainsAsync(animalGroup!));
 
             var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
-            await Assert.ThrowsAsync<InsufficientExecutionStackException>(() => _animal.RemoveAnimalGroupAsync(otherAccount.Id, animalGroup!.Id));
+            await Assert.ThrowsAsync<InsufficientExecutionStackException>(() =>
+            _animal.RemoveAnimalGroupAsync(otherAccount.Id, animalGroup!.Id));
 
             var DeleteAnimalTask = _animal.RemoveAnimalGroupAsync(account.Id, animalGroup!.Id);
 
@@ -123,6 +124,7 @@ namespace APSS.Tests.Application.App
                 accesssLevel,
                  permissionType | PermissionType.Create, true
                 );
+
             var animalProduct = ValidEntitiesFactory.CreateValidAnimalProduct();
 
             var animalProductTask = _animal.AddAnimalProductAsync(
@@ -134,7 +136,7 @@ namespace APSS.Tests.Application.App
                 animalProduct.PeriodTaken
 
                 );
-            if (!shouldSuccess)
+            if (shouldSuccess)
             {
                 await Assert.ThrowsAsync<InsufficientExecutionStackException>(async () => await animalProductTask);
                 return (account, null);
@@ -157,7 +159,7 @@ namespace APSS.Tests.Application.App
         [Theory]
         [InlineData(PermissionType.Delete, true)]
         [InlineData(PermissionType.Create | PermissionType.Update | PermissionType.Read, false)]
-        public async Task AnimalProductDeletedTheory(PermissionType permissionType, bool shouldSuccess)
+        public async Task AnimalProductDeletedTheory(PermissionType permissionType, bool shouldSuccess = true)
         {
             var (account, animalProduct) = await AnimalProductAddedTheory(
                 AccessLevel.Farmer,
