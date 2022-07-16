@@ -2,6 +2,7 @@
 using APSS.Domain.Repositories;
 using APSS.Domain.Repositories.Extensions;
 using APSS.Domain.Services;
+using APSS.Domain.Services.Exceptions;
 
 namespace APSS.Application.App;
 
@@ -210,6 +211,12 @@ public sealed class PopulationService : IPopulationService
 
         await _permissionsSvc
             .ValidatePermissionsAsync(accountId, family.AddedBy.Id, PermissionType.Read);
+
+        var account = await _uow.Accounts.Query().FindAsync(accountId);
+
+        if (account.User.AccessLevel == AccessLevel.Farmer)
+            throw new InsufficientPermissionsException(
+                accountId, $"farmer #{account.User.Id} with account #{accountId} cannot add surveys");
 
         return _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId);
     }
