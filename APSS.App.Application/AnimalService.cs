@@ -187,8 +187,6 @@ public class AnimalService : IAnimalService
         var productExpense = await _uow.ProductExpenses.Query()
             .Include(e => e.SpentOn.Expenses).FindAsync(productExpenseId);
 
-        var i = productExpense.SpentOn.Expenses;
-
         throw new NotImplementedException();
     }
 
