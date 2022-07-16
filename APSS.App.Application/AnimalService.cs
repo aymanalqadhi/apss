@@ -2,6 +2,7 @@
 using APSS.Domain.Repositories;
 using APSS.Domain.Repositories.Extensions;
 using APSS.Domain.Services;
+using APSS.Domain.Services.Exceptions;
 
 namespace APSS.Application.App;
 
@@ -38,7 +39,7 @@ public class AnimalService : IAnimalService
             .Include(u => u.User)
             .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Create);
 
-        AnimalGroup animalGroup = new AnimalGroup
+        AnimalGroup animalGroup = new()
         {
             Type = type,
             Name = name,
@@ -68,10 +69,10 @@ public class AnimalService : IAnimalService
 
         var animalGroup = await _uow.AnimalGroups.Query()
             .FindWithOwnershipValidationAync(animalGroupId, farmer);
+
         var unit = await _uow.AnimalProductUnits.Query().FindAsync(animalProductUnitId);
 
-        AnimalProduct animalProduct = new AnimalProduct
-
+        AnimalProduct animalProduct = new()
         {
             Name = name,
             Quantity = quantity,
@@ -215,11 +216,15 @@ public class AnimalService : IAnimalService
     async Task<AnimalProductUnit> IAnimalService.AddAnimalProductUnit(long accountId, string name)
     {
         var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Create);
-        AnimalProductUnit animalProductUnit = new AnimalProductUnit
+        var animalProductUnit = new AnimalProductUnit
         {
             Name = name
         };
-        throw new NotImplementedException();
+
+        _uow.AnimalProductUnits.Add(animalProductUnit);
+        await _uow.CommitAsync();
+
+        return animalProductUnit;
     }
 
     #endregion Public Methods
