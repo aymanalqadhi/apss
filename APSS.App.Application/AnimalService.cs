@@ -44,6 +44,7 @@ public class AnimalService : IAnimalService
             Name = name,
             Quantity = quantity,
             Sex = animalSex,
+            OwnedBy = farmer.User,
         };
         _uow.AnimalGroups.Add(animalGroup);
         await _uow.CommitAsync();
@@ -176,6 +177,41 @@ public class AnimalService : IAnimalService
         await _uow.CommitAsync();
 
         return animalProduct;
+    }
+
+    public async Task<ProductExpense> UpdateProductExpensesAsync(long accountId, long productExpenseId, Action<ProductExpense> updater)
+    {
+        var account = await _uow.Accounts.Query()
+           .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
+
+        var productExpense = await _uow.ProductExpenses.Query()
+            .Include(e => e.SpentOn.Expenses).FindAsync(productExpenseId);
+
+        var i = productExpense.SpentOn.Expenses;
+
+        throw new NotImplementedException();
+    }
+
+    public async Task<ProductExpense> CreateProductExpenseAsync(long accountId, long productId, string type, decimal price)
+    {
+        var account = await _uow.Accounts.Query()
+            .Include(u => u.User)
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Create);
+
+        var product = await _uow.AnimalProducts.Query()
+            .Include(u => u.Producer.OwnedBy)
+            .FindWithOwnershipValidationAync(productId, u => u.Producer.OwnedBy, account);
+
+        var expense = new ProductExpense
+        {
+            Price = price,
+            Type = type,
+            SpentOn = product
+        };
+
+        _uow.ProductExpenses.Add(expense);
+        await _uow.CommitAsync();
+        return expense;
     }
 
     #endregion Public Methods
