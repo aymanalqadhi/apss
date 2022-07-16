@@ -212,5 +212,15 @@ public class AnimalService : IAnimalService
         return expense;
     }
 
+    async Task<AnimalProductUnit> IAnimalService.AddAnimalProductUnit(long accountId, string name)
+    {
+        var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Create);
+        AnimalProductUnit animalProductUnit = new AnimalProductUnit
+        {
+            Name = name
+        };
+        throw new NotImplementedException();
+    }
+
     #endregion Public Methods
 }
