@@ -196,11 +196,11 @@ public sealed class PermissionsServiceTests
 
     [Theory]
     [InlineData(PermissionType.Create, PermissionType.Create, true)]
-    //[InlineData(PermissionType.Read, PermissionType.Read, true)]
+    [InlineData(PermissionType.Read, PermissionType.Read, true)]
     [InlineData(PermissionType.Update, PermissionType.Update, true)]
     [InlineData(PermissionType.Delete, PermissionType.Delete, true)]
     [InlineData(PermissionType.Full, PermissionType.Create, true)]
-    //[InlineData(PermissionType.Full, PermissionType.Read, true)]
+    [InlineData(PermissionType.Full, PermissionType.Read, true)]
     [InlineData(PermissionType.Full, PermissionType.Update, true)]
     [InlineData(PermissionType.Full, PermissionType.Delete, true)]
     [InlineData(PermissionType.Read, PermissionType.Full, false)]
