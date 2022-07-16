@@ -122,27 +122,25 @@ namespace APSS.Tests.Application.App
             bool shouldSuccess = true
             )
         {
-            //var (account, animalGroup) = await AnimalAddedTheory(
-            //    accesssLevel,
-            //    permissionType, shouldSuccess
-            //    );
-            var account = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Create);
+            var (account, animalGroup) = await AnimalAddedTheory(
+               accesssLevel,
+               permissionType, shouldSuccess
+               );
+            /*var account = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, permissionType);
             var templateGroup = ValidEntitiesFactory.CreateValidAnimalGroup();
-
-            var animalGroup = _animal.AddAnimalGroupAsync(
-                account.Id,
-                templateGroup.Type,
-                templateGroup.Name,
-                templateGroup.Quantity,
-                templateGroup.Sex);
-
-            await animalGroup;
+*/
+            /* var animalGroup = await _animal.AddAnimalGroupAsync(
+                 account.Id,
+                 templateGroup.Type,
+                 templateGroup.Name,
+                 templateGroup.Quantity,
+                 templateGroup.Sex);*/
 
             var animalProduct = ValidEntitiesFactory.CreateValidAnimalProduct();
 
             var animalProductTask = _animal.AddAnimalProductAsync(
                 account.Id,
-                animalGroup.Id,
+                animalGroup!.Id,
                 animalProduct.Unit.Id,
                 animalProduct.Name,
                 animalProduct.Quantity,
@@ -158,13 +156,13 @@ namespace APSS.Tests.Application.App
             var product = await animalProductTask;
 
             Assert.True(await _uow.AnimalProducts.Query().ContainsAsync(product));
-            Assert.Equal(account.Id, product.Producer.OwnedBy.Id);
-            Assert.Equal(animalProduct.Producer.Id, animalGroup.Id);
-            Assert.Equal(animalProduct.Id, product.Id);
-            Assert.Equal(animalProduct.Name.ToString(), product.Name);
-            Assert.Equal(animalProduct.Quantity, product.Quantity);
-            Assert.Equal(animalProduct.Unit, product.Unit);
-            Assert.Equal(animalProduct.PeriodTaken, product.PeriodTaken);
+            Assert.Equal(account.User.Id, product.Producer.OwnedBy.Id);
+            Assert.Equal(product.Producer.Id, animalGroup.Id);
+            Assert.Equal(product.Id, product.Id);
+            Assert.Equal(product.Name, product.Name);
+            Assert.Equal(product.Quantity, product.Quantity);
+            Assert.Equal(product.Unit, product.Unit);
+            Assert.Equal(product.PeriodTaken, product.PeriodTaken);
 
             return (account, product);
         }
