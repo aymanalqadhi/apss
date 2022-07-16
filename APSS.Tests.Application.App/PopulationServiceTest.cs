@@ -554,26 +554,31 @@ public sealed class PopulationServiceTest : IDisposable
                | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
                 PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
     [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
-    public async Task GetFamliesTheory(AccessLevel accessLevel,
+    public async Task GetIndividualOfFamliesTheory(AccessLevel accessLevel,
         PermissionType permission = PermissionType.Read,
         bool shoulSucceed = true)
     {
-        var famlies = new[]
+        var templateFamlyIndividuals = ValidEntitiesFactory.CreateValidFamilyIndividual();
+
+        _uow.FamilyIndividuals.Add(templateFamlyIndividuals);
+        await _uow.CommitAsync();
+
+        Assert.True(await _uow.FamilyIndividuals.Query().ContainsAsync(templateFamlyIndividuals));
+
+        var account = _uow.CreateTestingAccountAsync(templateFamlyIndividuals.Family.AddedBy.AccessLevel, permission);
+
+        var getFamlyIndividualTask = _populationSvc.GetFamilyIndividualsAsync(account.Id, templateFamlyIndividuals.Family.Id);
+
+        if (!shoulSucceed & accessLevel != AccessLevel.Farmer)
         {
-            ValidEntitiesFactory.CreateValidFamily(),
-            ValidEntitiesFactory.CreateValidFamily(),
-            ValidEntitiesFactory.CreateValidFamily(),
-            ValidEntitiesFactory.CreateValidFamily(),
-            ValidEntitiesFactory.CreateValidFamily()
-        };
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getFamlyIndividualTask);
+            return;
+        }
 
-        _uow.Families.Add(famlies);
-
-        Assert.Equal(5, await _uow.Families.Query().CountAsync());
-
-        var account = _uow.CreateTestingAccountAsync(famlies[0].AddedBy.AccessLevel, permission);
-
-        var getFamlyTask = _populationSvc.GetFamiliesAsync(account.Id);
+        var familyIndividuals = await getFamlyIndividualTask;
+        Assert.NotNull(familyIndividuals);
+        Assert.True(await familyIndividuals.ContainsAsync(templateFamlyIndividuals));
     }
 
     #endregion Tests
