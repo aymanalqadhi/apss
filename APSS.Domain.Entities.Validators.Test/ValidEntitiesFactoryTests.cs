@@ -1,7 +1,8 @@
-﻿using APSS.Domain.Entities;
-using APSS.Domain.Entities.Validators;
+﻿using System;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using APSS.Domain.Entities;
+using APSS.Domain.Entities.Validators;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -140,7 +141,7 @@ public class ValidEntitiesFactoryTests
     public void ValidateCreateValidSurveyShouldSucceed()
     {
         var validator = new SurveyValidator();
-        var survey = ValidEntitiesFactory.CreateValidSurvey();
+        var survey = ValidEntitiesFactory.CreateValidSurvey(TimeSpan.FromSeconds(1));
 
         Assert.IsTrue(validator.Validate(survey).IsValid);
     }
