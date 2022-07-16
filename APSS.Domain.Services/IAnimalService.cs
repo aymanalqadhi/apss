@@ -94,5 +94,7 @@ public interface IAnimalService
 
     Task<ProductExpense> UpdateProductExpensesAsync(long accountId, long productExpenseId, Action<ProductExpense> updater);
 
+    Task<AnimalProductUnit> AddAnimalProductUnit(long accountId, string name);
+
     #endregion Public Methods
 }
