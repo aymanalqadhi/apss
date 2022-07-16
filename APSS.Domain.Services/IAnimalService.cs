@@ -90,5 +90,9 @@ public interface IAnimalService
     /// <returns></returns>
     Task<AnimalProduct> UpdateAnimalProductAsync(long accountId, long animalProductId, Action<AnimalProduct> updater);
 
+    Task<ProductExpense> CreateProductExpenseAsync(long accountId, long productId, string type, decimal price);
+
+    Task<ProductExpense> UpdateProductExpensesAsync(long accountId, long productExpenseId, Action<ProductExpense> updater);
+
     #endregion Public Methods
 }
