@@ -59,16 +59,24 @@ public sealed class SurveysService : ISurveysService
     {
         await using var tx = await _uow.BeginTransactionAsync();
 
-        var question = await AddQuestionAsync(_uow.MultipleChoiceQuestions, accountId, surveyId, text, isRequired);
         var answers = candidateAnswers.Select(a => new MultipleChoiceAnswerItem
         {
             Value = a,
         }).ToArray();
 
         _uow.MultipleChoiceAnswerItems.Add(answers);
-        question.CandidateAnswers = answers;
-        question.CanMultiSelect = canMultiSelect;
-        _uow.MultipleChoiceQuestions.Update(question);
+
+        var question = await AddQuestionAsync(
+            _uow.MultipleChoiceQuestions,
+            accountId,
+            surveyId,
+            text,
+            isRequired,
+            q =>
+            {
+                q.CandidateAnswers = answers;
+                q.CanMultiSelect = canMultiSelect;
+            });
 
         await _uow.CommitAsync(tx);
 
@@ -269,10 +277,10 @@ public sealed class SurveysService : ISurveysService
     public async Task<SurveyEntry> CreateSurveyEntryAsync(long accountId, long surveyId)
     {
         var account = await _uow.Accounts.Query()
-            .Include(a => a.User)
             .FindWithPermissionsValidationAsync(accountId, PermissionType.Read | PermissionType.Create);
 
-        var survey = await (await DoGetAvailableSurveysAsync(account.User.Id)).FindAsync(surveyId);
+        var survey = await (await DoGetAvailableSurveysAsync(account.Id)).FindAsync(surveyId);
+
         var entry = new SurveyEntry
         {
             MadeBy = account.User,
@@ -289,10 +297,9 @@ public sealed class SurveysService : ISurveysService
     public async Task<IQueryBuilder<Survey>> GetAvailableSurveysAsync(long accountId)
     {
         var account = await _uow.Accounts.Query()
-            .Include(a => a.User)
             .FindWithPermissionsValidationAsync(accountId, PermissionType.Read);
 
-        return await DoGetAvailableSurveysAsync(account.User.Id);
+        return await DoGetAvailableSurveysAsync(account.Id);
     }
 
     /// <inheritdoc/>
@@ -366,7 +373,8 @@ public sealed class SurveysService : ISurveysService
         long accountId,
         long surveyId,
         string text,
-        bool isRequired) where TQuesiton : Question, new()
+        bool isRequired,
+        Action<TQuesiton>? builder = null) where TQuesiton : Question, new()
     {
         var (survey, _) = await GetSurveyWithAuthorizationAsync(
             accountId,
@@ -380,6 +388,8 @@ public sealed class SurveysService : ISurveysService
             Survey = survey,
         };
 
+        builder?.Invoke(question);
+
         repo.Add(question);
         survey.Questions.Add(question);
         _uow.Surveys.Update(survey);
@@ -388,16 +398,15 @@ public sealed class SurveysService : ISurveysService
         return question;
     }
 
-    private async Task<IQueryBuilder<Survey>> DoGetAvailableSurveysAsync(long userId)
+    private async Task<IQueryBuilder<Survey>> DoGetAvailableSurveysAsync(long accountId)
     {
         var usersHierarchyIds = await _usersSvc
-            .GetUpwardHierarchyAsync(userId)
+            .GetUpwardHierarchyAsync(accountId)
             .Select(u => u.Id)
             .ToListAsync();
 
         return _uow.Surveys.Query()
-            .Where(s => s.ExpirationDate > DateTime.Now)
-            .Where(s => usersHierarchyIds.Contains(s.CreatedBy.Id));
+            .Where(s => s.ExpirationDate > DateTime.Now && usersHierarchyIds.Contains(s.CreatedBy.Id));
     }
 
     private async Task<(Account, SurveyEntry)> GetAnswerEntryAsync(long accountId, long entryId)

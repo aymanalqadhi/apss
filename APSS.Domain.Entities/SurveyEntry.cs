@@ -16,10 +16,4 @@ public class SurveyEntry : AuditableEntity
     /// Gets or sets the answers of the survey
     /// </summary>
     public ICollection<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
-
-    /// <summary>
-    /// Gets or sets the external identifier of the entry, referencing
-    /// an external resource (e.g., NoSQL database entry)
-    /// </summary>
-    public string ExternalIdentifier { get; set; } = null!;
 }

@@ -1,9 +1,8 @@
-﻿using APSS.Domain.Entities;
-using APSS.Tests.Utils;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using APSS.Domain.Entities;
+using APSS.Tests.Utils;
 
 namespace APSS.Tests.Domain.Entities.Validators;
 
@@ -266,12 +265,12 @@ public static class ValidEntitiesFactory
     /// Creates a valid survey object
     /// </summary>
     /// <returns>The created survey object</returns>
-    public static Survey CreateValidSurvey()
+    public static Survey CreateValidSurvey(TimeSpan validFor)
     {
         return new Survey
         {
             Name = RandomGenerator.NextString(0xff),
-            ExpirationDate = DateTime.Now,
+            ExpirationDate = DateTime.Now.Add(validFor),
             CreatedBy = CreateValidUser(AccessLevel.Group),
         };
     }

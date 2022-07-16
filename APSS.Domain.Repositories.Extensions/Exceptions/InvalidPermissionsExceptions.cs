@@ -18,7 +18,7 @@ public sealed class InvalidPermissionsExceptions : Exception
     /// <param name="exceptedPermissoins">The excepted permissions</param>
     /// <param name="actualPermissoins">The permissions of the account</param>
     public InvalidPermissionsExceptions(long accountId, PermissionType exceptedPermissoins, PermissionType actualPermissoins)
-        : base($"account #{accountId} has invalid permissions {actualPermissoins} (expected {exceptedPermissoins}")
+        : base($"account #{accountId} has invalid permissions {actualPermissoins} (expected {exceptedPermissoins})")
     {
         _accountId = accountId;
         _exceptedPermissoins = exceptedPermissoins;
