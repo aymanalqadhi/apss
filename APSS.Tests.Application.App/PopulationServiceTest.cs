@@ -565,11 +565,17 @@ public sealed class PopulationServiceTest : IDisposable
 
         Assert.True(await _uow.FamilyIndividuals.Query().ContainsAsync(templateFamlyIndividuals));
 
-        var account = _uow.CreateTestingAccountAsync(templateFamlyIndividuals.Family.AddedBy.AccessLevel, permission);
+        var account = await _uow.CreateTestingAccountAsync(templateFamlyIndividuals.Family.AddedBy.AccessLevel, permission);
+        var superaccount = account;
 
-        var getFamlyIndividualTask = _populationSvc.GetFamilyIndividualsAsync(account.Id, templateFamlyIndividuals.Family.Id);
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow.CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
 
-        if (!shoulSucceed & accessLevel != AccessLevel.Farmer)
+        var getFamlyIndividualTask = _populationSvc.GetFamilyIndividualsAsync(superaccount.Id, templateFamlyIndividuals.Family.Id);
+
+        if (!shoulSucceed)
         {
             await Assert
                 .ThrowsAsync<InsufficientPermissionsException>(async () => await getFamlyIndividualTask);
