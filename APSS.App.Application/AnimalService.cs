@@ -123,7 +123,8 @@ public class AnimalService : IAnimalService
     /// <inheritdoc/>
     public async Task RemoveAnimalProductAsync(long accountId, long animalProductId)
     {
-        var account = await _uow.Accounts.Query().FindWithPermissionsValidationAsync(accountId, PermissionType.Delete);
+        var account = await _uow.Accounts.Query().Include(u => u.User)
+            .FindWithPermissionsValidationAsync(accountId, PermissionType.Delete);
 
         var animalProduct = await _uow.AnimalProducts
              .Query()
@@ -188,7 +189,9 @@ public class AnimalService : IAnimalService
         var productExpense = await _uow.ProductExpenses.Query()
             .Include(e => e.SpentOn.Expenses).FindAsync(productExpenseId);
 
-        throw new NotImplementedException();
+        updater(productExpense);
+
+        return productExpense;
     }
 
     public async Task<ProductExpense> CreateProductExpenseAsync(long accountId, long productId, string type, decimal price)
@@ -210,21 +213,50 @@ public class AnimalService : IAnimalService
 
         _uow.ProductExpenses.Add(expense);
         await _uow.CommitAsync();
+
         return expense;
     }
 
-    async Task<AnimalProductUnit> IAnimalService.AddAnimalProductUnit(long accountId, string name)
+    async Task<AnimalProductUnit> IAnimalService.CreateAnimalProductUnit(long accountId, string name)
     {
-        var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Create);
-        var animalProductUnit = new AnimalProductUnit
-        {
-            Name = name
-        };
+        var account = await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Create);
 
+        AnimalProductUnit animalProductUnit = new()
+        {
+            Name = name,
+        };
         _uow.AnimalProductUnits.Add(animalProductUnit);
         await _uow.CommitAsync();
 
         return animalProductUnit;
+    }
+
+    public async Task<IQueryBuilder<AnimalProductUnit>> GetAnimalProductUnit(long accountId)
+    {
+        var account = await _uow.Accounts.Query()
+            .Include(u => u.User)
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Read);
+
+        return _uow.AnimalProductUnits.Query().Where(i => i.Id >= 0);
+    }
+
+    public async Task RemoveAnimalProductUnitAsync(long accountId, long productUnitId)
+    {
+        var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Delete);
+        var unit = await _uow.AnimalProductUnits.Query().FindAsync(productUnitId);
+
+        _uow.AnimalProductUnits.Remove(unit);
+        await _uow.CommitAsync();
+    }
+
+    public async Task<AnimalProductUnit> UpdateProductUnit(long accountId, long productUnitId, Action<AnimalProductUnit> updater)
+    {
+        var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Delete);
+
+        var unit = await _uow.AnimalProductUnits.Query().FindAsync(productUnitId);
+        updater(unit);
+        return unit;
     }
 
     #endregion Public Methods
