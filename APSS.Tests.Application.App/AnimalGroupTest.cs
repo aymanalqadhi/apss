@@ -108,31 +108,20 @@ namespace APSS.Tests.Application.App
         [Theory]
         [InlineData(AccessLevel.Farmer, PermissionType.Create, true)]
         [InlineData(AccessLevel.Farmer, PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
-        [InlineData(AccessLevel.Group, PermissionType.Create, false)]
-        [InlineData(AccessLevel.Governorate, PermissionType.Create, false)]
-        [InlineData(AccessLevel.Directorate, PermissionType.Create, false)]
-        [InlineData(AccessLevel.Village, PermissionType.Create, false)]
-        [InlineData(AccessLevel.District, PermissionType.Create, false)]
-        [InlineData(AccessLevel.Presedint, PermissionType.Create, false)]
         public async Task<(Account, AnimalProduct?)> AnimalProductAddedTheory(
             AccessLevel accesssLevel = AccessLevel.Farmer,
             PermissionType permissionType = PermissionType.Create,
             bool shouldSuccess = true
             )
         {
-            /*var (account, animalGroup) = await AnimalAddedTheory(
-               accesssLevel,
-               permissionType, shouldSuccess
-               );*/
-            var account = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Create);
-            var templateGroup = ValidEntitiesFactory.CreateValidAnimalGroup();
+            var (account, animalGroups) = await AnimalAddedTheory();
 
             var animalGroup = await _animal.AddAnimalGroupAsync(
                 account.Id,
-                templateGroup.Type,
-                templateGroup.Name,
-                templateGroup.Quantity,
-                templateGroup.Sex);
+                animalGroups!.Type,
+                animalGroups.Name,
+                animalGroups.Quantity,
+                animalGroups.Sex);
 
             var productUnit = await AnimalProductUnitAddedTheory(accesssLevel, permissionType, shouldSuccess);
 
@@ -149,10 +138,7 @@ namespace APSS.Tests.Application.App
                 animalProduct.PeriodTaken
 
                 );
-            if (animalProductTask == null)
-            {
-                throw new InvalidOperationException();
-            }
+
             if (!shouldSuccess)
             {
                 await Assert.ThrowsAsync<NotFoundException>(async () => await animalProductTask);
@@ -160,8 +146,8 @@ namespace APSS.Tests.Application.App
             }
 
             var product = await animalProductTask;
-
-            Assert.True(await _uow.AnimalProducts.Query().ContainsAsync(product));
+            /*
+                        Assert.True(await _uow.AnimalProducts.Query().ContainsAsync(product));*/
             Assert.Equal(account.User.Id, product.Producer.OwnedBy.Id);
             Assert.Equal(animalProduct.Name, product.Name);
             Assert.Equal(animalProduct.Quantity, product.Quantity);
@@ -175,15 +161,19 @@ namespace APSS.Tests.Application.App
         [InlineData(PermissionType.Create | PermissionType.Update | PermissionType.Read, false)]
         public async Task AnimalProductDeletedTheory(PermissionType permissionType, bool shouldSuccess = true)
         {
-            var (account, animalProduct) = await AnimalProductAddedTheory(
-                AccessLevel.Farmer,
-                PermissionType.Delete | permissionType,
-                true
-                );
+            /*var (account, animalProduct) = await AnimalProductAddedTheory();*/
+
+            var account = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
+            var animalProduct = ValidEntitiesFactory.CreateValidAnimalProduct();
+            var anumalGroup = ValidEntitiesFactory.CreateValidAnimalGroup();
+
+            /* var animalGroup= _animal.AddAnimalGroupAsync(account.Id);*/
+
+            /*var addProduct = await _animal.AddAnimalProductAsync();*/
 
             Assert.True(await _uow.AnimalProducts.Query().ContainsAsync(animalProduct!));
 
-            /*  var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);*/
+            var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Delete);
 
             var removeAninalProductTask = _animal.RemoveAnimalProductAsync(account.Id, animalProduct!.Id);
 
