@@ -94,7 +94,13 @@ public interface IAnimalService
 
     Task<ProductExpense> UpdateProductExpensesAsync(long accountId, long productExpenseId, Action<ProductExpense> updater);
 
-    Task<AnimalProductUnit> AddAnimalProductUnit(long accountId, string name);
+    Task<AnimalProductUnit> CreateAnimalProductUnit(long accountId, string name);
+
+    Task<AnimalProductUnit> UpdateProductUnit(long accountId, long productUnitId, Action<AnimalProductUnit> updater);
+
+    Task<IQueryBuilder<AnimalProductUnit>> GetAnimalProductUnit(long accountId);
+
+    Task RemoveAnimalProductUnitAsync(long accountId, long productUnitId);
 
     #endregion Public Methods
 }
