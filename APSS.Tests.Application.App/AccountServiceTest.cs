@@ -44,10 +44,12 @@ public sealed class AccountServiceTest
             PermissionType permissions = PermissionType.Create, bool shouldSucceed = true)
     {
         var user = ValidEntitiesFactory.CreateValidUser(RandomGenerator.NextAccessLevel());
+
         _uow.Users.Add(user);
         await _uow.CommitAsync();
 
         var templateAccount = ValidEntitiesFactory.CreateValidAccount(permissions);
+
         _uow.Accounts.Add(templateAccount);
         await _uow.CommitAsync();
 
@@ -64,6 +66,7 @@ public sealed class AccountServiceTest
              templateAccount.HolderName,
              templateAccount.PasswordHash,
              templateAccount.Permissions);
+
         if (!shouldSucceed)
         {
             await Assert.ThrowsAsync<InsufficientPermissionsException>(() => createAccountTask);
@@ -73,18 +76,22 @@ public sealed class AccountServiceTest
         Account outhersuper;
 
         if (user.AccessLevel.Equals(AccessLevel.Farmer))
-            outhersuper = await _uow.CreateTestingAccountAsync(user.AccessLevel, PermissionType.Create);
+            outhersuper = await _uow
+                .CreateTestingAccountAsync(user.AccessLevel, PermissionType.Create);
         else
-            outhersuper = await _uow.CreateTestingAccountAsync(user.AccessLevel.NextLevelBelow(), PermissionType.Create);
+            outhersuper = await _uow
+                .CreateTestingAccountAsync(user.AccessLevel.NextLevelBelow(), PermissionType.Create);
 
-        await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await _accountSvc.CreateAsync(
-             outhersuper.Id,
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
+             _accountSvc.CreateAsync(
+              outhersuper.Id,
               user.Id,
               templateAccount.HolderName,
               templateAccount.PasswordHash,
               templateAccount.Permissions));
 
         var accountnew = await createAccountTask;
+
         Assert.True(await _uow.Accounts.Query().ContainsAsync(accountnew));
         Assert.Equal(user, accountnew.User);
         Assert.Equal(superAccount.User, accountnew.AddedBy);
@@ -111,7 +118,8 @@ public sealed class AccountServiceTest
         var phone = RandomGenerator.NextString(15, RandomStringOptions.Numeric);
         var job = RandomGenerator.NextString(20, RandomStringOptions.Alpha);
 
-        var superAccountnew = await _uow.CreateTestingAccountForUserAsync(superAccount.User.Id, permissions);
+        var superAccountnew = await _uow
+            .CreateTestingAccountForUserAsync(superAccount.User.Id, permissions);
 
         Assert.True(await _uow.Accounts.Query().ContainsAsync(superAccountnew));
 
@@ -132,19 +140,19 @@ public sealed class AccountServiceTest
             return;
         }
 
-        var othersuper = _uow.CreateTestingAccountAsync(superAccount!.User.AccessLevel, PermissionType.Update);
+        var othersuper = _uow
+            .CreateTestingAccountAsync(superAccount!.User.AccessLevel, PermissionType.Update);
 
         await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
-                        _accountSvc
-            .UpdateAsync(
-            othersuper.Id,
-            account!.Id,
-            a =>
-            {
-                a.HolderName = name;
-                a.PhoneNumber = phone;
-                a.Job = job;
-            }));
+        _accountSvc.UpdateAsync(
+                    othersuper.Id,
+                    account!.Id,
+                    a =>
+                    {
+                        a.HolderName = name;
+                        a.PhoneNumber = phone;
+                        a.Job = job;
+                    }));
 
         var accountnew = await updateAccountTask;
 
@@ -167,16 +175,12 @@ public sealed class AccountServiceTest
 
         Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
 
-        var superAccountnew = await _uow.CreateTestingAccountForUserAsync(superAccount.User.Id, permissions);
+        var superAccountnew = await _uow
+            .CreateTestingAccountForUserAsync(superAccount.User.Id, permissions);
 
         var status = RandomGenerator.NextBool();
 
-        var activeAccountTask = _accountSvc
-            .SetActiveAsync(
-            superAccountnew.Id,
-            account!.Id,
-            status
-            );
+        var activeAccountTask = _accountSvc.SetActiveAsync(superAccountnew.Id, account!.Id, status);
 
         if (!shouldSuccesd)
         {
@@ -184,10 +188,11 @@ public sealed class AccountServiceTest
             return;
         }
 
-        var othersuper = _uow.CreateTestingAccountAsync(superAccount!.User.AccessLevel, PermissionType.Update);
+        var othersuper = _uow
+            .CreateTestingAccountAsync(superAccount!.User.AccessLevel, PermissionType.Update);
 
         await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
-                _accountSvc.SetActiveAsync(othersuper.Id, account!.Id, status));
+                      _accountSvc.SetActiveAsync(othersuper.Id, account!.Id, status));
 
         var accountnew = await activeAccountTask;
 
@@ -208,16 +213,13 @@ public sealed class AccountServiceTest
 
         Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
 
-        var superAccountnew = await _uow.CreateTestingAccountForUserAsync(superAccount.User.Id, permissions);
+        var superAccountnew = await _uow
+            .CreateTestingAccountForUserAsync(superAccount.User.Id, permissions);
 
         var permissionnew = permissions;
 
-        var setPermissionTask = _accountSvc
-            .SetPermissionsAsync(
-            superAccountnew.Id,
-            account!.Id,
-            permissionnew
-            );
+        var setPermissionTask =
+            _accountSvc.SetPermissionsAsync(superAccountnew.Id, account!.Id, permissionnew);
 
         if (!shouldSuccesd)
         {
@@ -225,7 +227,8 @@ public sealed class AccountServiceTest
             return;
         }
 
-        var othersuper = _uow.CreateTestingAccountAsync(superAccount!.User.AccessLevel, PermissionType.Update);
+        var othersuper = _uow
+            .CreateTestingAccountAsync(superAccount!.User.AccessLevel, PermissionType.Update);
 
         await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
                 _accountSvc.SetPermissionsAsync(othersuper.Id, account!.Id, permissionnew));
@@ -249,12 +252,14 @@ public sealed class AccountServiceTest
 
         Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
 
-        var supaerAcountnew = await _uow.CreateTestingAccountForUserAsync(superaccount.User.Id, permissions);
+        var supaerAcountnew = await _uow
+            .CreateTestingAccountForUserAsync(superaccount.User.Id, permissions);
 
-        var othersuper = _uow.CreateTestingAccountAsync(supaerAcountnew.User.AccessLevel, permissions);
+        var othersuper = _uow
+            .CreateTestingAccountAsync(supaerAcountnew.User.AccessLevel, permissions);
 
         await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
-                         _accountSvc.RemoveAsync(othersuper.Id, account!.Id));
+                    _accountSvc.RemoveAsync(othersuper.Id, account!.Id));
 
         var removAccountTask = _accountSvc.RemoveAsync(supaerAcountnew.Id, account!.Id);
 
