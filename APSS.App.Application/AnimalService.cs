@@ -241,7 +241,8 @@ public class AnimalService : IAnimalService
 
     public async Task<AnimalProductUnit> UpdateProductUnit(long accountId, long productUnitId, Action<AnimalProductUnit> updater)
     {
-        var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Delete);
+        var account = await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
 
         var unit = await _uow.AnimalProductUnits.Query().FindAsync(productUnitId);
         updater(unit);
