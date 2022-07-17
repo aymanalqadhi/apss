@@ -56,9 +56,10 @@ public sealed class AccountsService : IAccountsService
         PermissionType permissions)
     {
         var superAccount = await _permissionsSvc
-            .ValidatePermissionsAsync(superUserAccountId, userId, permissions);
+            .ValidatePermissionsAsync(superUserAccountId, userId, PermissionType.Create);
 
         var user = await _uow.Users.Query().FindAsync(userId);
+
         var account = new Account
         {
             User = user,
