@@ -28,7 +28,7 @@ public interface IPopulationService
     /// <param name="accountId">The id of the account which  has reading permssion </param>
     /// <param name="individualId">The id of the individual which to get the skill for</param>
     /// <returns></returns>
-    Task<IQueryBuilder<Skill>> GetSkillOfindividual(long accountId, long individualId);
+    Task<IQueryBuilder<Skill>> GetSkillOfindividualAsync(long accountId, long individualId);
 
     /// <summary>
     /// Asynnchrosuly Gets a query for the get voluntary of individual
@@ -36,7 +36,7 @@ public interface IPopulationService
     /// <param name="accountId">The id of the account which has reading permssion </param>
     /// <param name="individualId">The id of the individual which to get the voluntary for</param>
     /// <returns></returns>
-    Task<IQueryBuilder<Voluntary>> GetVoluntaryOfindividual(long accountId, long individualId);
+    Task<IQueryBuilder<Voluntary>> GetVoluntaryOfindividualAsync(long accountId, long individualId);
 
     /// <summary>
     ///  Asynchronosuly add a new Individuals

@@ -222,7 +222,7 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public async Task<IQueryBuilder<Skill>> GetSkillOfindividual(long accountId, long individualId)
+    public async Task<IQueryBuilder<Skill>> GetSkillOfindividualAsync(long accountId, long individualId)
     {
         var individual = await _uow.Individuals.Query()
             .Include(i => i.AddedBy)
@@ -231,11 +231,17 @@ public sealed class PopulationService : IPopulationService
         await _permissionsSvc
             .ValidatePermissionsAsync(accountId, individual.AddedBy.Id, PermissionType.Read);
 
+        var account = await _uow.Accounts.Query().FindAsync(accountId);
+
+        if (account.User.AccessLevel == AccessLevel.Farmer)
+            throw new InsufficientPermissionsException(
+                accountId, $"farmer #{account.User.Id} with account #{accountId} cannot add surveys");
+
         return _uow.Skills.Query().Where(s => s.BelongsTo.Id == individualId);
     }
 
     ///<inheritdoc/>
-    public async Task<IQueryBuilder<Voluntary>> GetVoluntaryOfindividual(long accountId, long individualId)
+    public async Task<IQueryBuilder<Voluntary>> GetVoluntaryOfindividualAsync(long accountId, long individualId)
     {
         var individual = await _uow.Individuals.Query()
            .Include(i => i.AddedBy)
@@ -243,6 +249,12 @@ public sealed class PopulationService : IPopulationService
 
         await _permissionsSvc
             .ValidatePermissionsAsync(accountId, individual.AddedBy.Id, PermissionType.Read);
+
+        var account = await _uow.Accounts.Query().FindAsync(accountId);
+
+        if (account.User.AccessLevel == AccessLevel.Farmer)
+            throw new InsufficientPermissionsException(
+                accountId, $"farmer #{account.User.Id} with account #{accountId} cannot add surveys");
 
         return _uow.Volantaries.Query().Where(v => v.OfferedBy.Id == individualId);
     }

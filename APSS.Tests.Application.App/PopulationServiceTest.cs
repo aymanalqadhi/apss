@@ -554,7 +554,7 @@ public sealed class PopulationServiceTest : IDisposable
                | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
                 PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
     [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
-    public async Task GetIndividualOfFamliesTheory(AccessLevel accessLevel,
+    public async Task GetIndividualOfFamlyTheory(AccessLevel accessLevel,
         PermissionType permission = PermissionType.Read,
         bool shoulSucceed = true)
     {
@@ -585,6 +585,92 @@ public sealed class PopulationServiceTest : IDisposable
         var familyIndividuals = await getFamlyIndividualTask;
         Assert.NotNull(familyIndividuals);
         Assert.True(await familyIndividuals.ContainsAsync(templateFamlyIndividuals));
+    }
+
+    [Theory]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
+    public async Task GetSkillOfIndividualTheory(AccessLevel accessLevel,
+        PermissionType permission = PermissionType.Read,
+        bool shoulSucceed = true)
+    {
+        var templateskill = ValidEntitiesFactory.CreateValidSkill();
+
+        _uow.Skills.Add(templateskill);
+        await _uow.CommitAsync();
+
+        Assert.True(await _uow.Skills.Query().ContainsAsync(templateskill));
+
+        var account = await _uow.CreateTestingAccountAsync(templateskill.BelongsTo.AddedBy.AccessLevel, permission);
+        var superaccount = account;
+
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow.CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
+
+        var getSkillsOfIndividual = _populationSvc.GetSkillOfindividualAsync(superaccount.Id, templateskill.BelongsTo.Id);
+
+        if (!shoulSucceed)
+        {
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getSkillsOfIndividual);
+            return;
+        }
+
+        var skill = await getSkillsOfIndividual;
+        Assert.NotNull(skill);
+        Assert.True(await skill.ContainsAsync(templateskill));
+    }
+
+    [Theory]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
+    public async Task GetVoluntaryOfIndividualTheory(AccessLevel accessLevel,
+        PermissionType permission = PermissionType.Read,
+        bool shoulSucceed = true)
+    {
+        var templateVoluntary = ValidEntitiesFactory.CreateValidVoluntary();
+
+        _uow.Volantaries.Add(templateVoluntary);
+        await _uow.CommitAsync();
+
+        Assert.True(await _uow.Volantaries.Query().ContainsAsync(templateVoluntary));
+
+        var account = await _uow
+            .CreateTestingAccountAsync(templateVoluntary.OfferedBy.AddedBy.AccessLevel, permission);
+
+        var superaccount = account;
+
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow
+                .CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
+
+        var getVoluntariesOfIndividual = _populationSvc
+            .GetVoluntaryOfindividualAsync(superaccount.Id, templateVoluntary.OfferedBy.Id);
+
+        if (!shoulSucceed)
+        {
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getVoluntariesOfIndividual);
+            return;
+        }
+
+        var voluntary = await getVoluntariesOfIndividual;
+        Assert.NotNull(voluntary);
+        Assert.True(await voluntary.ContainsAsync(templateVoluntary));
     }
 
     #endregion Tests
