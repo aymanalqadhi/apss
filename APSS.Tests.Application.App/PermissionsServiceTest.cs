@@ -11,7 +11,7 @@ using Xunit;
 
 namespace APSS.Tests.Application.App;
 
-public sealed class PermissionsServiceTests
+public sealed class PermissionsServiceTest
 {
     #region Fields
 
@@ -22,7 +22,7 @@ public sealed class PermissionsServiceTests
 
     #region Public Constructors
 
-    public PermissionsServiceTests(IUnitOfWork uow, IPermissionsService permissionsSvc)
+    public PermissionsServiceTest(IUnitOfWork uow, IPermissionsService permissionsSvc)
     {
         _uow = uow;
         _permissionsSvc = permissionsSvc;
@@ -223,28 +223,18 @@ public sealed class PermissionsServiceTests
         PermissionType expectedPermissions,
         bool shouldSucceed)
     {
-        var superuserAccount = await _uow.CreateTestingAccountAsync(
-            RandomGenerator.NextAccessLevel(AccessLevel.Village, AccessLevel.Presedint),
-            permissions);
+        var account = await _uow.CreateTestingAccountAsync(
+            RandomGenerator.NextAccessLevel(max: AccessLevel.Directorate),
+            PermissionType.Full);
 
         var accessLevel = shouldSucceed
-            ? superuserAccount.User.AccessLevel.NextLevelBelow()
-            : RandomGenerator.NextAccessLevel(max: superuserAccount.User.AccessLevel.NextLevelBelow().NextLevelBelow());
+            ? account.User.AccessLevel.NextLevelUpove()
+            : RandomGenerator.NextAccessLevel(min: account.User.AccessLevel.NextLevelUpove().NextLevelUpove());
 
-        var account = await _uow.CreateTestingAccountAsync(accessLevel, PermissionType.Full);
-
-        var accountUser = account.User;
-
-        if (!shouldSucceed)
-        {
-            while (accountUser.AccessLevel != superuserAccount.User.AccessLevel.NextLevelBelow())
-                accountUser = accountUser.SupervisedBy!;
-        }
-
-        accountUser.SupervisedBy = superuserAccount.User;
-        await _uow.CommitAsync();
-
-        Assert.Equal(superuserAccount.User.Id, accountUser.SupervisedBy!.Id);
+        var superuserAccount = await _uow.CreateTestingAccountAboveUserAsync(
+            account.User.Id,
+            accessLevel,
+            permissions);
 
         var userParenthoodValidationTask = _permissionsSvc.ValidateUserPatenthoodAsync(
             superuserAccount.Id,
