@@ -245,7 +245,7 @@ public sealed class AccountServiceTest
     [InlineData(PermissionType.Delete, true)]
     [InlineData(PermissionType.Create, false)]
     [InlineData(PermissionType.Read, false)]
-    public async Task AccountRemovedThreo(
+    public async Task AccountRemovedTheory(
       PermissionType permissions, bool shouldSucceed)
     {
         var (superaccount, account) = await AccountsAddedTheory();
@@ -255,10 +255,10 @@ public sealed class AccountServiceTest
         var supaerAcountnew = await _uow
             .CreateTestingAccountForUserAsync(superaccount.User.Id, permissions);
 
-        var othersuper = _uow
-            .CreateTestingAccountAsync(supaerAcountnew.User.AccessLevel, permissions);
+        var othersuper = await _uow
+            .CreateTestingAccountAsync(superaccount.User.AccessLevel, PermissionType.Delete);
 
-        await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
                     _accountSvc.RemoveAsync(othersuper.Id, account!.Id));
 
         var removAccountTask = _accountSvc.RemoveAsync(supaerAcountnew.Id, account!.Id);
