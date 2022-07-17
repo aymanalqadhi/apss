@@ -96,6 +96,8 @@ public interface IAnimalService
 
     Task<AnimalProductUnit> CreateAnimalProductUnit(long accountId, string name);
 
+    Task<AnimalProductUnit> CreateAnimalProductUnits(long accountId, string name);
+
     Task<AnimalProductUnit> UpdateProductUnit(long accountId, long productUnitId, Action<AnimalProductUnit> updater);
 
     Task<IQueryBuilder<AnimalProductUnit>> GetAnimalProductUnit(long accountId);
