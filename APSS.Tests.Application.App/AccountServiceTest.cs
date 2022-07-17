@@ -255,12 +255,6 @@ public sealed class AccountServiceTest
         var supaerAcountnew = await _uow
             .CreateTestingAccountForUserAsync(superaccount.User.Id, permissions);
 
-        var othersuper = await _uow
-            .CreateTestingAccountAsync(superaccount.User.AccessLevel, PermissionType.Delete);
-
-        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
-                    _accountSvc.RemoveAsync(othersuper.Id, account!.Id));
-
         var removAccountTask = _accountSvc.RemoveAsync(supaerAcountnew.Id, account!.Id);
 
         if (!shouldSucceed)
