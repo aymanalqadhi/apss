@@ -63,7 +63,7 @@ public interface ILandService
     /// Update the land product
     /// </summary>
     /// <param name="accountId">The id of the user who owns the land product</param>
-    /// <param name="landProduct">The id of the land product</param>
+    /// <param name="landProduct">theupdated land product</param>
     /// <returns>The updated land product</returns>
     Task<LandProduct> UpdateLandProductAsync(long accountId, LandProduct landProduct);
 
@@ -137,6 +137,14 @@ public interface ILandService
     /// <param name="seasonId">The id of the season</param>
     /// <returns></returns>
     Task<Season> RemoveSeasonAsync(long accountId, long seasonId);
+
+    /// <summary>
+    /// Update season
+    /// </summary>
+    /// <param name="accountId"> the account id of the user who wants to update</param>
+    /// <param name="season">The updated season</param>
+    /// <returns>The updated season</returns>
+    Task<Season> UpdateSeasonAsync(long accountId, Season season);
 
     #endregion Public Methods
 }
