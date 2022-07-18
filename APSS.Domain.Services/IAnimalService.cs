@@ -56,7 +56,7 @@ public interface IAnimalService
     /// <param name="userId">The id of the user who owns the animal group</param>
     /// <param name="animalGroupId">the id of animal group</param>
     /// <returns>animal product object</returns>
-    Task<IQueryBuilder<AnimalProduct>> GetAnimalProductsAsync(long accountId, long userId, long animalGroupId);
+    Task<IQueryBuilder<AnimalProduct>> GetAnimalProductsAsync(long accountId, long userId);
 
     /// <summary>
     /// Asynchrnously delete animal group
