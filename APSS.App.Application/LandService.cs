@@ -202,12 +202,15 @@ public class LandService : ILandService
     /// <inheritdoc/>
     public async Task<IQueryBuilder<Land>> GetLandsAsync(long accountId)
     {
-        var user = await _uow.Accounts
+        var account = await _uow.Accounts
             .Query()
             .Include(u => u.User)
             .FindAsync(accountId);
 
-        return _uow.Lands.Query().Where(l => l.OwnedBy.Id == user.User.Id);
+        await _permissionsSvc
+            .ValidatePermissionsAsync(accountId, account.User.Id, PermissionType.Read);
+
+        return _uow.Lands.Query().Where(l => l.OwnedBy.Id == account.User.Id);
     }
 
     /// <inheritdoc/>
@@ -257,6 +260,17 @@ public class LandService : ILandService
         await _uow.CommitAsync();
 
         return landProduct;
+    }
+
+    public async Task<Season> UpdateSeasonAsync(long accountId, Season season)
+    {
+        var account = await _uow.Accounts.Query()
+            .Include(u => u.User)
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Update);
+
+        _uow.Sessions.Update(season);
+
+        return season;
     }
 
     #endregion Public Methods
