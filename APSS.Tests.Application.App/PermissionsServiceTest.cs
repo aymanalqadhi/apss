@@ -11,7 +11,7 @@ using Xunit;
 
 namespace APSS.Tests.Application.App;
 
-public sealed class PermissionsServiceTests
+public sealed class PermissionsServiceTest
 {
     #region Fields
 
@@ -22,7 +22,7 @@ public sealed class PermissionsServiceTests
 
     #region Public Constructors
 
-    public PermissionsServiceTests(IUnitOfWork uow, IPermissionsService permissionsSvc)
+    public PermissionsServiceTest(IUnitOfWork uow, IPermissionsService permissionsSvc)
     {
         _uow = uow;
         _permissionsSvc = permissionsSvc;
