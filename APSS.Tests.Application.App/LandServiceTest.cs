@@ -275,7 +275,6 @@ public sealed class LandServiceTest
 
     [Theory]
     [InlineData(PermissionType.Read, true)]
-    [InlineData(PermissionType.Full, true)]
     [InlineData(PermissionType.Create, false)]
     [InlineData(PermissionType.Update, false)]
     [InlineData(PermissionType.Delete, false)]
@@ -284,6 +283,9 @@ public sealed class LandServiceTest
         bool shouldSucceed)
     {
         var (account, land) = await LandAddedTheory();
+        account = await _uow.CreateTestingAccountForUserAsync(
+            account.User.Id,
+            permissionType);
         var superviserAccount = await _uow.CreateTestingAccountForUserAsync(
             account.User.SupervisedBy!.Id,
             permissionType);
@@ -296,19 +298,277 @@ public sealed class LandServiceTest
             PermissionType.Create);
         var otherAccount = await _uow.CreateTestingAccountForUserAsync(
             otherFarmer.User.SupervisedBy!.Id, PermissionType.Read);
+        var otheSuperviserAccount = await _uow.CreateTestingAccountForUserAsync(
+            otherFarmer.User.SupervisedBy!.Id,
+            PermissionType.Read);
 
         await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
             _landSvc.GetLandAsync(otherAccount.Id, land!.Id));
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+            _landSvc.GetLandAsync(otheSuperviserAccount.Id, land!.Id));
 
         var getLandTask = _landSvc.GetLandAsync(superviserAccount.Id, land!.Id);
+        var getLandTask1 = _landSvc.GetLandAsync(account.Id, land!.Id);
 
         if (!shouldSucceed)
         {
             await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await getLandTask);
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await getLandTask1);
             return;
         }
 
         await getLandTask;
+        await getLandTask1;
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Read, true)]
+    [InlineData(PermissionType.Create | PermissionType.Update | PermissionType.Delete, false)]
+    public async Task GetLandsTheory(
+        PermissionType permissionType,
+        bool shouldSucceed)
+    {
+        var (account, land) = await LandAddedTheory();
+
+        Assert.True(await _uow.Lands.Query().ContainsAsync(land!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
+
+        var ownerAccount = await _uow.CreateTestingAccountForUserAsync(
+            account.User.Id,
+            permissionType);
+
+        var superviserAccount = await _uow.CreateTestingAccountForUserAsync(
+            account.User.SupervisedBy!.Id,
+            permissionType);
+
+        var getLandsTask = _landSvc.GetLandsAsync(ownerAccount.Id);
+        var getLandsTask1 = _landSvc.GetLandsAsync(superviserAccount.Id);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await getLandsTask);
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await getLandsTask1);
+            return;
+        }
+
+        await getLandsTask;
+        await getLandsTask1;
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Read, true)]
+    [InlineData(PermissionType.Create | PermissionType.Update | PermissionType.Delete, false)]
+    public async Task GetLandProductsTheory(
+        PermissionType permissionType,
+        bool shouldSucceed)
+    {
+        var (account, land) = await LandAddedTheory();
+        var (season, Aaccount) = await SeasonAddedTheory();
+        var landProductUnit = ValidEntitiesFactory.CreateValidLandProductUnit();
+        var templateLandProduct = ValidEntitiesFactory.CreateValidLandProduct();
+
+        var landProduct = await _landSvc.AddLandProductAsync(
+            account.Id,
+            land!.Id,
+            season.Id,
+            landProductUnit.Id!,
+            templateLandProduct.CropName,
+            templateLandProduct.HarvestStart,
+            templateLandProduct.HarvestEnd,
+            templateLandProduct.Quantity,
+            templateLandProduct.IrrigationCount,
+            templateLandProduct.IrrigationWaterSource,
+            templateLandProduct.IrrigationPowerSource,
+            templateLandProduct.IsGovernmentFunded,
+            templateLandProduct.StoringMethod,
+            templateLandProduct.Category,
+            templateLandProduct.HasGreenhouse,
+            templateLandProduct.Fertilizer,
+            templateLandProduct.Insecticide,
+            templateLandProduct.IrrigationMethod);
+
+        account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
+
+        Assert.True(await _uow.Lands.Query().ContainsAsync(land!));
+        Assert.True(await _uow.Sessions.Query().ContainsAsync(season!));
+        Assert.True(await _uow.LandProducts.Query().ContainsAsync(landProduct!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
+
+        var superviserAccount = await _uow.CreateTestingAccountForUserAsync(
+            account!.User.Id,
+            permissionType);
+
+        var anotherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Read);
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+            _landSvc.GetLandProductsAsync(anotherAccount.Id, land!.Id));
+
+        var getLandProductsTask = _landSvc.GetLandProductsAsync(account.Id, land.Id);
+        var getLandProductsTask1 = _landSvc.GetLandProductsAsync(superviserAccount.Id, land.Id);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(
+                async () => await getLandProductsTask);
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(
+                async () => await getLandProductsTask1);
+            return;
+        }
+        await getLandProductsTask;
+        await getLandProductsTask1;
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Read, true)]
+    [InlineData(PermissionType.Create | PermissionType.Update | PermissionType.Delete, false)]
+    public async Task GetLandProductTheory(
+        PermissionType permissionType,
+        bool shouldSucceed)
+    {
+        var (account, landProduct) = await LandProductAddedTheroy();
+
+        Assert.True(await _uow.LandProducts.Query().ContainsAsync(landProduct!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
+
+        account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
+
+        var superviserAccount = await _uow.CreateTestingAccountForUserAsync(
+            account!.User.Id,
+            permissionType);
+
+        var anotherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Read);
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+            _landSvc.GetLandProductAsync(anotherAccount.Id, landProduct.Id));
+
+        var getLandProductTask = _landSvc.GetLandProductAsync(account.Id, landProduct.Id);
+        var getLandProductTask1 = _landSvc.GetLandProductAsync(superviserAccount.Id, landProduct.Id);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await getLandProductTask);
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await getLandProductTask1);
+            return;
+        }
+
+        await getLandProductTask;
+        await getLandProductTask1;
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Update, true)]
+    [InlineData(PermissionType.Create | PermissionType.Read | PermissionType.Delete, false)]
+    public async Task LandUpdatedTheory(
+        PermissionType permissionType,
+        bool shouldSucceed)
+    {
+        var (account, land) = await LandAddedTheory();
+
+        Assert.True(await _uow.Lands.Query().ContainsAsync(land!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
+
+        var templateLand = ValidEntitiesFactory.CreateValidLand();
+        templateLand.OwnedBy = account.User;
+
+        account = await _uow.CreateTestingAccountForUserAsync(
+            account.User.Id,
+            permissionType);
+
+        var updateLandTask = _landSvc.UpdateLandAsync(account.Id, templateLand);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await updateLandTask);
+            return;
+        }
+
+        var updateLand = await updateLandTask;
+        Assert.Equal(account.User.Id, updateLand!.OwnedBy.Id);
+        Assert.Equal(templateLand.Area, updateLand.Area);
+        Assert.Equal(templateLand.Name, updateLand.Name);
+        Assert.Equal(templateLand.Address, updateLand.Address);
+        Assert.Equal(templateLand.IsUsable, updateLand.IsUsable);
+        Assert.Equal(templateLand.IsUsed, updateLand.IsUsed);
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Update, true)]
+    [InlineData(PermissionType.Create | PermissionType.Read | PermissionType.Delete, false)]
+    public async Task LandProductUpdatedTheory(
+        PermissionType permissionType,
+        bool shouldSucceed)
+    {
+        var (account, landProduct) = await LandProductAddedTheroy();
+        var templateLandProduct = ValidEntitiesFactory.CreateValidLandProduct();
+        templateLandProduct.Producer = landProduct.Producer;
+
+        Assert.True(await _uow.LandProducts.Query().ContainsAsync(landProduct));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(account));
+
+        account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
+
+        var updateLandProductTask = _landSvc.UpdateLandProductAsync(account.Id, templateLandProduct);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await updateLandProductTask);
+            return;
+        }
+
+        var updateLandProduct = await updateLandProductTask;
+
+        Assert.Equal(templateLandProduct.Fertilizer, updateLandProduct.Fertilizer);
+        Assert.Equal(account.User.Id, updateLandProduct.Producer.OwnedBy.Id);
+        Assert.Equal(templateLandProduct.Category, updateLandProduct.Category);
+        Assert.Equal(templateLandProduct.CreatedAt, updateLandProduct.CreatedAt);
+        Assert.Equal(templateLandProduct.CropName, updateLandProduct?.CropName);
+        Assert.Equal(templateLandProduct.HarvestEnd, updateLandProduct?.HarvestEnd);
+        Assert.Equal(templateLandProduct.HarvestStart, updateLandProduct?.HarvestStart);
+        Assert.Equal(templateLandProduct.Unit, updateLandProduct?.Unit);
+        Assert.Equal(templateLandProduct.Producer, updateLandProduct?.Producer);
+        Assert.Equal(templateLandProduct.Quantity, updateLandProduct?.Quantity);
+        Assert.Equal(templateLandProduct.ProducedIn, updateLandProduct?.ProducedIn);
+        Assert.Equal(templateLandProduct.StoringMethod, updateLandProduct?.StoringMethod);
+        Assert.Equal(templateLandProduct.Expenses, updateLandProduct?.Expenses);
+        Assert.Equal(templateLandProduct.HasGreenhouse, updateLandProduct?.HasGreenhouse);
+        Assert.Equal(templateLandProduct.Insecticide, updateLandProduct?.Insecticide);
+        Assert.Equal(templateLandProduct.IrrigationCount, updateLandProduct?.IrrigationCount);
+        Assert.Equal(templateLandProduct.IrrigationMethod, updateLandProduct?.IrrigationMethod);
+        Assert.Equal(templateLandProduct.IrrigationPowerSource, updateLandProduct?.IrrigationPowerSource);
+        Assert.Equal(templateLandProduct.IrrigationWaterSource, updateLandProduct?.IrrigationWaterSource);
+        Assert.Equal(templateLandProduct.IsGovernmentFunded, updateLandProduct?.IsGovernmentFunded);
+        Assert.Equal(templateLandProduct.IsConfirmed, updateLandProduct?.IsConfirmed);
+
+        return;
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Update, true)]
+    [InlineData(PermissionType.Create | PermissionType.Read | PermissionType.Delete, false)]
+    public async Task SeasonUpdatedTheory(
+        PermissionType permissionType,
+        bool shouldSucceed)
+    {
+        var (season, account) = await SeasonAddedTheory();
+        var templateSeason = ValidEntitiesFactory.CreateValidSeason();
+
+        Assert.True(await _uow.Sessions.Query().ContainsAsync(season!));
+
+        account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
+
+        var updateSeasonTask = _landSvc.UpdateSeasonAsync(account.Id, templateSeason);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await updateSeasonTask);
+            return;
+        }
+
+        var updateSeason = await updateSeasonTask;
+
+        Assert.Equal(templateSeason.Name, updateSeason.Name);
+        Assert.Equal(templateSeason.CreatedAt, updateSeason.CreatedAt);
+        Assert.Equal(templateSeason.EndsAt, updateSeason.EndsAt);
+        Assert.Equal(templateSeason.ModifiedAt, updateSeason?.ModifiedAt);
+        Assert.Equal(templateSeason.StartsAt, updateSeason?.StartsAt);
     }
 
     #endregion Tests
