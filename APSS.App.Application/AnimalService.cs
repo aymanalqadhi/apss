@@ -98,13 +98,12 @@ public class AnimalService : IAnimalService
     /// <inheritdoc/>
     public async Task<IQueryBuilder<AnimalProduct>> GetAnimalProductsAsync(
         long accountId,
-        long userId,
-        long animalGroupId)
+        long userId)
     {
         await _permissionsService.ValidatePermissionsAsync(accountId, userId, PermissionType.Read);
 
         return _uow.AnimalProducts.Query()
-            .Where(p => p.Producer.Id == animalGroupId && p.Producer.OwnedBy.Id == userId);
+            .Where(p => p.Producer.OwnedBy.Id == userId);
     }
 
     /// <inheritdoc/>
