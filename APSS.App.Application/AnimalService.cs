@@ -232,7 +232,7 @@ public class AnimalService : IAnimalService
 
     public async Task RemoveAnimalProductUnitAsync(long accountId, long productUnitId)
     {
-        var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Delete);
+        var account = await _uow.Accounts.Query().FindWithPermissionsValidationAsync(accountId, PermissionType.Delete);
         var unit = await _uow.AnimalProductUnits.Query().FindAsync(productUnitId);
 
         _uow.AnimalProductUnits.Remove(unit);
@@ -241,7 +241,7 @@ public class AnimalService : IAnimalService
 
     public async Task<AnimalProductUnit> UpdateProductUnit(long accountId, long productUnitId, Action<AnimalProductUnit> updater)
     {
-        var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Delete);
+        var account = await _uow.Accounts.Query().FindWithPermissionsValidationAsync(accountId, PermissionType.Update);
 
         var unit = await _uow.AnimalProductUnits.Query().FindAsync(productUnitId);
         updater(unit);
@@ -250,8 +250,7 @@ public class AnimalService : IAnimalService
 
     public async Task<AnimalProductUnit> CreateAnimalProductUnits(long accountId, string name)
     {
-        var account = await _uow.Accounts.Query()
-            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Create);
+        var account = await _uow.Accounts.Query().FindWithPermissionsValidationAsync(accountId, PermissionType.Create);
 
         AnimalProductUnit animalProductUnit = new()
         {
