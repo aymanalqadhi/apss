@@ -77,10 +77,10 @@ public interface IAnimalService
     /// <summary>
     /// Asynchrnously deleupdatete animal product
     /// </summary>
-    /// <param name="userId">the id of account updating animal group</param>
+    /// <param name="accounId">the id of account updating animal group</param>
     /// <param name="animalGroup">the id of animal group</param>
     /// <returns></returns>
-    Task<AnimalGroup> UpdateAnimalGroupAsync(long userId, AnimalGroup animalGroup);
+    Task<AnimalGroup> UpdateAnimalGroupAsync(long accounId, long animalGroupId, Action<AnimalGroup> updater);
 
     /// <summary>
     /// Asynchrnously update  animal product
@@ -88,7 +88,21 @@ public interface IAnimalService
     /// <param name="AccountId">the id of account getting animal product</param>
     /// <param name="animalProduct">the object of animal product</param>
     /// <returns></returns>
-    Task<AnimalProduct> UpdateAnimalProductAsync(long accountId, AnimalProduct animalProduct);
+    Task<AnimalProduct> UpdateAnimalProductAsync(long accountId, long animalProductId, Action<AnimalProduct> updater);
+
+    Task<ProductExpense> CreateProductExpenseAsync(long accountId, long productId, string type, decimal price);
+
+    Task<ProductExpense> UpdateProductExpensesAsync(long accountId, long productExpenseId, Action<ProductExpense> updater);
+
+    Task<AnimalProductUnit> CreateAnimalProductUnit(long accountId, string name);
+
+    Task<AnimalProductUnit> CreateAnimalProductUnits(long accountId, string name);
+
+    Task<AnimalProductUnit> UpdateProductUnit(long accountId, long productUnitId, Action<AnimalProductUnit> updater);
+
+    Task<IQueryBuilder<AnimalProductUnit>> GetAnimalProductUnit(long accountId);
+
+    Task RemoveAnimalProductUnitAsync(long accountId, long productUnitId);
 
     #endregion Public Methods
 }
