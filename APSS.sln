@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Tests.Domain.Entities.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSS.Infrastructure.Repositories.EntityFramework", "APSS.Infrastructure.Repositories.EntityFramework\APSS.Infrastructure.Repositories.EntityFramework.csproj", "{AFCFC981-987B-4360-87EA-B0715B410CFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APSS.Application.DTOs", "APSS.Application.DTOs\APSS.Application.DTOs.csproj", "{30F46F05-87FD-4E0F-B3FB-7388A714E093}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,10 @@ Global
 		{AFCFC981-987B-4360-87EA-B0715B410CFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFCFC981-987B-4360-87EA-B0715B410CFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFCFC981-987B-4360-87EA-B0715B410CFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30F46F05-87FD-4E0F-B3FB-7388A714E093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30F46F05-87FD-4E0F-B3FB-7388A714E093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30F46F05-87FD-4E0F-B3FB-7388A714E093}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30F46F05-87FD-4E0F-B3FB-7388A714E093}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -143,6 +149,7 @@ Global
 		{1BAF6CF8-D939-49AB-B1DE-C18D96884985} = {B0F48D16-9FF4-4879-B1DE-83ACE7876F8A}
 		{B2747EFF-41CF-423B-A3CB-4D590E095DC6} = {B0F48D16-9FF4-4879-B1DE-83ACE7876F8A}
 		{AFCFC981-987B-4360-87EA-B0715B410CFF} = {0F56A811-A9C9-47C3-B336-620ED7B65C60}
+		{30F46F05-87FD-4E0F-B3FB-7388A714E093} = {5DEC40C0-A942-48E5-8CCD-E9EE941AA674}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B2B0F7A8-9934-4C8D-B364-40D94C5AAB64}
