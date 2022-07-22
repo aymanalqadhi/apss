@@ -401,11 +401,8 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<IQueryBuilder<LandProductUnit>> GetLandProductUnitsAsync(long accountId)
+    public async Task<IQueryBuilder<LandProductUnit>> GetLandProductUnitsAsync()
     {
-        await _uow.Accounts.Query()
-            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Read);
-
         return _uow.LandProductUnits.Query();
     }
 
@@ -439,6 +436,59 @@ public class LandService : ILandService
         //    .Include(l => l.SpentOn.)   i need a way to get to land owner through productExpense , landProduct , land.ownedBy
 
         return productExpense;
+    }
+
+    /// <inhertdoc/>
+    public async Task<Land> ConfirmLandAsync(long accountId, long landId, bool confirm)
+    {
+        var account = await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Group, PermissionType.Update);
+        var land = await _uow.Lands.Query()
+            .Include(u => u.OwnedBy)
+            .FindAsync(landId);
+
+        await _permissionsSvc.ValidateUserPatenthoodAsync(
+            accountId,
+            land.OwnedBy.Id,
+            PermissionType.Update);
+
+        if (confirm)
+        {
+            _uow.Lands.Confirm(land);
+        }
+        else
+        {
+            _uow.Lands.Decline(land);
+        }
+
+        return land;
+    }
+
+    /// <inhertdoc/>
+    public async Task<LandProduct> ConfirmLandProductAsync(long accountId, long landProductId, bool confirm)
+    {
+        var account = await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Group, PermissionType.Update);
+        var landProduct = await _uow.LandProducts.Query()
+            .Include(l => l.Producer)
+            .Include(u => u.Producer.OwnedBy)
+            .FindAsync(landProductId);
+
+        await _permissionsSvc.ValidateUserPatenthoodAsync(
+            accountId,
+            landProduct.Producer.OwnedBy.Id,
+            PermissionType.Update);
+
+        if (confirm)
+        {
+            _uow.LandProducts.Confirm(landProduct);
+        }
+        else
+        {
+            _uow.LandProducts.Decline(landProduct);
+        }
+
+        return landProduct;
     }
 
     #endregion Public Methods
