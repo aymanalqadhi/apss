@@ -1,25 +1,50 @@
+using Microsoft.EntityFrameworkCore;
+using APSS.Application.App;
+using APSS.Domain.Repositories;
+using APSS.Domain.Services;
+using APSS.Infrastructure.Repositores.EntityFramework;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddMvc();
+
+#region Services
+
+var svc = builder.Services;
+
+// Database context
+svc.AddDbContext<ApssDbContext>(cfg =>
+    cfg.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"])
+);
+
+// Unit-of-work
+svc.AddScoped<IUnitOfWork, ApssUnitOfWork>();
+
+// Services
+svc.AddScoped<ILogsService, DatabaseLogsService>();
+svc.AddScoped<IUsersService, UsersService>();
+svc.AddScoped<IPermissionsService, PermissionsService>();
+svc.AddScoped<IAccountsService, AccountsService>();
+svc.AddScoped<IAnimalService, AnimalService>();
+svc.AddScoped<ILandService, LandService>();
+svc.AddScoped<IPopulationService, PopulationService>();
+svc.AddScoped<ISurveysService, SurveysService>();
+
+#endregion Services
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Environmen-dependent settings
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHttpsRedirection();
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.MapRazorPages();
 
 app.Run();
