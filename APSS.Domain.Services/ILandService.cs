@@ -28,7 +28,20 @@ public interface ILandService
         bool isUsable = true,
         bool isUsed = false);
 
+    /// <summary>
+    /// Gets the land
+    /// </summary>
+    /// <param name="accountId">The id of the user`s account who whants to read the land</param>
+    /// <param name="landId">The id of the land</param>
+    /// <returns>The land that the account whants to read</returns>
     Task<IQueryBuilder<Land>> GetLandAsync(long accountId, long landId);
+
+    /// <summary>
+    /// Gets the lands that owned by the user
+    /// </summary>
+    /// <param name="accountId">The id of user`s account who owns the land</param>
+    /// <returns>the lands that owned by the user</returns>
+    Task<IQueryBuilder<Land>> GetLandsAsync(long accountId);
 
     /// <summary>
     /// Update the land
@@ -63,6 +76,14 @@ public interface ILandService
     Task<IQueryBuilder<LandProduct>> GetLandProductsAsync(long accountId, long landId);
 
     /// <summary>
+    /// Gets the user`s land products by land product id
+    /// </summary>
+    /// <param name="landProductId">The id of land product </param>
+    /// <param name="accountId">The id of the user who owns the land product</param>
+    /// <returns>The land products that belong to the land</returns>
+    Task<IQueryBuilder<LandProduct>> GetLandProductAsync(long accountId, long landProductId);
+
+    /// <summary>
     /// Delete the land product
     /// </summary>
     /// <param name="accountId">The id of the landProduct owner`s superviser</param>
@@ -85,19 +106,27 @@ public interface ILandService
         long landId,
         long seasonId,
         long landProductUnitId,
+        string cropName,
+        DateTime harvestStart,
+        DateTime HarvestEnd,
         double quantity,
         double irrigationCount,
         IrrigationWaterSource irrigationWaterSource,
         IrrigationPowerSource irrigationPowerSource,
-        bool isGovernmentFunded);
+        bool isGovernmentFunded,
+        string storingMethod,
+        string category,
+        bool hasGreenhouse,
+        string fertilizer,
+        string insecticide,
+        string irrigationMethod);
 
     /// <summary>
     ///  Asynchronously adds a new Season
     /// </summary>
     /// <param name="accountId">The id of the account who adds the Season</param>
     /// <param name="name">The name of the season</param>
-    /// <param name="startsAt">The starting date of the season</param>
-    /// <param name="endsAt">The end date of the season</param>
+    /// <param name="dateTimeRange">The starting date of the season and The end date of the season</param>
     /// <returns></returns>
     Task<Season> AddSeasonAsync(long accountId, string name, DateTime startsAt, DateTime endsAt);
 

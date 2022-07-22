@@ -67,11 +67,20 @@ public class LandService : ILandService
         long landId,
         long seasonId,
         long landProductUnitId,
+        string cropName,
+        DateTime harvestStart,
+        DateTime HarvestEnd,
         double quantity,
         double irrigationCount,
         IrrigationWaterSource irrigationWaterSource,
         IrrigationPowerSource irrigationPowerSource,
-        bool isGovernmentFunded)
+        bool isGovernmentFunded,
+        string storingMethod,
+        string category,
+        bool hasGreenhouse,
+        string fertilizer,
+        string insecticide,
+        string irrigationMethod)
     {
         var account = await _uow.Accounts
             .Query()
@@ -87,6 +96,15 @@ public class LandService : ILandService
             IrrigationWaterSource = irrigationWaterSource,
             IsGovernmentFunded = isGovernmentFunded,
             ProducedIn = await _uow.Sessions.Query().FindAsync(seasonId),
+            CropName = cropName,
+            HarvestStart = harvestStart,
+            HarvestEnd = HarvestEnd,
+            HasGreenhouse = hasGreenhouse,
+            Fertilizer = fertilizer,
+            Insecticide = insecticide,
+            Category = category,
+            StoringMethod = storingMethod,
+            IrrigationMethod = irrigationMethod
         };
 
         _uow.LandProducts.Add(product);
@@ -182,6 +200,17 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
+    public async Task<IQueryBuilder<Land>> GetLandsAsync(long accountId)
+    {
+        var user = await _uow.Accounts
+            .Query()
+            .Include(u => u.User)
+            .FindAsync(accountId);
+
+        return _uow.Lands.Query().Where(l => l.OwnedBy.Id == user.User.Id);
+    }
+
+    /// <inheritdoc/>
     public async Task<IQueryBuilder<LandProduct>> GetLandProductsAsync(long accountId, long landId)
     {
         var land = await _uow.Lands
@@ -192,6 +221,20 @@ public class LandService : ILandService
         await _permissionsSvc.ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Read);
 
         return _uow.LandProducts.Query().Where(p => p.Producer.Id == landId);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IQueryBuilder<LandProduct>> GetLandProductAsync(long accountId, long landProductId)
+    {
+        var landProduct = await _uow.LandProducts
+            .Query()
+            .Include(l => l.Producer)
+            .Include(u => u.Producer.OwnedBy)
+            .FindAsync(landProductId);
+
+        await _permissionsSvc.ValidatePermissionsAsync(accountId, landProduct.Producer.OwnedBy.Id, PermissionType.Read);
+
+        return _uow.LandProducts.Query().Where(p => p.Id == landProductId);
     }
 
     /// <inheritdoc/>
