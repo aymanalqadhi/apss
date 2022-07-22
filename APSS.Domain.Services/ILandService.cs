@@ -221,7 +221,10 @@ public interface ILandService
     /// <param name="accountId"></param>
     /// <param name="productExpense"></param>
     /// <returns></returns>
-    Task<ProductExpense> UpdateLandProductExpenseAsync(long accountId, ProductExpense productExpense);
+    Task<ProductExpense> UpdateLandProductExpenseAsync(
+        long accountId,
+        long landProductExpenseId,
+        Action<ProductExpense> udapter);
 
     /// <summary>
     /// Asynchronously removes a product expense
