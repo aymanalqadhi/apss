@@ -1,8 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using APSS.Infrastructure.Repositores.EntityFramework;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMvc();
 
 #region Services
 
-builder.Services.AddMvc();
+// Database context
+builder.Services.AddDbContext<ApssDbContext>(cfg =>
+    cfg.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"])
+);
 
 #endregion Services
 
