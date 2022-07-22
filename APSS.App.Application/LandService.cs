@@ -300,10 +300,16 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<Land> UpdateLandAsync(long accountId, Land land)
+    public async Task<Land> UpdateLandAsync(long accountId, long landId, Action<Land> udapter)
     {
-        await _permissionsSvc.ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Update);
-        land.ModifiedAt = DateTime.Now;
+        var account = await _uow.Accounts.Query()
+            .Include(u => u.User)
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
+        var land = await _uow.Lands.Query()
+            .Include(u => u.OwnedBy)
+            .FindWithOwnershipValidationAync(landId, account);
+
+        udapter(land);
 
         _uow.Lands.Update(land);
         await _uow.CommitAsync();
@@ -312,10 +318,15 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<LandProduct> UpdateLandProductAsync(long accountId, LandProduct landProduct)
+    public async Task<LandProduct> UpdateLandProductAsync(long accountId, long landProductId, Action<LandProduct> udapter)
     {
-        await _permissionsSvc.ValidatePermissionsAsync(accountId, landProduct.Producer.OwnedBy.Id, PermissionType.Update);
-        landProduct.ModifiedAt = DateTime.Now;
+        var account = await _uow.Accounts.Query()
+            .Include(u => u.User)
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
+        var landProduct = await _uow.LandProducts.Query()
+            .FindWithOwnershipValidationAync(landProductId, u => u.Producer.OwnedBy, account);
+
+        udapter(landProduct);
 
         _uow.LandProducts.Update(landProduct);
         await _uow.CommitAsync();
@@ -324,12 +335,15 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<Season> UpdateSeasonAsync(long accountId, Season season)
+    public async Task<Season> UpdateSeasonAsync(long accountId, long seasonId, Action<Season> udapter)
     {
         var account = await _uow.Accounts.Query()
             .Include(u => u.User)
             .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Update);
-        season.ModifiedAt = DateTime.Now;
+        var season = await _uow.Sessions.Query()
+            .FindAsync(seasonId);
+
+        udapter(season);
 
         _uow.Sessions.Update(season);
 
@@ -360,16 +374,19 @@ public class LandService : ILandService
     /// <inheritdoc/>
     public async Task<LandProductUnit> UpdateLandProductUnitAsync(
         long accountId,
-        LandProductUnit landPorductUnit)
+        long landProductUnitId,
+        Action<LandProductUnit> udapter)
     {
         var account = await _uow.Accounts.Query()
-            .Include(u => u.User)
             .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Update);
-        landPorductUnit.ModifiedAt = DateTime.Now;
+        var landProductUnit = await _uow.LandProductUnits.Query()
+            .FindAsync(landProductUnitId);
 
-        _uow.LandProductUnits.Update(landPorductUnit);
+        udapter(landProductUnit);
 
-        return landPorductUnit;
+        _uow.LandProductUnits.Update(landProductUnit);
+
+        return landProductUnit;
     }
 
     /// <inheritdoc/>
