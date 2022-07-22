@@ -17,9 +17,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-builder.Services.AddSingleton<IPopulationService, PopulationService>();
-builder.Services.AddScoped<IUnitOfWork, IUnitOfWork>();
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
