@@ -6,7 +6,7 @@ using APSS.Domain.Services;
 using APSS.Domain.Services.Exceptions;
 using APSS.Tests.Domain.Entities.Validators;
 using APSS.Tests.Extensions;
-
+using APSS.Tests.Utils;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -86,11 +86,11 @@ public sealed class PopulationServiceTest : IDisposable
         PermissionType permissions = PermissionType.Create,
         bool shouldSucceed = true)
     {
-        var (familyAccount, family) = await FamilyaddedTheory();
+        var (FamilyAccount, family) = await FamilyaddedTheory();
 
         Assert.True(await _uow.Families.Query().ContainsAsync(family!));
 
-        var account = await _uow.CreateTestingAccountForUserAsync(familyAccount.User.Id, permissions);
+        var account = await _uow.CreateTestingAccountForUserAsync(FamilyAccount.User.Id, permissions);
         var templateIndividual = ValidEntitiesFactory.CreateValidIndividual();
 
         var addIndividualTask = _populationSvc
@@ -123,11 +123,10 @@ public sealed class PopulationServiceTest : IDisposable
 
     [Theory]
     [InlineData(PermissionType.Create | PermissionType.Update, true)]
-    [InlineData(PermissionType.Update, false)]
     [InlineData(PermissionType.Delete, false)]
     [InlineData(PermissionType.Read, false)]
     public async Task<(Account, Skill?)> SkillAddedTheory(
-        PermissionType permission = PermissionType.Create | PermissionType.Update,
+        PermissionType permission = PermissionType.Create,
         bool shouldSucceed = true)
     {
         var (individualAccount, individual) = await IndividualAddedTheory();
@@ -135,6 +134,7 @@ public sealed class PopulationServiceTest : IDisposable
         Assert.True(await _uow.Individuals.Query().ContainsAsync(individual!));
 
         var account = await _uow.CreateTestingAccountForUserAsync(individualAccount.User.Id, permission);
+
         var templateSkill = ValidEntitiesFactory.CreateValidSkill();
 
         var addSkillTask = _populationSvc
@@ -147,7 +147,7 @@ public sealed class PopulationServiceTest : IDisposable
 
         if (!shouldSucceed)
         {
-            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await addSkillTask);
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await addSkillTask);
             return (account, null);
         }
 
@@ -164,19 +164,21 @@ public sealed class PopulationServiceTest : IDisposable
     }
 
     [Theory]
-    [InlineData(PermissionType.Create, false)]
-    [InlineData(PermissionType.Update, true)]
+    [InlineData(PermissionType.Create | PermissionType.Update, true)]
     [InlineData(PermissionType.Delete, false)]
     [InlineData(PermissionType.Read, false)]
     public async Task<(Account, Voluntary?)> VoluntaryAddedTheory(
-       PermissionType permission,
-       bool shouldSucceed)
+        PermissionType permission = PermissionType.Update,
+        bool shouldSucceed = true)
     {
-        var (account, individual) = await IndividualAddedTheory(PermissionType.Create | permission, true);
+        var (individualAccount, individual) = await IndividualAddedTheory();
 
         Assert.True(await _uow.Individuals.Query().ContainsAsync(individual!));
 
+        var account = await _uow.CreateTestingAccountForUserAsync(individualAccount.User.Id, permission);
+
         var templateVoluntary = ValidEntitiesFactory.CreateValidVoluntary();
+
         var addVoluntaryTask = _populationSvc
             .AddVoluntaryAsync(
             account.Id,
@@ -186,11 +188,12 @@ public sealed class PopulationServiceTest : IDisposable
 
         if (!shouldSucceed)
         {
-            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await addVoluntaryTask);
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await addVoluntaryTask);
             return (account, null);
         }
 
         var voluntary = await addVoluntaryTask;
+
         Assert.True(await _uow.Volantaries.Query().ContainsAsync(await addVoluntaryTask));
         Assert.Contains(individual.Voluntary, v => v.Id == voluntary.Id);
         Assert.Equal(individual.Id, voluntary.OfferedBy.Id);
@@ -223,7 +226,7 @@ public sealed class PopulationServiceTest : IDisposable
 
         if (!shouldSucceed)
         {
-            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await removeFamilyTask);
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await removeFamilyTask);
             return;
         }
 
@@ -241,6 +244,7 @@ public sealed class PopulationServiceTest : IDisposable
        bool shouldSucceed)
     {
         var (account, individual) = await IndividualAddedTheory(PermissionType.Create | permission, true);
+
         Assert.True(await _uow.Individuals.Query().ContainsAsync(individual!));
 
         var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Group, PermissionType.Delete);
@@ -253,7 +257,7 @@ public sealed class PopulationServiceTest : IDisposable
 
         if (!shouldSucceed)
         {
-            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await removeIndividualTask);
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await removeIndividualTask);
             return;
         }
 
@@ -262,13 +266,420 @@ public sealed class PopulationServiceTest : IDisposable
         Assert.False(await _uow.Individuals.Query().ContainsAsync(individual));
     }
 
+    [Theory]
+    [InlineData(PermissionType.Delete | PermissionType.Update, true)]
+    [InlineData(PermissionType.Create, false)]
+    [InlineData(PermissionType.Read, false)]
+    public async Task SkillRemovedTheory(
+       PermissionType permission,
+       bool shouldSucceed)
+    {
+        var (account, skill) = await SkillAddedTheory(PermissionType.Create | PermissionType.Update | permission, true);
+
+        Assert.True(await _uow.Skills.Query().ContainsAsync(skill!));
+
+        var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Group, PermissionType.Delete | PermissionType.Update);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+            _populationSvc.RemoveSkillAsync(otherAccount.Id, skill!.Id)
+        );
+
+        var removeSkillTask = _populationSvc.RemoveSkillAsync(account.Id, skill!.Id);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await removeSkillTask);
+            return;
+        }
+
+        await removeSkillTask;
+
+        Assert.False(await _uow.Skills.Query().ContainsAsync(skill));
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Delete | PermissionType.Update, true)]
+    [InlineData(PermissionType.Create, false)]
+    [InlineData(PermissionType.Read, false)]
+    public async Task VoluntaryRemovedTheory(
+       PermissionType permission,
+       bool shouldSucceed)
+    {
+        var (account, voluntary) = await VoluntaryAddedTheory(
+            PermissionType.Create | PermissionType.Update | permission, true);
+
+        Assert.True(await _uow.Volantaries.Query().ContainsAsync(voluntary!));
+
+        var otherAccount = await _uow
+            .CreateTestingAccountAsync(AccessLevel.Group, PermissionType.Delete | PermissionType.Update);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+            _populationSvc.RemoveVoluntaryAsync(otherAccount.Id, voluntary!.Id)
+        );
+
+        var removeVoluntaryTask = _populationSvc.RemoveVoluntaryAsync(account.Id, voluntary!.Id);
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await removeVoluntaryTask);
+            return;
+        }
+
+        await removeVoluntaryTask;
+
+        Assert.False(await _uow.Volantaries.Query().ContainsAsync(voluntary));
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Update, true)]
+    [InlineData(PermissionType.Create, false)]
+    [InlineData(PermissionType.Delete, false)]
+    [InlineData(PermissionType.Read, false)]
+    public async Task FamilyUpdatedTheory(PermissionType permission = PermissionType.Update,
+        bool shouldSucceed = true)
+    {
+        var (familyAccount, family) = await FamilyaddedTheory();
+
+        Assert.True(await _uow.Families.Query().ContainsAsync(family!));
+
+        var account = await _uow.CreateTestingAccountForUserAsync(familyAccount.User.Id, permission);
+
+        var name = RandomGenerator.NextString(RandomGenerator.NextInt(5, 15), RandomStringOptions.Alpha);
+        var living = RandomGenerator.NextString(RandomGenerator.NextInt(5, 15), RandomStringOptions.Alpha);
+
+        var updateFamilyTask = _populationSvc
+            .UpdateFamilyAsync(account.Id, family!.Id,
+                    f => { f.Name = name; f.LivingLocation = living; });
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await updateFamilyTask);
+            return;
+        }
+
+        var otherAccount = await _uow
+            .CreateTestingAccountAsync(AccessLevel.Group, PermissionType.Update);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+        _populationSvc
+            .UpdateFamilyAsync(otherAccount.Id, family!.Id,
+                    f => { f.Name = name; f.LivingLocation = living; }));
+
+        var familynew = await updateFamilyTask;
+        Assert.True(await _uow.Families.Query().ContainsAsync(familynew));
+        Assert.Equal(name, familynew.Name);
+        Assert.Equal(living, familynew.LivingLocation);
+
+        familynew = await _uow.Families.Query().FindAsync(familynew.Id);
+
+        Assert.Equal(name, familynew.Name);
+        Assert.Equal(living, familynew.LivingLocation);
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Update, true)]
+    [InlineData(PermissionType.Create, false)]
+    [InlineData(PermissionType.Delete, false)]
+    [InlineData(PermissionType.Read, false)]
+    public async Task individualUpdatedTheory(PermissionType permission = PermissionType.Update,
+       bool shouldSucceed = true)
+    {
+        var (individualAccount, individual) = await IndividualAddedTheory();
+
+        Assert.True(await _uow.Individuals.Query().ContainsAsync(individual!));
+
+        var account = await _uow.CreateTestingAccountForUserAsync(individualAccount.User.Id, permission);
+
+        var name = RandomGenerator.NextString(RandomGenerator.NextInt(5, 15), RandomStringOptions.Alpha);
+        var job = RandomGenerator.NextString(RandomGenerator.NextInt(5, 15), RandomStringOptions.Alpha);
+        var phone = RandomGenerator.NextString(RandomGenerator.NextInt(9, 15));
+        var address = RandomGenerator.NextString(RandomGenerator.NextInt(10, 30), RandomStringOptions.Mixed);
+
+        var updateIndividualTask = _populationSvc
+            .UpdateIndividualAsync(account.Id, individual!.Id,
+                    i =>
+                    {
+                        i.Name = name;
+                        i.Job = job;
+                        i.Address = address;
+                        i.PhoneNumber = phone;
+                    });
+
+        if (!shouldSucceed)
+        {
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await updateIndividualTask);
+            return;
+        }
+
+        var otherAccount = await _uow
+            .CreateTestingAccountAsync(AccessLevel.Group, PermissionType.Update);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+        _populationSvc
+            .UpdateIndividualAsync(otherAccount.Id, individual!.Id,
+                    i =>
+                    {
+                        i.Name = name;
+                        i.Job = job;
+                        i.Address = address;
+                        i.PhoneNumber = phone;
+                    }));
+
+        var individualnew = await updateIndividualTask;
+        Assert.Equal(name, individual.Name);
+        Assert.Equal(job, individualnew.Job);
+        Assert.Equal(phone, individualnew.PhoneNumber);
+        Assert.Equal(address, individualnew.Address);
+
+        individualnew = await _uow.Individuals.Query().FindAsync(individualnew.Id);
+
+        Assert.Equal(name, individual.Name);
+        Assert.Equal(job, individualnew.Job);
+        Assert.Equal(phone, individualnew.PhoneNumber);
+        Assert.Equal(address, individualnew.Address);
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Update)]
+    [InlineData(PermissionType.Create)]
+    [InlineData(PermissionType.Delete)]
+    [InlineData(PermissionType.Read)]
+    public async Task SkillUpdatedTheory(PermissionType permission = PermissionType.Update)
+    {
+        var (account, skill) = await SkillAddedTheory(PermissionType.Create | PermissionType.Update | permission, true);
+
+        Assert.True(await _uow.Skills.Query().ContainsAsync(skill!));
+
+        var name = RandomGenerator.NextString(RandomGenerator.NextInt(5, 15), RandomStringOptions.Alpha);
+        var field = RandomGenerator.NextString(RandomGenerator.NextInt(5, 15), RandomStringOptions.Alpha);
+        var description = RandomGenerator.NextString(RandomGenerator.NextInt(5, 15), RandomStringOptions.Alpha);
+
+        var updateSkillTask = _populationSvc
+            .UpdateSkillAsync(account.Id, skill!.Id,
+                    s =>
+                    {
+                        s.Name = name;
+                        s.Field = field;
+                        s.Description = description;
+                    });
+
+        if (account.User.AccessLevel != AccessLevel.Group)
+        {
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await updateSkillTask);
+            return;
+        }
+
+        var otherAccount = await _uow
+            .CreateTestingAccountAsync(AccessLevel.Group, PermissionType.Update);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+        _populationSvc
+            .UpdateSkillAsync(otherAccount.Id, skill!.Id,
+                    s =>
+                    {
+                        s.Name = name;
+                        s.Field = field;
+                        s.Description = description;
+                    }));
+
+        var skillnew = await updateSkillTask;
+
+        Assert.True(await _uow.Skills.Query().ContainsAsync(skillnew));
+        Assert.Equal(name, skillnew.Name);
+        Assert.Equal(field, skillnew.Field);
+        Assert.Equal(description, skillnew.Description);
+
+        skillnew = await _uow.Skills.Query().FindAsync(skillnew.Id);
+        Assert.Equal(name, skillnew.Name);
+        Assert.Equal(field, skillnew.Field);
+        Assert.Equal(description, skillnew.Description);
+    }
+
+    [Theory]
+    [InlineData(PermissionType.Update)]
+    [InlineData(PermissionType.Create)]
+    [InlineData(PermissionType.Delete)]
+    [InlineData(PermissionType.Read)]
+    public async Task VoluntaryUpdatedTheory(PermissionType permission = PermissionType.Update)
+    {
+        var (account, voluntary) = await VoluntaryAddedTheory(
+                                PermissionType.Create | PermissionType.Update | permission, true);
+
+        Assert.True(await _uow.Volantaries.Query().ContainsAsync(voluntary!));
+
+        var name = RandomGenerator.NextString(RandomGenerator.NextInt(5, 15), RandomStringOptions.Alpha);
+        var field = RandomGenerator.NextString(RandomGenerator.NextInt(5, 15), RandomStringOptions.Alpha);
+
+        var updateVoluntaryTask = _populationSvc
+            .UpdateVoluntaryAsync(account.Id, voluntary!.Id,
+                    s =>
+                    {
+                        s.Name = name;
+                        s.Field = field;
+                    });
+
+        if (account.User.AccessLevel != AccessLevel.Group)
+        {
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await updateVoluntaryTask);
+            return;
+        }
+
+        var otherAccount = await _uow
+            .CreateTestingAccountAsync(AccessLevel.Group, PermissionType.Update);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+        _populationSvc
+            .UpdateVoluntaryAsync(otherAccount.Id, voluntary!.Id,
+                    s =>
+                    {
+                        s.Name = name;
+                        s.Field = field;
+                    }));
+
+        var voluntarynew = await updateVoluntaryTask;
+        Assert.True(await _uow.Volantaries.Query().ContainsAsync(voluntary));
+        Assert.Equal(name, voluntarynew.Name);
+        Assert.Equal(field, voluntarynew.Field);
+
+        voluntarynew = await _uow.Volantaries.Query().FindAsync(voluntarynew.Id);
+        Assert.Equal(name, voluntarynew.Name);
+        Assert.Equal(field, voluntarynew.Field);
+    }
+
+    [Theory]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
+    public async Task GetIndividualOfFamlyTheory(AccessLevel accessLevel,
+        PermissionType permission = PermissionType.Read,
+        bool shoulSucceed = true)
+    {
+        var templateFamlyIndividuals = ValidEntitiesFactory.CreateValidFamilyIndividual();
+
+        _uow.FamilyIndividuals.Add(templateFamlyIndividuals);
+        await _uow.CommitAsync();
+
+        Assert.True(await _uow.FamilyIndividuals.Query().ContainsAsync(templateFamlyIndividuals));
+
+        var account = await _uow.CreateTestingAccountAsync(templateFamlyIndividuals.Family.AddedBy.AccessLevel, permission);
+        var superaccount = account;
+
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow.CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
+
+        var getFamlyIndividualTask = _populationSvc.GetFamilyIndividualsAsync(superaccount.Id, templateFamlyIndividuals.Family.Id);
+
+        if (!shoulSucceed)
+        {
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getFamlyIndividualTask);
+            return;
+        }
+
+        var familyIndividuals = await getFamlyIndividualTask;
+        Assert.NotNull(familyIndividuals);
+        Assert.True(await familyIndividuals.ContainsAsync(templateFamlyIndividuals));
+    }
+
+    [Theory]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
+    public async Task GetSkillOfIndividualTheory(AccessLevel accessLevel,
+        PermissionType permission = PermissionType.Read,
+        bool shoulSucceed = true)
+    {
+        var templateskill = ValidEntitiesFactory.CreateValidSkill();
+
+        _uow.Skills.Add(templateskill);
+        await _uow.CommitAsync();
+
+        Assert.True(await _uow.Skills.Query().ContainsAsync(templateskill));
+
+        var account = await _uow.CreateTestingAccountAsync(templateskill.BelongsTo.AddedBy.AccessLevel, permission);
+        var superaccount = account;
+
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow.CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
+
+        var getSkillsOfIndividual = _populationSvc.GetSkillOfindividualAsync(superaccount.Id, templateskill.BelongsTo.Id);
+
+        if (!shoulSucceed)
+        {
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getSkillsOfIndividual);
+            return;
+        }
+
+        var skill = await getSkillsOfIndividual;
+        Assert.NotNull(skill);
+        Assert.True(await skill.ContainsAsync(templateskill));
+    }
+
+    [Theory]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
+               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
+                PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
+    public async Task GetVoluntaryOfIndividualTheory(AccessLevel accessLevel,
+        PermissionType permission = PermissionType.Read,
+        bool shoulSucceed = true)
+    {
+        var templateVoluntary = ValidEntitiesFactory.CreateValidVoluntary();
+
+        _uow.Volantaries.Add(templateVoluntary);
+        await _uow.CommitAsync();
+
+        Assert.True(await _uow.Volantaries.Query().ContainsAsync(templateVoluntary));
+
+        var account = await _uow
+            .CreateTestingAccountAsync(templateVoluntary.OfferedBy.AddedBy.AccessLevel, permission);
+
+        var superaccount = account;
+
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow
+                .CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
+
+        var getVoluntariesOfIndividual = _populationSvc
+            .GetVoluntaryOfindividualAsync(superaccount.Id, templateVoluntary.OfferedBy.Id);
+
+        if (!shoulSucceed)
+        {
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getVoluntariesOfIndividual);
+            return;
+        }
+
+        var voluntary = await getVoluntariesOfIndividual;
+        Assert.NotNull(voluntary);
+        Assert.True(await voluntary.ContainsAsync(templateVoluntary));
+    }
+
     #endregion Tests
 
     #region IDisposable Members
 
     /// <inheritdoc/>
     public void Dispose()
-        => _uow.Dispose();
+    => _uow.Dispose();
 
     #endregion IDisposable Members
 }

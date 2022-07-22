@@ -36,11 +36,12 @@ public static class ValidEntitiesFactory
         {
             HolderName = RandomGenerator.NextString(0xff),
             NationalId = RandomGenerator.NextString(0xff),
-            PasswordHash = string.Empty,
+            PasswordHash = String.Empty,
             PhoneNumber = string.Empty,
             SocialStatus = SocialStatus.Unspecified,
             Job = string.Empty,
             Permissions = permissions,
+            User = CreateValidUser(RandomGenerator.NextAccessLevel()),
         };
     }
 
@@ -172,6 +173,21 @@ public static class ValidEntitiesFactory
         return new LandProductUnit
         {
             Name = RandomGenerator.NextString(0xff),
+        };
+    }
+
+    /// <summary>
+    /// Creates a valid family individual object
+    /// </summary>
+    /// <returns>The created family individual object</returns>
+    public static FamilyIndividual CreateValidFamilyIndividual()
+    {
+        return new FamilyIndividual
+        {
+            Individual = ValidEntitiesFactory.CreateValidIndividual(),
+            Family = ValidEntitiesFactory.CreateValidFamily(),
+            IsParent = RandomGenerator.NextBool(),
+            IsProvider = RandomGenerator.NextBool(),
         };
     }
 
