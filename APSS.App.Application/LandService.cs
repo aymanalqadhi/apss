@@ -52,7 +52,8 @@ public class LandService : ILandService
             Address = address,
             IsUsable = isUsable,
             IsUsed = isUsed,
-            OwnedBy = account.User
+            OwnedBy = account.User,
+            CreatedAt = DateTime.Now,
         };
 
         _uow.Lands.Add(newLand);
@@ -104,7 +105,8 @@ public class LandService : ILandService
             Insecticide = insecticide,
             Category = category,
             StoringMethod = storingMethod,
-            IrrigationMethod = irrigationMethod
+            IrrigationMethod = irrigationMethod,
+            CreatedAt = DateTime.Now
         };
 
         _uow.LandProducts.Add(product);
@@ -129,12 +131,49 @@ public class LandService : ILandService
             Name = name,
             StartsAt = startsAt,
             EndsAt = endsAt,
+            CreatedAt = DateTime.Now
         };
 
         _uow.Sessions.Add(season);
         await _uow.CommitAsync();
 
         return season;
+    }
+
+    /// <inheritdoc/>
+    public async Task<ProductExpense> AddLandProductExpense(
+        long accountId,
+        long landProductId,
+        string type,
+        decimal price)
+    {
+        var account = await _uow.Accounts.Query()
+            .Include(u => u.User)
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Create);
+        var landProduct = await _uow.LandProducts.Query()
+            .Include(l => l.Producer)
+            .Include(u => u.Producer.OwnedBy)
+            .FindAsync(landProductId);
+
+        if (landProduct.Producer.OwnedBy.Id != account.User.Id)
+        {
+            throw new InsufficientPermissionsException(
+                account.Id,
+                $"user #{account.User.Id} with account #{account.Id} does not own #{landProductId}");
+        }
+
+        var landProductExpense = new ProductExpense
+        {
+            Type = type,
+            Price = price,
+            CreatedAt = DateTime.Now,
+            SpentOn = landProduct
+        };
+
+        _uow.ProductExpenses.Add(landProductExpense);
+        await _uow.CommitAsync();
+
+        return landProductExpense;
     }
 
     /// <inheritdoc/>
@@ -227,7 +266,9 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
-    public async Task<IQueryBuilder<LandProduct>> GetLandProductAsync(long accountId, long landProductId)
+    public async Task<IQueryBuilder<LandProduct>> GetLandProductAsync(
+        long accountId,
+        long landProductId)
     {
         var landProduct = await _uow.LandProducts
             .Query()
@@ -241,9 +282,28 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
+    public async Task<IQueryBuilder<Season>> GetSeasonAsync(long accountId, long seasonId)
+    {
+        await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Read);
+
+        return _uow.Sessions.Query().Where(i => i.Id == seasonId);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IQueryBuilder<Season>> GetSeasonsAsync(long accountId)
+    {
+        await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Read);
+
+        return _uow.Sessions.Query();
+    }
+
+    /// <inheritdoc/>
     public async Task<Land> UpdateLandAsync(long accountId, Land land)
     {
         await _permissionsSvc.ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Update);
+        land.ModifiedAt = DateTime.Now;
 
         _uow.Lands.Update(land);
         await _uow.CommitAsync();
@@ -255,6 +315,7 @@ public class LandService : ILandService
     public async Task<LandProduct> UpdateLandProductAsync(long accountId, LandProduct landProduct)
     {
         await _permissionsSvc.ValidatePermissionsAsync(accountId, landProduct.Producer.OwnedBy.Id, PermissionType.Update);
+        landProduct.ModifiedAt = DateTime.Now;
 
         _uow.LandProducts.Update(landProduct);
         await _uow.CommitAsync();
@@ -262,15 +323,105 @@ public class LandService : ILandService
         return landProduct;
     }
 
+    /// <inheritdoc/>
     public async Task<Season> UpdateSeasonAsync(long accountId, Season season)
     {
         var account = await _uow.Accounts.Query()
             .Include(u => u.User)
             .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Update);
+        season.ModifiedAt = DateTime.Now;
 
         _uow.Sessions.Update(season);
 
         return season;
+    }
+
+    /// <inheritdoc/>
+    public async Task<LandProductUnit> AddLandProductUnitAsync(
+        long accountId,
+        string name)
+    {
+        await _uow.Accounts
+            .Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Create);
+
+        var landProductUnit = new LandProductUnit
+        {
+            Name = name,
+            CreatedAt = DateTime.Now,
+        };
+
+        _uow.LandProductUnits.Add(landProductUnit);
+        await _uow.CommitAsync();
+
+        return landProductUnit;
+    }
+
+    /// <inheritdoc/>
+    public async Task<LandProductUnit> UpdateLandProductUnitAsync(
+        long accountId,
+        LandProductUnit landPorductUnit)
+    {
+        var account = await _uow.Accounts.Query()
+            .Include(u => u.User)
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Update);
+        landPorductUnit.ModifiedAt = DateTime.Now;
+
+        _uow.LandProductUnits.Update(landPorductUnit);
+
+        return landPorductUnit;
+    }
+
+    /// <inheritdoc/>
+    public async Task<IQueryBuilder<LandProductUnit>> GetLandProductUnitAsync(
+        long accountId,
+        long landProductUnitId)
+    {
+        await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Read);
+
+        return _uow.LandProductUnits.Query().Where(i => i.Id == landProductUnitId);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IQueryBuilder<LandProductUnit>> GetLandProductUnitsAsync(long accountId)
+    {
+        await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Read);
+
+        return _uow.LandProductUnits.Query();
+    }
+
+    /// <inheritdoc/>
+    public async Task<LandProductUnit> RemoveLandProductUnitAsync(
+        long accountId,
+        long landProductUnitId)
+    {
+        await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Delete);
+
+        var landProductUnit = await _uow.LandProductUnits.Query().FindAsync(landProductUnitId);
+
+        _uow.LandProductUnits.Remove(landProductUnit);
+        await _uow.CommitAsync();
+
+        return landProductUnit;
+    }
+
+    /// <inheritdoc/>
+    public async Task<ProductExpense> UpdateLandProductExpenseAsync(
+        long accountId,
+        ProductExpense productExpense)
+    {
+        var account = await _uow.Accounts.Query()
+            .Include(u => u.User)
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
+        productExpense.SpentOn.ModifiedAt = DateTime.Now;
+        //var productExpense = await _uow.ProductExpenses.Query()
+        //    .Include(p => p.SpentOn)
+        //    .Include(l => l.SpentOn.)   i need a way to get to land owner through productExpense , landProduct , land.ownedBy
+
+        return productExpense;
     }
 
     #endregion Public Methods
