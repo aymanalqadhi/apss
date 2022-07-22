@@ -1,4 +1,4 @@
-﻿namespace APSS.Web.Dto;
+﻿namespace APSS.Web.Dtos;
 
 public abstract class BaseDto
 {

@@ -1,6 +1,6 @@
 ﻿using APSS.Domain.Entities;
 
-namespace APSS.Web.Dto;
+namespace APSS.Web.Dtos;
 
 public sealed class UserDto : BaseAuditbleDto
 {
