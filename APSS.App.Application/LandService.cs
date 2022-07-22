@@ -219,7 +219,7 @@ public class LandService : ILandService
             .Query()
             //.Include(p => p.Producer)
             //.Include(p => p.Producer.OwnedBy)
-            .FindWithOwnershipValidationAync(landProductId, p => p.Producer.OwnedBy, account);
+            .FindWithOwnershipValidationAync(landProductId, p => p.AddedBy, account);
 
         _uow.LandProducts.Remove(landProduct);
         await _uow.CommitAsync();
@@ -320,11 +320,11 @@ public class LandService : ILandService
     {
         var landProduct = await _uow.LandProducts
             .Query()
-            .Include(l => l.Producer)
-            .Include(u => u.Producer.OwnedBy)
+            //.Include(l => l.Producer)
+            //.Include(u => u.Producer.OwnedBy)
             .FindAsync(landProductId);
 
-        await _permissionsSvc.ValidatePermissionsAsync(accountId, landProduct.Producer.OwnedBy.Id, PermissionType.Read);
+        await _permissionsSvc.ValidatePermissionsAsync(accountId, landProduct.AddedBy.Id, PermissionType.Read);
 
         return _uow.LandProducts.Query().Where(p => p.Id == landProductId);
     }
@@ -372,7 +372,7 @@ public class LandService : ILandService
             .Include(u => u.User)
             .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
         var landProduct = await _uow.LandProducts.Query()
-            .FindWithOwnershipValidationAync(landProductId, u => u.Producer.OwnedBy, account);
+            .FindWithOwnershipValidationAync(landProductId, u => u.AddedBy, account);
 
         udapter(landProduct);
 
