@@ -49,7 +49,7 @@ public interface ILandService
     /// <param name="accountId">The account id of the user who owns the land</param>
     /// <param name="land">The land</param>
     /// <returns>The updated land</returns>
-    Task<Land> UpdateLandAsync(long accountId, Land land);
+    Task<Land> UpdateLandAsync(long accountId, long landId, Action<Land> udapter);
 
     /// <summary>
     /// Asynchronously removes a land by the land id
@@ -65,7 +65,7 @@ public interface ILandService
     /// <param name="accountId">The account id of the user who owns the land product</param>
     /// <param name="landProduct">theupdated land product</param>
     /// <returns>The updated land product</returns>
-    Task<LandProduct> UpdateLandProductAsync(long accountId, LandProduct landProduct);
+    Task<LandProduct> UpdateLandProductAsync(long accountId, long landProductId, Action<LandProduct> udapter);
 
     /// <summary>
     /// Asynchronously Gets the user`s land products by land id
@@ -144,7 +144,7 @@ public interface ILandService
     /// <param name="accountId"> the account id of the user who wants to update</param>
     /// <param name="season">The updated season</param>
     /// <returns>The updated season</returns>
-    Task<Season> UpdateSeasonAsync(long accountId, Season season);
+    Task<Season> UpdateSeasonAsync(long accountId, long seasonId, Action<Season> udapter);
 
     /// <summary>
     ///Asynchronously  Gets a single season by the season id
@@ -175,7 +175,7 @@ public interface ILandService
     /// <param name="accountId">The account id of the user who wants to update the land product unit</param>
     /// <param name="landProductUnit">The id of the land product unit</param>
     /// <returns>The updated land product unit</returns>
-    Task<LandProductUnit> UpdateLandProductUnitAsync(long accountId, LandProductUnit landProductUnit);
+    Task<LandProductUnit> UpdateLandProductUnitAsync(long accountId, long landProductUnitId, Action<LandProductUnit> udapter);
 
     /// <summary>
     /// Asynchronously Removes a land product unit bu the landProductUnit id
