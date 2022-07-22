@@ -695,11 +695,20 @@ public sealed class LandServiceTest
             account.User.Id,
             permissionType);
 
-        var updateLandTask = _landSvc.UpdateLandAsync(account.Id, templateLand);
+        var updateLandTask = _landSvc.UpdateLandAsync(account.Id, land!.Id, l =>
+        {
+            l.Name = templateLand.Name;
+            l.Area = templateLand.Area;
+            l.Address = templateLand.Address;
+            l.Longitude = templateLand.Longitude;
+            l.Latitude = templateLand.Latitude;
+            l.IsUsed = templateLand.IsUsed;
+            l.IsUsable = templateLand.IsUsable;
+        });
 
         if (!shouldSucceed)
         {
-            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await updateLandTask);
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await updateLandTask);
             return;
         }
 
@@ -728,11 +737,33 @@ public sealed class LandServiceTest
 
         account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
 
-        var updateLandProductTask = _landSvc.UpdateLandProductAsync(account.Id, templateLandProduct);
+        var updateLandProductTask = _landSvc.UpdateLandProductAsync(account.Id, landProduct.Id, l =>
+         {
+             l.StoringMethod = templateLandProduct.StoringMethod;
+             l.Quantity = templateLandProduct.Quantity;
+             l.IsGovernmentFunded = templateLandProduct.IsGovernmentFunded;
+             l.IsConfirmed = templateLandProduct.IsConfirmed;
+             l.IrrigationPowerSource = templateLandProduct.IrrigationPowerSource;
+             l.IrrigationWaterSource = templateLandProduct.IrrigationWaterSource;
+             l.Category = templateLandProduct.Category;
+             l.CropName = templateLandProduct.CropName;
+             l.Fertilizer = templateLandProduct.Fertilizer;
+             l.HasGreenhouse = templateLandProduct.HasGreenhouse;
+             l.HarvestStart = templateLandProduct.HarvestStart;
+             l.HarvestEnd = templateLandProduct.HarvestEnd;
+             l.Insecticide = templateLandProduct.Insecticide;
+             l.IrrigationCount = templateLandProduct.IrrigationCount;
+             l.IrrigationMethod = templateLandProduct.IrrigationMethod;
+             l.Unit = templateLandProduct.Unit;
+             l.ProducedIn = templateLandProduct.ProducedIn;
+             l.Producer = templateLandProduct.Producer;
+             l.Expenses = templateLandProduct.Expenses;
+             l.CreatedAt = templateLandProduct.CreatedAt;
+         });
 
         if (!shouldSucceed)
         {
-            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await updateLandProductTask);
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await updateLandProductTask);
             return;
         }
 
@@ -779,9 +810,21 @@ public sealed class LandServiceTest
 
         var anotherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Directorate, permissionType);
         await Assert.ThrowsAsync<InvalidAccessLevelException>(() =>
-            _landSvc.UpdateSeasonAsync(anotherAccount.Id, templateSeason));
+            _landSvc.UpdateSeasonAsync(anotherAccount.Id, season.Id, s =>
+            {
+                s.Name = templateSeason.Name;
+                s.EndsAt = templateSeason.EndsAt;
+                s.ModifiedAt = templateSeason.ModifiedAt;
+                s.StartsAt = templateSeason.StartsAt;
+            }));
 
-        var updateSeasonTask = _landSvc.UpdateSeasonAsync(account.Id, templateSeason);
+        var updateSeasonTask = _landSvc.UpdateSeasonAsync(account.Id, season.Id, s =>
+        {
+            s.Name = templateSeason.Name;
+            s.EndsAt = templateSeason.EndsAt;
+            s.ModifiedAt = templateSeason.ModifiedAt;
+            s.StartsAt = templateSeason.StartsAt;
+        });
 
         if (!shouldSucceed)
         {
@@ -792,10 +835,10 @@ public sealed class LandServiceTest
         var updateSeason = await updateSeasonTask;
 
         Assert.Equal(templateSeason.Name, updateSeason.Name);
-        Assert.Equal(templateSeason.CreatedAt, updateSeason.CreatedAt);
         Assert.Equal(templateSeason.EndsAt, updateSeason.EndsAt);
-        Assert.Equal(templateSeason.ModifiedAt, updateSeason?.ModifiedAt);
-        Assert.Equal(templateSeason.StartsAt, updateSeason?.StartsAt);
+        Assert.Equal(templateSeason.StartsAt, updateSeason.StartsAt);
+
+        return;
     }
 
     [Theory]
@@ -815,9 +858,17 @@ public sealed class LandServiceTest
 
         var anotherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Group, permissionType);
         await Assert.ThrowsAsync<InvalidAccessLevelException>(() =>
-            _landSvc.UpdateLandProductUnitAsync(anotherAccount.Id, templateLandProductUnit));
+            _landSvc.UpdateLandProductUnitAsync(anotherAccount.Id, landProductUnit.Id, u =>
+            {
+                u.Name = templateLandProductUnit.Name;
+                u.CreatedAt = templateLandProductUnit.CreatedAt;
+            }));
 
-        var updateLandProductUnitTask = _landSvc.UpdateLandProductUnitAsync(account.Id, templateLandProductUnit);
+        var updateLandProductUnitTask = _landSvc.UpdateLandProductUnitAsync(account.Id, landProductUnit.Id, u =>
+        {
+            u.Name = templateLandProductUnit.Name;
+            u.CreatedAt = templateLandProductUnit.CreatedAt;
+        });
 
         if (!shouldSucceed)
         {
