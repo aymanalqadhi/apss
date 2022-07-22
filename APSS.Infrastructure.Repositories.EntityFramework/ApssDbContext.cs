@@ -1,6 +1,5 @@
-﻿using APSS.Domain.Entities;
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using APSS.Domain.Entities;
 
 namespace APSS.Infrastructure.Repositores.EntityFramework;
 
@@ -171,17 +170,8 @@ public sealed class ApssDbContext : DbContext
     #region Protected Methods
 
     /// <inheritdoc/>
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Account>()
-            .HasOne(a => a.User)
-            .WithMany(a => a.Accounts);
-        modelBuilder.Entity<Account>()
-            .HasOne(a => a.AddedBy)
-            .WithMany();
-
-        base.OnModelCreating(modelBuilder);
-    }
+    protected override void OnModelCreating(ModelBuilder builder)
+        => builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
     #endregion Protected Methods
 }
