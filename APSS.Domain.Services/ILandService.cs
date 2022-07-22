@@ -232,7 +232,7 @@ public interface ILandService
     /// <param name="accountId">The account id of the user who wants to remove the product expense</param>
     /// <param name="productExpenseId">The id of the product expense</param>
     /// <returns>The removed product expense</returns>
-    //Task<ProductExpense> RemoveLandProductExpenseAsync(long accountId, long productExpenseId);
+    Task<ProductExpense> RemoveLandProductExpenseAsync(long accountId, long productExpenseId);
 
     /// <summary>
     /// Asynchronously confirms or decline land information
