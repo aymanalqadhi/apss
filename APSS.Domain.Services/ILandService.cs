@@ -199,7 +199,7 @@ public interface ILandService
     /// <param name="accountId">The account id of the user who wants to get the land product units</param>
     /// <param name="landProductUnitId">The id of the land product unit</param>
     /// <returns>The quey that gets all the land product unit</returns>
-    Task<IQueryBuilder<LandProductUnit>> GetLandProductUnitsAsync(long accountId);
+    Task<IQueryBuilder<LandProductUnit>> GetLandProductUnitsAsync();
 
     /// <summary>
     /// Asynchronously adds a new land product expense
@@ -230,6 +230,24 @@ public interface ILandService
     /// <param name="productExpenseId">The id of the product expense</param>
     /// <returns>The removed product expense</returns>
     //Task<ProductExpense> RemoveLandProductExpenseAsync(long accountId, long productExpenseId);
+
+    /// <summary>
+    /// Asynchronously confirms or decline land information
+    /// </summary>
+    /// <param name="accountId">The account id of the land owner supervisor</param>
+    /// <param name="landId">The id of the land</param>
+    /// <param name="confirm">The status of the land</param>
+    /// <returns>The confimred or declined land</returns>
+    Task<Land> ConfirmLandAsync(long accountId, long landId, bool confirm);
+
+    /// <summary>
+    /// Asynchronously confirms or decline land product information
+    /// </summary>
+    /// <param name="accountId">The account id of the land product owner supervisor</param>
+    /// <param name="landProductId">The id of the land product</param>
+    /// <param name="confirm">The status of the land</param>
+    /// <returns>The confimred or declined land</returns>
+    Task<LandProduct> ConfirmLandProductAsync(long accountId, long landProductId, bool confirm);
 
     #endregion Public Methods
 }
