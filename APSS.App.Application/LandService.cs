@@ -351,6 +351,26 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
+    public async Task<ProductExpense> UpdateLandProductExpenseAsync(
+        long accountId,
+        long landProductExpenseId,
+        Action<ProductExpense> udapter)
+    {
+        var account = await _uow.Accounts.Query()
+           .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
+
+        var productExpense = await _uow.ProductExpenses.Query()
+            .Include(e => e.SpentOn.Expenses).FindAsync(landProductExpenseId);
+
+        udapter(productExpense);
+
+        _uow.ProductExpenses.Update(productExpense);
+        await _uow.CommitAsync();
+
+        return productExpense;
+    }
+
+    /// <inheritdoc/>
     public async Task<LandProductUnit> AddLandProductUnitAsync(
         long accountId,
         string name)
@@ -420,22 +440,6 @@ public class LandService : ILandService
         await _uow.CommitAsync();
 
         return landProductUnit;
-    }
-
-    /// <inheritdoc/>
-    public async Task<ProductExpense> UpdateLandProductExpenseAsync(
-        long accountId,
-        ProductExpense productExpense)
-    {
-        var account = await _uow.Accounts.Query()
-            .Include(u => u.User)
-            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
-        productExpense.SpentOn.ModifiedAt = DateTime.Now;
-        //var productExpense = await _uow.ProductExpenses.Query()
-        //    .Include(p => p.SpentOn)
-        //    .Include(l => l.SpentOn.)   i need a way to get to land owner through productExpense , landProduct , land.ownedBy
-
-        return productExpense;
     }
 
     /// <inhertdoc/>
