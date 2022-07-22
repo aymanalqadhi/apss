@@ -547,12 +547,18 @@ public sealed class PopulationServiceTest : IDisposable
     }
 
     [Theory]
-    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
-               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
-                PermissionType.Read, true)]
-    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
-               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
-                PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Group, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.District, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Root, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.District, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Root, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
     [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
     public async Task GetIndividualOfFamlyTheory(AccessLevel accessLevel,
         PermissionType permission = PermissionType.Read,
@@ -588,12 +594,18 @@ public sealed class PopulationServiceTest : IDisposable
     }
 
     [Theory]
-    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
-               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
-                PermissionType.Read, true)]
-    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
-               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
-                PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Group, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.District, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Root, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.District, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Root, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
     [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
     public async Task GetSkillOfIndividualTheory(AccessLevel accessLevel,
         PermissionType permission = PermissionType.Read,
@@ -629,12 +641,18 @@ public sealed class PopulationServiceTest : IDisposable
     }
 
     [Theory]
-    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
-               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
-                PermissionType.Read, true)]
-    [InlineData(AccessLevel.Group | AccessLevel.Root | AccessLevel.Village | AccessLevel.District
-               | AccessLevel.Directorate | AccessLevel.Presedint | AccessLevel.Governorate,
-                PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Group, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.District, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Root, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.District, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Root, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
     [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
     public async Task GetVoluntaryOfIndividualTheory(AccessLevel accessLevel,
         PermissionType permission = PermissionType.Read,
