@@ -105,10 +105,13 @@ public sealed class LandServiceTest
     {
         var (account, land) = await LandAddedTheory();
         var (season, Aaccount) = await SeasonAddedTheory();
+        var (AAacount, landProductUnit) = await LandProductUnitAddedTheory();
+
+        Assert.True(await _uow.Lands.Query().ContainsAsync(land!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
 
         account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissions);
 
-        var landProductUnit = ValidEntitiesFactory.CreateValidLandProductUnit();
         var templateLandProduct = ValidEntitiesFactory.CreateValidLandProduct();
 
         var anotherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Create);
@@ -279,11 +282,11 @@ public sealed class LandServiceTest
         bool shouldSucceed = true)
     {
         var (account, landproduct) = await LandProductAddedTheroy();
+        var templateLandProductExpense = ValidEntitiesFactory.CreateValidProductExpense();
 
         Assert.True(await _uow.LandProducts.Query().ContainsAsync(landproduct!));
         Assert.True(await _uow.Accounts.Query().ContainsAsync(account!));
 
-        var templateLandProductExpense = ValidEntitiesFactory.CreateValidProductExpense();
         account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
 
         var anotherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Create);
@@ -529,7 +532,7 @@ public sealed class LandServiceTest
     {
         var (account, land) = await LandAddedTheory();
         var (season, Aaccount) = await SeasonAddedTheory();
-        var landProductUnit = ValidEntitiesFactory.CreateValidLandProductUnit();
+        var (AAacount, landProductUnit) = await LandProductUnitAddedTheory();
         var templateLandProduct = ValidEntitiesFactory.CreateValidLandProduct();
 
         var landProduct = await _landSvc.AddLandProductAsync(
@@ -691,9 +694,20 @@ public sealed class LandServiceTest
         var templateLand = ValidEntitiesFactory.CreateValidLand();
         templateLand.OwnedBy = account.User;
 
-        account = await _uow.CreateTestingAccountForUserAsync(
-            account.User.Id,
-            permissionType);
+        account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
+
+        var anotherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Update);
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+        _landSvc.UpdateLandAsync(anotherAccount.Id, land!.Id, l =>
+        {
+            l.Name = templateLand.Name;
+            l.Area = templateLand.Area;
+            l.Address = templateLand.Address;
+            l.Longitude = templateLand.Longitude;
+            l.Latitude = templateLand.Latitude;
+            l.IsUsed = templateLand.IsUsed;
+            l.IsUsable = templateLand.IsUsable;
+        }));
 
         var updateLandTask = _landSvc.UpdateLandAsync(account.Id, land!.Id, l =>
         {
@@ -736,6 +750,32 @@ public sealed class LandServiceTest
         Assert.True(await _uow.Accounts.Query().ContainsAsync(account));
 
         account = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
+
+        var anotherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Update);
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(() =>
+            _landSvc.UpdateLandProductAsync(anotherAccount.Id, landProduct.Id, l =>
+            {
+                l.StoringMethod = templateLandProduct.StoringMethod;
+                l.Quantity = templateLandProduct.Quantity;
+                l.IsGovernmentFunded = templateLandProduct.IsGovernmentFunded;
+                l.IsConfirmed = templateLandProduct.IsConfirmed;
+                l.IrrigationPowerSource = templateLandProduct.IrrigationPowerSource;
+                l.IrrigationWaterSource = templateLandProduct.IrrigationWaterSource;
+                l.Category = templateLandProduct.Category;
+                l.CropName = templateLandProduct.CropName;
+                l.Fertilizer = templateLandProduct.Fertilizer;
+                l.HasGreenhouse = templateLandProduct.HasGreenhouse;
+                l.HarvestStart = templateLandProduct.HarvestStart;
+                l.HarvestEnd = templateLandProduct.HarvestEnd;
+                l.Insecticide = templateLandProduct.Insecticide;
+                l.IrrigationCount = templateLandProduct.IrrigationCount;
+                l.IrrigationMethod = templateLandProduct.IrrigationMethod;
+                l.Unit = templateLandProduct.Unit;
+                l.ProducedIn = templateLandProduct.ProducedIn;
+                l.Producer = templateLandProduct.Producer;
+                l.Expenses = templateLandProduct.Expenses;
+                l.CreatedAt = templateLandProduct.CreatedAt;
+            }));
 
         var updateLandProductTask = _landSvc.UpdateLandProductAsync(account.Id, landProduct.Id, l =>
          {
