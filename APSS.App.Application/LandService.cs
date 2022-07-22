@@ -97,6 +97,7 @@ public class LandService : ILandService
             IrrigationWaterSource = irrigationWaterSource,
             IsGovernmentFunded = isGovernmentFunded,
             ProducedIn = await _uow.Sessions.Query().FindAsync(seasonId),
+            Unit = await _uow.LandProductUnits.Query().FindAsync(landProductUnitId),
             CropName = cropName,
             HarvestStart = harvestStart,
             HarvestEnd = HarvestEnd,
@@ -106,6 +107,7 @@ public class LandService : ILandService
             Category = category,
             StoringMethod = storingMethod,
             IrrigationMethod = irrigationMethod,
+            AddedBy = account.User,
             CreatedAt = DateTime.Now
         };
 
@@ -141,6 +143,27 @@ public class LandService : ILandService
     }
 
     /// <inheritdoc/>
+    public async Task<LandProductUnit> AddLandProductUnitAsync(
+        long accountId,
+        string name)
+    {
+        await _uow.Accounts
+            .Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Create);
+
+        var landProductUnit = new LandProductUnit
+        {
+            Name = name,
+            CreatedAt = DateTime.Now,
+        };
+
+        _uow.LandProductUnits.Add(landProductUnit);
+        await _uow.CommitAsync();
+
+        return landProductUnit;
+    }
+
+    /// <inheritdoc/>
     public async Task<ProductExpense> AddLandProductExpense(
         long accountId,
         long landProductId,
@@ -153,14 +176,7 @@ public class LandService : ILandService
         var landProduct = await _uow.LandProducts.Query()
             .Include(l => l.Producer)
             .Include(u => u.Producer.OwnedBy)
-            .FindAsync(landProductId);
-
-        if (landProduct.Producer.OwnedBy.Id != account.User.Id)
-        {
-            throw new InsufficientPermissionsException(
-                account.Id,
-                $"user #{account.User.Id} with account #{account.Id} does not own #{landProductId}");
-        }
+            .FindWithOwnershipValidationAync(landProductId, u => u.AddedBy, account);
 
         var landProductExpense = new ProductExpense
         {
@@ -179,11 +195,12 @@ public class LandService : ILandService
     /// <inheritdoc/>
     public async Task<Land> RemoveLandAsync(long accountId, long landId)
     {
+        var account = await _uow.Accounts
+            .Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Delete);
         var land = await _uow.Lands.Query()
             .Include(l => l.OwnedBy)
-            .FindAsync(landId);
-
-        await _permissionsSvc.ValidatePermissionsAsync(accountId, land.OwnedBy.Id, PermissionType.Delete);
+            .FindWithOwnershipValidationAync(landId, account);
 
         _uow.Lands.Remove(land);
         await _uow.CommitAsync();
@@ -200,8 +217,8 @@ public class LandService : ILandService
 
         var landProduct = await _uow.LandProducts
             .Query()
-            .Include(p => p.Producer)
-            .Include(p => p.Producer.OwnedBy)
+            //.Include(p => p.Producer)
+            //.Include(p => p.Producer.OwnedBy)
             .FindWithOwnershipValidationAync(landProductId, p => p.Producer.OwnedBy, account);
 
         _uow.LandProducts.Remove(landProduct);
@@ -223,6 +240,37 @@ public class LandService : ILandService
         await _uow.CommitAsync();
 
         return season;
+    }
+
+    /// <inheritdoc/>
+    public async Task<LandProductUnit> RemoveLandProductUnitAsync(
+        long accountId,
+        long landProductUnitId)
+    {
+        await _uow.Accounts.Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Delete);
+
+        var landProductUnit = await _uow.LandProductUnits.Query().FindAsync(landProductUnitId);
+
+        _uow.LandProductUnits.Remove(landProductUnit);
+        await _uow.CommitAsync();
+
+        return landProductUnit;
+    }
+
+    /// <inheritdoc/>
+    public async Task<ProductExpense> RemoveLandProductExpenseAsync(long accountId, long productExpenseId)
+    {
+        var account = await _uow.Accounts
+            .Query()
+            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Delete);
+        var landProductExpense = await _uow.ProductExpenses.Query()
+            .FindWithOwnershipValidationAync(productExpenseId, u => u.SpentOn.AddedBy, account);
+
+        _uow.ProductExpenses.Remove(landProductExpense);
+        await _uow.CommitAsync();
+
+        return landProductExpense;
     }
 
     /// <inheritdoc/>
@@ -360,7 +408,8 @@ public class LandService : ILandService
            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
 
         var productExpense = await _uow.ProductExpenses.Query()
-            .Include(e => e.SpentOn.Expenses).FindAsync(landProductExpenseId);
+            .Include(e => e.SpentOn.Expenses)
+            .FindWithOwnershipValidationAync(landProductExpenseId, u => u.SpentOn.AddedBy, account);
 
         udapter(productExpense);
 
@@ -368,27 +417,6 @@ public class LandService : ILandService
         await _uow.CommitAsync();
 
         return productExpense;
-    }
-
-    /// <inheritdoc/>
-    public async Task<LandProductUnit> AddLandProductUnitAsync(
-        long accountId,
-        string name)
-    {
-        await _uow.Accounts
-            .Query()
-            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Create);
-
-        var landProductUnit = new LandProductUnit
-        {
-            Name = name,
-            CreatedAt = DateTime.Now,
-        };
-
-        _uow.LandProductUnits.Add(landProductUnit);
-        await _uow.CommitAsync();
-
-        return landProductUnit;
     }
 
     /// <inheritdoc/>
@@ -424,22 +452,6 @@ public class LandService : ILandService
     public async Task<IQueryBuilder<LandProductUnit>> GetLandProductUnitsAsync()
     {
         return _uow.LandProductUnits.Query();
-    }
-
-    /// <inheritdoc/>
-    public async Task<LandProductUnit> RemoveLandProductUnitAsync(
-        long accountId,
-        long landProductUnitId)
-    {
-        await _uow.Accounts.Query()
-            .FindWithAccessLevelValidationAsync(accountId, AccessLevel.Root, PermissionType.Delete);
-
-        var landProductUnit = await _uow.LandProductUnits.Query().FindAsync(landProductUnitId);
-
-        _uow.LandProductUnits.Remove(landProductUnit);
-        await _uow.CommitAsync();
-
-        return landProductUnit;
     }
 
     /// <inhertdoc/>
