@@ -85,7 +85,7 @@ public interface IAnimalService
     /// <summary>
     /// Asynchrnously update  animal product
     /// </summary>
-    /// <param name="AccountId">the id of account getting animal product</param>
+    /// <param name="AccountId">the id of account updating animal product</param>
     /// <param name="animalProduct">the object of animal product</param>
     /// <returns></returns>
 
