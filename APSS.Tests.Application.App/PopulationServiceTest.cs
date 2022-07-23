@@ -564,14 +564,11 @@ public sealed class PopulationServiceTest : IDisposable
         PermissionType permission = PermissionType.Read,
         bool shoulSucceed = true)
     {
-        var templateFamlyIndividuals = ValidEntitiesFactory.CreateValidFamilyIndividual();
+        var (accountIndividual, individual) = await IndividualAddedTheory();
 
-        _uow.FamilyIndividuals.Add(templateFamlyIndividuals);
-        await _uow.CommitAsync();
+        Assert.True(await _uow.FamilyIndividuals.Query().AnyAsync(i => i.Individual.Id == individual!.Id));
 
-        Assert.True(await _uow.FamilyIndividuals.Query().ContainsAsync(templateFamlyIndividuals));
-
-        var account = await _uow.CreateTestingAccountAsync(templateFamlyIndividuals.Family.AddedBy.AccessLevel, permission);
+        var account = await _uow.CreateTestingAccountForUserAsync(accountIndividual.User.Id, permission);
         var superaccount = account;
 
         if (shoulSucceed & accessLevel != AccessLevel.Group)
@@ -579,18 +576,29 @@ public sealed class PopulationServiceTest : IDisposable
             superaccount = await _uow.CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
         }
 
-        var getFamlyIndividualTask = _populationSvc.GetFamilyIndividualsAsync(superaccount.Id, templateFamlyIndividuals.Family.Id);
+        var family = _uow.FamilyIndividuals.Query()
+            .Where(f => f.Individual.Id == individual!.Id).AsAsyncEnumerable();
 
-        if (!shoulSucceed)
+        var getFamlyIndividualTask = _populationSvc
+            .GetFamilyIndividualsAsync(superaccount.Id,
+            await family.Select(f => f.Family.Id).SingleAsync());
+
+        if (!shoulSucceed & accessLevel != AccessLevel.Farmer)
         {
             await Assert
                 .ThrowsAsync<InsufficientPermissionsException>(async () => await getFamlyIndividualTask);
             return;
         }
 
+        var accountFarmer = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, permission);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
+                      _populationSvc.GetFamilyIndividualsAsync(accountFarmer.Id,
+                      await family.Select(f => f.Family.Id).SingleAsync()));
+
         var familyIndividuals = await getFamlyIndividualTask;
         Assert.NotNull(familyIndividuals);
-        Assert.True(await familyIndividuals.ContainsAsync(templateFamlyIndividuals));
+        Assert.True(await familyIndividuals.AnyAsync(f => f.Individual == individual!));
     }
 
     [Theory]
@@ -611,24 +619,28 @@ public sealed class PopulationServiceTest : IDisposable
         PermissionType permission = PermissionType.Read,
         bool shoulSucceed = true)
     {
-        var templateskill = ValidEntitiesFactory.CreateValidSkill();
+        var (accountskill, skillts) = await SkillAddedTheory(
+            PermissionType.Create | PermissionType.Update, true);
 
-        _uow.Skills.Add(templateskill);
-        await _uow.CommitAsync();
+        Assert.True(await _uow.Skills.Query().ContainsAsync(skillts!));
 
-        Assert.True(await _uow.Skills.Query().ContainsAsync(templateskill));
+        var account = await _uow.CreateTestingAccountForUserAsync(accountskill.User.Id, permission);
 
-        var account = await _uow.CreateTestingAccountAsync(templateskill.BelongsTo.AddedBy.AccessLevel, permission);
         var superaccount = account;
 
         if (shoulSucceed & accessLevel != AccessLevel.Group)
         {
-            superaccount = await _uow.CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+            superaccount = await _uow.CreateTestingAccountAboveUserAsync(account.User.Id, AccessLevel.Village, permission);
         }
 
-        var getSkillsOfIndividual = _populationSvc.GetSkillOfindividualAsync(superaccount.Id, templateskill.BelongsTo.Id);
+        var farmeraccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, permission);
+        var getSkillsOfIndividual = _populationSvc.GetSkillOfindividualAsync(superaccount.Id, skillts!.BelongsTo.Id);
 
-        if (!shoulSucceed)
+        await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await
+                _populationSvc.GetSkillOfindividualAsync(farmeraccount.Id, skillts.BelongsTo.Id));
+
+        if (!shoulSucceed & accessLevel != AccessLevel.Farmer)
         {
             await Assert
                 .ThrowsAsync<InsufficientPermissionsException>(async () => await getSkillsOfIndividual);
@@ -637,7 +649,7 @@ public sealed class PopulationServiceTest : IDisposable
 
         var skill = await getSkillsOfIndividual;
         Assert.NotNull(skill);
-        Assert.True(await skill.ContainsAsync(templateskill));
+        Assert.True(await skill.ContainsAsync(skillts));
     }
 
     [Theory]
@@ -658,15 +670,12 @@ public sealed class PopulationServiceTest : IDisposable
         PermissionType permission = PermissionType.Read,
         bool shoulSucceed = true)
     {
-        var templateVoluntary = ValidEntitiesFactory.CreateValidVoluntary();
+        var (accountVoluntary, voluntary) = await VoluntaryAddedTheory(
+            PermissionType.Update | PermissionType.Create, true);
 
-        _uow.Volantaries.Add(templateVoluntary);
-        await _uow.CommitAsync();
+        Assert.True(await _uow.Volantaries.Query().ContainsAsync(voluntary!));
 
-        Assert.True(await _uow.Volantaries.Query().ContainsAsync(templateVoluntary));
-
-        var account = await _uow
-            .CreateTestingAccountAsync(templateVoluntary.OfferedBy.AddedBy.AccessLevel, permission);
+        var account = await _uow.CreateTestingAccountForUserAsync(accountVoluntary.User.Id, permission);
 
         var superaccount = account;
 
@@ -677,18 +686,22 @@ public sealed class PopulationServiceTest : IDisposable
         }
 
         var getVoluntariesOfIndividual = _populationSvc
-            .GetVoluntaryOfindividualAsync(superaccount.Id, templateVoluntary.OfferedBy.Id);
+            .GetVoluntaryOfindividualAsync(superaccount.Id, voluntary!.OfferedBy.Id);
 
-        if (!shoulSucceed)
+        if (!shoulSucceed & accessLevel != AccessLevel.Farmer)
         {
             await Assert
                 .ThrowsAsync<InsufficientPermissionsException>(async () => await getVoluntariesOfIndividual);
             return;
         }
 
-        var voluntary = await getVoluntariesOfIndividual;
-        Assert.NotNull(voluntary);
-        Assert.True(await voluntary.ContainsAsync(templateVoluntary));
+        var accoutnFarmer = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, permission);
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
+                     _populationSvc.GetVoluntaryOfindividualAsync(accoutnFarmer.Id, voluntary.OfferedBy.Id));
+
+        var voluntaryget = await getVoluntariesOfIndividual;
+        Assert.NotNull(voluntaryget);
+        Assert.True(await voluntaryget.ContainsAsync(voluntary));
     }
 
     #endregion Tests
