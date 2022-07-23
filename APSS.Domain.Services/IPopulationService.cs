@@ -8,19 +8,42 @@ public interface IPopulationService
     #region Public Methods
 
     /// <summary>
-    ///  Gets a query for the get family
+    ///  Gets a query for the get families
     /// </summary>
     /// <param name="accountId">The id of the account which to get the added fammily  by its</param>
     /// <returns></returns>
-    IQueryBuilder<Family> GetFamiliesAsync(long accountId);
+    Task<IQueryBuilder<Family>> GetFamiliesAsync(long accountId);
 
     /// <summary>
-    /// Asynnchrosuly Gets a query for the get individuals of family
+    /// Asynchrosuly Gets a query for the get individuals of family
     /// </summary>
     /// <param name="accountId">The id of the account which has reading permssion </param>
     /// <param name="familyId">The id of the family which to get the individuals for </param>
     /// <returns></returns>
     Task<IQueryBuilder<FamilyIndividual>> GetFamilyIndividualsAsync(long accountId, long familyId);
+
+    /// <summary>
+    /// Asynchrosuly Gets a query for the get family
+    /// </summary>
+    /// <param name="accountId"> The id of the account wichhas reading permmion</param>
+    /// <param name="familyId">The id of id which to get it</param>
+    /// <returns></returns>
+    Task<IQueryBuilder<Family>> GetFamilyAsync(long accountId, long familyId);
+
+    /// <summary>
+    /// Get a query for the get Individuals
+    /// </summary>
+    /// <param name="accountId"> The id of the account wichhas reading permmion</param>
+    /// <returns></returns>
+    Task<IQueryBuilder<Individual>> GetIndvidualsAsync(long accountId);
+
+    /// <summary>
+    /// Asynchrousuly get a query for the get individual
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="individualId"></param>
+    /// <returns></returns>
+    Task<IQueryBuilder<Individual>> GetIndvidualAsync(long accountId, long individualId);
 
     /// <summary>
     /// Asynnchrosuly Gets a query for the get skill of individual
