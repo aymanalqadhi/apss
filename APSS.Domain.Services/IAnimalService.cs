@@ -56,7 +56,7 @@ public interface IAnimalService
     /// <param name="userId">The id of the user who owns the animal group</param>
     /// <param name="animalGroupId">the id of animal group</param>
     /// <returns>animal product object</returns>
-    Task<IQueryBuilder<AnimalProduct>> GetAnimalProductsAsync(long accountId, long userId, long animalGroupId);
+    Task<IQueryBuilder<AnimalProduct>> GetAnimalProductsAsync(long accountId, long userId);
 
     /// <summary>
     /// Asynchrnously delete animal group
@@ -85,24 +85,27 @@ public interface IAnimalService
     /// <summary>
     /// Asynchrnously update  animal product
     /// </summary>
-    /// <param name="AccountId">the id of account getting animal product</param>
+    /// <param name="AccountId">the id of account updating animal product</param>
     /// <param name="animalProduct">the object of animal product</param>
     /// <returns></returns>
+
     Task<AnimalProduct> UpdateAnimalProductAsync(long accountId, long animalProductId, Action<AnimalProduct> updater);
+
+    Task<AnimalProductUnit> CreateAnimalProductUnitAsync(long accountId, string name);
+
+    Task<AnimalProductUnit> UpdateProductUnit(long accountId, long productUnitId, Action<AnimalProductUnit> updater);
+
+    Task<IQueryBuilder<AnimalProductUnit>> GetAnimalProductUnitAsync(long accountId);
+
+    Task RemoveAnimalProductUnitAsync(long accountId, long productUnitId);
+
+    Task<AnimalProduct> ConfirmAnimalProduct(long accountId, long animalProductId, bool isConfirm);
+
+    Task<AnimalGroup> ConfirmAnimalGroup(long accountId, long animalGroupId, bool isConfirm);
 
     Task<ProductExpense> CreateProductExpenseAsync(long accountId, long productId, string type, decimal price);
 
     Task<ProductExpense> UpdateProductExpensesAsync(long accountId, long productExpenseId, Action<ProductExpense> updater);
-
-    Task<AnimalProductUnit> CreateAnimalProductUnit(long accountId, string name);
-
-    Task<AnimalProductUnit> CreateAnimalProductUnits(long accountId, string name);
-
-    Task<AnimalProductUnit> UpdateProductUnit(long accountId, long productUnitId, Action<AnimalProductUnit> updater);
-
-    Task<IQueryBuilder<AnimalProductUnit>> GetAnimalProductUnit(long accountId);
-
-    Task RemoveAnimalProductUnitAsync(long accountId, long productUnitId);
 
     #endregion Public Methods
 }
