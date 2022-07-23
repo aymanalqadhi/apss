@@ -82,26 +82,22 @@ namespace APSS.Tests.Application.App
         }
 
         [Theory]
-        [InlineData(PermissionType.Create, true)]
-        [InlineData(PermissionType.Delete, false)]
-        [InlineData(PermissionType.Update, false)]
-        [InlineData(PermissionType.Read, false)]
+        [InlineData(AccessLevel.Farmer, PermissionType.Create, true)]
+        [InlineData(AccessLevel.Farmer, PermissionType.Read | PermissionType.Delete | PermissionType.Update, false)]
         public async Task<(Account, AnimalProduct?)> AnimalProductAddedTheory(
-
+            AccessLevel accessLevel = AccessLevel.Farmer,
             PermissionType permissionType = PermissionType.Create,
             bool shouldSuccess = true
             )
         {
-            var (account, animalGroups) = await AnimalAddedTheory();
+            var (animalAccount, animalGroups) = await AnimalAddedTheory();
 
-            var productUnit = await AnimalProductUnitAddedTheory(AccessLevel.Farmer, PermissionType.Create, true);
-
-            var accountnew = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
+            var productUnit = await AnimalProductUnitAddedTheory();
 
             var animalProduct = ValidEntitiesFactory.CreateValidAnimalProduct();
-
+            var account = await _uow.CreateTestingAccountForUserAsync(animalAccount.User.Id, permissionType);
             var animalProductTask = _animal.AddAnimalProductAsync(
-                accountnew.Id,
+                account.Id,
                 animalGroups!.Id,
                 productUnit!.Id,
                 animalProduct.Name,
@@ -118,7 +114,7 @@ namespace APSS.Tests.Application.App
             var product = await animalProductTask;
 
             Assert.True(await _uow.AnimalProducts.Query().ContainsAsync(product));
-            Assert.Equal(accountnew.User.Id, product.Producer.OwnedBy.Id);
+            Assert.Equal(account.User.Id, product.Producer.OwnedBy.Id);
             Assert.Equal(animalProduct.Name, product.Name);
             Assert.Equal(animalProduct.Quantity, product.Quantity);
             Assert.Equal(animalProduct.PeriodTaken, product.PeriodTaken);
@@ -182,24 +178,24 @@ namespace APSS.Tests.Application.App
         }
 
         [Theory]
-        [InlineData(AccessLevel.Farmer, PermissionType.Create, true)]
-        [InlineData(AccessLevel.Farmer, PermissionType.Read, false)]
-        [InlineData(AccessLevel.Farmer, PermissionType.Delete, false)]
-        [InlineData(AccessLevel.Farmer, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Root, PermissionType.Create, true)]
+        [InlineData(AccessLevel.Root, PermissionType.Update | PermissionType.Delete | PermissionType.Read, false)]
+        [InlineData(AccessLevel.Farmer, PermissionType.Create, false)]
         [InlineData(AccessLevel.Group, PermissionType.Create, false)]
         [InlineData(AccessLevel.Governorate, PermissionType.Create, false)]
         [InlineData(AccessLevel.Directorate, PermissionType.Create, false)]
         [InlineData(AccessLevel.Village, PermissionType.Create, false)]
         [InlineData(AccessLevel.District, PermissionType.Create, false)]
         public async Task<AnimalProductUnit?> AnimalProductUnitAddedTheory(
-            AccessLevel accessLevel = AccessLevel.Farmer,
-            PermissionType permissionType = PermissionType.Create, bool shouldSuccess = true)
+            AccessLevel accessLevel = AccessLevel.Root,
+            PermissionType permissionType = PermissionType.Create,
+            bool shouldSuccess = true)
         {
             var account = await _uow.CreateTestingAccountAsync(accessLevel, permissionType);
 
-            var templateProductUnit = ValidEntitiesFactory.CreateValidLandProductUnit();
+            var templateProductUnit = ValidEntitiesFactory.CreateValidAnimalProductUnit();
 
-            var productUnitTask = _animal.CreateAnimalProductUnits(account.Id, templateProductUnit.Name);
+            var productUnitTask = _animal.CreateAnimalProductUnitAsync(account.Id, templateProductUnit.Name);
 
             if (!shouldSuccess)
             {
@@ -215,26 +211,104 @@ namespace APSS.Tests.Application.App
         }
 
         [Theory]
+        [InlineData(AccessLevel.Group, PermissionType.Update, true)]
+        [InlineData(AccessLevel.Group, PermissionType.Read | PermissionType.Delete | PermissionType.Create, false)]
+        [InlineData(AccessLevel.Farmer, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Governorate, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Directorate, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Village, PermissionType.Update, false)]
+        [InlineData(AccessLevel.District, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Presedint, PermissionType.Update, false)]
+        public async Task AnimalGroupConfirmAddTheory(AccessLevel accessLevel = AccessLevel.Group,
+            PermissionType permissionType = PermissionType.Update,
+            bool shouldSuccess = true)
+        {
+            var (account, animalGroup) = await AnimalAddedTheory();
+
+            Assert.True(await _uow.AnimalGroups.Query().ContainsAsync(animalGroup!));
+            Assert.True(await _uow.Accounts.Query().ContainsAsync(account));
+
+            var groupAccount = await _uow.CreateTestingAccountAsync(accessLevel, permissionType);
+
+            account.User.SupervisedBy = groupAccount.User;
+
+            _uow.Accounts.Update(account);
+            await _uow.CommitAsync();
+
+            Assert.Equal(account.User.SupervisedBy.Id, groupAccount.User.Id);
+
+            var confirmAnimalTask = _animal.ConfirmAnimalGroup(groupAccount.Id, animalGroup!.Id, true);
+
+            var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Group, permissionType);
+
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await _animal.ConfirmAnimalGroup(otherAccount.Id, animalGroup.Id, true));
+
+            if (!shouldSuccess)
+            {
+                await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await confirmAnimalTask);
+                return;
+            }
+
+            var confirm = await confirmAnimalTask;
+            Assert.Equal(true, confirm.IsConfirmed);
+        }
+
+        [Theory]
+        [InlineData(AccessLevel.Group, PermissionType.Update, true)]
+        [InlineData(AccessLevel.Group, PermissionType.Read | PermissionType.Delete | PermissionType.Create, false)]
+        [InlineData(AccessLevel.Farmer, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Governorate, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Directorate, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Village, PermissionType.Update, false)]
+        [InlineData(AccessLevel.District, PermissionType.Update, false)]
+        public async Task AnimalProductConfirmTheory(AccessLevel accessLevel = AccessLevel.Group, PermissionType permissionType = PermissionType.Update, bool shouldSuccess = true)
+        {
+            var (account, animalProduct) = await AnimalProductAddedTheory();
+
+            Assert.True(await _uow.AnimalProducts.Query().ContainsAsync(animalProduct!));
+            Assert.True(await _uow.Accounts.Query().ContainsAsync(account));
+
+            var groupAccount = await _uow.CreateTestingAccountAsync(accessLevel, permissionType);
+
+            account.User.SupervisedBy = groupAccount.User;
+
+            _uow.Accounts.Update(account);
+            await _uow.CommitAsync();
+
+            Assert.Equal(account.User.SupervisedBy.Id, groupAccount.User.Id);
+
+            var confirmAnimalProductTask = _animal.ConfirmAnimalGroup(groupAccount.Id, animalProduct!.Id, true);
+
+            var otherAccount = await _uow.CreateTestingAccountAsync(AccessLevel.Group, permissionType);
+
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await _animal.ConfirmAnimalGroup(otherAccount.Id, animalProduct.Id, true));
+
+            if (!shouldSuccess)
+            {
+                await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await confirmAnimalProductTask);
+                return;
+            }
+            var confirm = await confirmAnimalProductTask;
+            Assert.Equal(true, confirm.IsConfirmed);
+        }
+
+        [Theory]
         [InlineData(AccessLevel.Farmer, PermissionType.Update, true)]
         [InlineData(AccessLevel.Farmer, PermissionType.Read | PermissionType.Delete | PermissionType.Create, false)]
-        [InlineData(AccessLevel.Group, PermissionType.Create, false)]
-        [InlineData(AccessLevel.Governorate, PermissionType.Create, false)]
-        [InlineData(AccessLevel.Directorate, PermissionType.Create, false)]
-        [InlineData(AccessLevel.Village, PermissionType.Create, false)]
-        [InlineData(AccessLevel.District, PermissionType.Create, false)]
-        [InlineData(AccessLevel.Presedint, PermissionType.Create, false)]
-        public async Task AnimalGroupUpdatedTheoty(AccessLevel accessLevel,
-            PermissionType permissionType,
+        [InlineData(AccessLevel.Governorate, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Directorate, PermissionType.Update, false)]
+        [InlineData(AccessLevel.District, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Village, PermissionType.Update, false)]
+        [InlineData(AccessLevel.Group, PermissionType.Update, false)]
+        public async Task AnimalGroupUpdatedTheory(AccessLevel accessLevel = AccessLevel.Farmer,
+            PermissionType permissionType = PermissionType.Update,
             bool ShouldSuccess = true)
         {
-            var (account, animalGroup) = await AnimalAddedTheory(
-                 AccessLevel.Farmer,
-                 PermissionType.Create | permissionType, true
-                 );
+            var (animalAccount, animalGroup) = await AnimalAddedTheory();
 
-            Assert.True(await _uow.Accounts.Query().ContainsAsync(account));
+            Assert.True(await _uow.Accounts.Query().ContainsAsync(animalAccount));
             Assert.True(await _uow.AnimalGroups.Query().ContainsAsync(animalGroup!));
-
+            var account = await _uow.CreateTestingAccountForUserAsync(animalAccount.User.Id, permissionType);
             var type = RandomGenerator.NextString(RandomGenerator.NextInt(10, 15), RandomStringOptions.Alpha);
             var name = RandomGenerator.NextString(RandomGenerator.NextInt(15, 20), RandomStringOptions.Alpha);
             var quantity = RandomGenerator.NextInt(5, 10);
@@ -273,38 +347,30 @@ namespace APSS.Tests.Application.App
         }
 
         [Theory]
-        [InlineData(PermissionType.Create, false)]
-        [InlineData(PermissionType.Update, true)]
-        [InlineData(PermissionType.Delete, false)]
-        [InlineData(PermissionType.Read, false)]
+        [InlineData(AccessLevel.Farmer, PermissionType.Update, true)]
+        [InlineData(AccessLevel.Farmer, PermissionType.Read | PermissionType.Delete | PermissionType.Create, false)]
         public async Task AnimalProductUpdateTheory(
+            AccessLevel accessLevel = AccessLevel.Farmer,
             PermissionType permissionType = PermissionType.Update,
             bool shouldsuccess = true)
         {
-            var (account, animalProduct) = await AnimalProductAddedTheory();
+            var (animalAccount, animalProduct) = await AnimalProductAddedTheory();
 
-            Assert.True(await _uow.Accounts.Query().ContainsAsync(account));
+            Assert.True(await _uow.Accounts.Query().ContainsAsync(animalAccount));
             Assert.True(await _uow.AnimalProducts.Query().ContainsAsync(animalProduct!));
 
-            var newaccount = await _uow.CreateTestingAccountForUserAsync(account.User.Id, permissionType);
-
+            var account = await _uow.CreateTestingAccountForUserAsync(animalAccount.User.Id, permissionType);
             var name = RandomGenerator.NextString(RandomGenerator.NextInt(10, 20), RandomStringOptions.Alpha);
             var quantity = RandomGenerator.NextInt(10, 20);
 
             var animalProductUpdateTask = _animal
-                .UpdateAnimalProductAsync(newaccount.Id, animalProduct!.Id,
+                .UpdateAnimalProductAsync(account.Id, animalProduct!.Id,
                 P =>
                 {
                     P.Name = name;
                     P.Quantity = quantity;
                 }
                 );
-
-            if (!shouldsuccess)
-            {
-                await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await animalProductUpdateTask);
-                return;
-            }
 
             var otheraccount = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, permissionType);
 
@@ -317,8 +383,14 @@ namespace APSS.Tests.Application.App
                 }
                 );
 
-            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
+            await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await
             otheranimalProductUpdateTask);
+
+            if (!shouldsuccess)
+            {
+                await Assert.ThrowsAsync<InvalidAccessLevelException>(async () => await animalProductUpdateTask);
+                return;
+            }
 
             var product = await animalProductUpdateTask;
             var productnew = await _uow.AnimalProducts.Query().FindAsync(product.Id);
@@ -335,7 +407,7 @@ namespace APSS.Tests.Application.App
             PermissionType permissionType = PermissionType.Create, bool ShouldSuccess = true)
         {
             var unit = await AnimalProductUnitAddedTheory();
-            var account = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, permissionType);
+            var account = await _uow.CreateTestingAccountAsync(AccessLevel.Root, permissionType);
 
             var name = RandomGenerator.NextString(RandomGenerator.NextInt(10, 20), RandomStringOptions.Alpha);
 
@@ -418,22 +490,37 @@ namespace APSS.Tests.Application.App
         }
 
         [Theory]
-        [InlineData(PermissionType.Read, true)]
-        [InlineData(PermissionType.Full, true)]
-        [InlineData(PermissionType.Create, false)]
-        [InlineData(PermissionType.Update, false)]
-        [InlineData(PermissionType.Delete, false)]
-        public async Task GetAnimalProductUnit(PermissionType permissionType, bool shouldSuccess)
+        [InlineData(AccessLevel.Root, PermissionType.Read, true)]
+        [InlineData(AccessLevel.Root, PermissionType.Update | PermissionType.Delete | PermissionType.Create, false)]
+        [InlineData(AccessLevel.Farmer, PermissionType.Read, true)]
+        [InlineData(AccessLevel.Farmer, PermissionType.Update | PermissionType.Delete | PermissionType.Create, false)]
+        [InlineData(AccessLevel.Governorate, PermissionType.Read, true)]
+        [InlineData(AccessLevel.Governorate, PermissionType.Update | PermissionType.Delete | PermissionType.Create, false)]
+        [InlineData(AccessLevel.Directorate, PermissionType.Read, true)]
+        [InlineData(AccessLevel.Directorate, PermissionType.Update | PermissionType.Delete | PermissionType.Create, false)]
+        [InlineData(AccessLevel.District, PermissionType.Read, true)]
+        [InlineData(AccessLevel.District, PermissionType.Update | PermissionType.Delete | PermissionType.Create, false)]
+        [InlineData(AccessLevel.Village, PermissionType.Read, true)]
+        [InlineData(AccessLevel.Village, PermissionType.Update | PermissionType.Delete | PermissionType.Create, false)]
+        [InlineData(AccessLevel.Group, PermissionType.Read, true)]
+        [InlineData(AccessLevel.Group, PermissionType.Update | PermissionType.Delete | PermissionType.Create, false)]
+        public async Task GetAnimalProductUnitAddTheory(AccessLevel accessLevel, PermissionType permissionType = PermissionType.Read, bool shouldSuccess = true)
         {
             var productUnit = await AnimalProductUnitAddedTheory();
-            var account = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, PermissionType.Read);
+            var account = await _uow.CreateTestingAccountAsync(accessLevel, permissionType);
 
             Assert.True(await _uow.AnimalProductUnits.Query().ContainsAsync(productUnit!));
             Assert.True(await _uow.Accounts.Query().ContainsAsync(account));
 
-            var getProductUnitTask = _animal.GetAnimalProductUnit(account.Id);
+            var getProductUnitTask = _animal.GetAnimalProductUnitAsync(account.Id);
 
-            await getProductUnitTask;
+            if (!shouldSuccess)
+            {
+                await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await getProductUnitTask);
+                return;
+            }
+
+            var units = await getProductUnitTask;
         }
 
         public void Dispose()
