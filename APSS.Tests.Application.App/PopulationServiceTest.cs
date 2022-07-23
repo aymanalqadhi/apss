@@ -560,6 +560,247 @@ public sealed class PopulationServiceTest : IDisposable
     [InlineData(AccessLevel.District, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
     [InlineData(AccessLevel.Root, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
     [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
+    public async Task GetFamilyTheory(AccessLevel accessLevel,
+        PermissionType permission = PermissionType.Read,
+        bool shoulSucceed = true)
+    {
+        var (accountfamliy, family) = await FamilyaddedTheory();
+
+        Assert.True(await _uow.Families.Query().ContainsAsync(family!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(accountfamliy));
+
+        var account = await _uow.CreateTestingAccountForUserAsync(accountfamliy.User.Id, permission);
+
+        var superaccount = account;
+
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow
+                .CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
+
+        var getFamlyTask = _populationSvc
+            .GetFamilyAsync(superaccount.Id, family!.Id);
+
+        if (!shoulSucceed & accessLevel != AccessLevel.Farmer)
+        {
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getFamlyTask);
+            return;
+        }
+
+        var accountFarmer = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, permission);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
+                      _populationSvc.GetFamilyAsync(accountFarmer.Id, family!.Id));
+        if (accessLevel != AccessLevel.Root)
+        {
+            var accounttest = await _uow.CreateTestingAccountAsync(accessLevel, PermissionType.Read);
+
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
+                         _populationSvc.GetFamilyAsync(accounttest.Id, family!.Id));
+        }
+
+        Assert.NotNull(getFamlyTask);
+        var familyget = await getFamlyTask;
+        Assert.True(await familyget.AllAsync(f => f.Id == family!.Id));
+    }
+
+    [Theory]
+    [InlineData(AccessLevel.Group, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.District, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Root, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.District, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Root, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
+    public async Task GetIndividualTheory(AccessLevel accessLevel,
+        PermissionType permission = PermissionType.Read,
+        bool shoulSucceed = true)
+    {
+        var (accountIndividual, individual) = await IndividualAddedTheory();
+
+        Assert.True(await _uow.Individuals.Query().ContainsAsync(individual!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(accountIndividual));
+
+        var account = await _uow.CreateTestingAccountForUserAsync(accountIndividual.User.Id, permission);
+
+        var superaccount = account;
+
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow
+                .CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
+
+        var getIndividualTask = _populationSvc
+            .GetFamilyAsync(superaccount.Id, individual!.Id);
+
+        if (!shoulSucceed & accessLevel != AccessLevel.Farmer)
+        {
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getIndividualTask);
+            return;
+        }
+
+        var accountFarmer = await _uow.CreateTestingAccountAsync(AccessLevel.Farmer, permission);
+
+        await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
+                      _populationSvc.GetFamilyAsync(accountFarmer.Id, individual!.Id));
+        if (accessLevel != AccessLevel.Root)
+        {
+            var accounttest = await _uow.CreateTestingAccountAsync(accessLevel, PermissionType.Read);
+
+            await Assert.ThrowsAsync<InsufficientPermissionsException>(async () => await
+                         _populationSvc.GetFamilyAsync(accounttest.Id, individual!.Id));
+        }
+
+        Assert.NotNull(getIndividualTask);
+        var individualget = await getIndividualTask;
+        Assert.True(await individualget.AllAsync(f => f.Id == individual!.Id));
+    }
+
+    [Theory]
+    [InlineData(AccessLevel.Group, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.District, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Root, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
+    public async Task getFamiliesTheory(AccessLevel accessLevel,
+        PermissionType permission = PermissionType.Read, bool shoulSucceed = true)
+    {
+        var (accountfamily, familytest) = await FamilyaddedTheory();
+
+        Assert.True(await _uow.Families.Query().ContainsAsync(familytest!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(accountfamily!));
+
+        var family = await _populationSvc
+            .AddFamilyAsync(accountfamily.Id,
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha),
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha));
+
+        Assert.True(await _uow.Families.Query().ContainsAsync(family!));
+
+        family = await _populationSvc
+            .AddFamilyAsync(accountfamily.Id,
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha),
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha));
+
+        var account = await _uow.CreateTestingAccountForUserAsync(accountfamily.User.Id, permission);
+
+        var superaccount = account;
+
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow
+                .CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
+
+        var getFamiliesTask = _populationSvc
+            .GetFamiliesAsync(superaccount.Id);
+
+        if (!shoulSucceed & accessLevel != AccessLevel.Farmer)
+        {
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getFamiliesTask);
+            return;
+        }
+
+        var families = await getFamiliesTask;
+
+        Assert.Equal(3, await families.CountAsync());
+        Assert.True(await families.AnyAsync(f => f.Equals(family)));
+        Assert.True(await families.AnyAsync(f => f.Equals(familytest)));
+    }
+
+    [Theory]
+    [InlineData(AccessLevel.Group, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.District, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Root, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
+    public async Task getIndividualTheory(AccessLevel accessLevel,
+       PermissionType permission = PermissionType.Read, bool shoulSucceed = true)
+    {
+        var (accountIndividual, individualTest) = await IndividualAddedTheory();
+
+        Assert.True(await _uow.Individuals.Query().ContainsAsync(individualTest!));
+        Assert.True(await _uow.Accounts.Query().ContainsAsync(accountIndividual!));
+
+        var family = await _populationSvc.AddFamilyAsync(accountIndividual.Id,
+
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha),
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha));
+
+        var individual = await _populationSvc
+            .AddIndividualAsync(accountIndividual.Id,
+            family.Id,
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha),
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha),
+            IndividualSex.Male);
+
+        Assert.True(await _uow.Individuals.Query().ContainsAsync(individual));
+
+        individual = await _populationSvc
+            .AddIndividualAsync(accountIndividual.Id,
+            family.Id,
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha),
+            RandomGenerator.NextString(10, RandomStringOptions.Alpha),
+            IndividualSex.Male);
+
+        Assert.True(await _uow.Individuals.Query().ContainsAsync(individual));
+
+        var account = await _uow.CreateTestingAccountForUserAsync(accountIndividual.User.Id, permission);
+
+        var superaccount = account;
+
+        if (shoulSucceed & accessLevel != AccessLevel.Group)
+        {
+            superaccount = await _uow
+                .CreateTestingAccountAboveUserAsync(account.User.Id, accessLevel, permission);
+        }
+
+        var getIndividualTask = _populationSvc
+            .GetIndvidualsAsync(superaccount.Id);
+
+        if (!shoulSucceed & accessLevel != AccessLevel.Farmer)
+        {
+            await Assert
+                .ThrowsAsync<InsufficientPermissionsException>(async () => await getIndividualTask);
+            return;
+        }
+
+        var individuals = await getIndividualTask;
+
+        Assert.Equal(3, await individuals.CountAsync());
+        Assert.True(await individuals.AnyAsync(f => f.Equals(individual)));
+        Assert.True(await individuals.AnyAsync(f => f.Equals(individualTest)));
+    }
+
+    [Theory]
+    [InlineData(AccessLevel.Group, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Read, true)]
+    [InlineData(AccessLevel.District, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Root, PermissionType.Read, true)]
+    [InlineData(AccessLevel.Group, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Presedint, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Governorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Directorate, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.District, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Root, PermissionType.Update | PermissionType.Create | PermissionType.Delete, false)]
+    [InlineData(AccessLevel.Farmer, PermissionType.Full, false)]
     public async Task GetIndividualOfFamlyTheory(AccessLevel accessLevel,
         PermissionType permission = PermissionType.Read,
         bool shoulSucceed = true)
