@@ -192,14 +192,29 @@ public sealed class PopulationService : IPopulationService
     }
 
     ///<inheritdoc/>
-    public IQueryBuilder<Family> GetFamiliesAsync(long accountId)
+    public async Task<IQueryBuilder<Family>> GetFamiliesAsync(long accountId)
     {
-        var family = _uow.Families
+        var account = await _uow.Accounts.Query().Include(a => a.User).FindAsync(accountId);
+
+        if (account.User.AccessLevel == AccessLevel.Farmer)
+        {
+            throw new InsufficientPermissionsException(
+               accountId, $"farmer #{account.User.Id} with account #{accountId} cannot read families");
+        }
+
+        var families = _uow.Families
             .Query()
             .Include(f => f.AddedBy)
-            .Where(f => GetSubuserDistanceAsync(accountId, f.AddedBy.Id).Result >= 0);
+            .Where(f => _permissionsSvc
+            .ValidatePermissionsAsync(accountId, f.AddedBy.Id, PermissionType.Read).Result.Id == accountId);
 
-        return family;
+        if (families == null)
+        {
+            throw new InsufficientPermissionsException(
+                accountId, $"user #{account.User.Id} with account #{accountId} cannot read families");
+        }
+
+        return families;
     }
 
     ///<inheritdoc/>
@@ -216,9 +231,72 @@ public sealed class PopulationService : IPopulationService
 
         if (account.User.AccessLevel == AccessLevel.Farmer)
             throw new InsufficientPermissionsException(
-                accountId, $"farmer #{account.User.Id} with account #{accountId} cannot read family");
+             accountId, $"farmer #{account.User.Id} with account #{accountId} cannot read familyIndividual");
 
         return _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId);
+    }
+
+    ///<inheritdoc/>
+    public async Task<IQueryBuilder<Family>> GetFamilyAsync(long accountId, long familyId)
+    {
+        var family = await _uow.Families.Query()
+            .Include(f => f.AddedBy)
+            .FindAsync(familyId);
+
+        await _permissionsSvc
+            .ValidatePermissionsAsync(accountId, family.AddedBy.Id, PermissionType.Read);
+
+        var account = await _uow.Accounts.Query().FindAsync(accountId);
+
+        if (account.User.AccessLevel == AccessLevel.Farmer | !account.Permissions.HasFlag(PermissionType.Read))
+            throw new InsufficientPermissionsException(
+                accountId, $"user #{account.User.Id} with account #{accountId} cannot read family");
+
+        return _uow.Families.Query().Where(f => f.Id == familyId);
+    }
+
+    ///<inheritdoc/>
+    public async Task<IQueryBuilder<Individual>> GetIndvidualsAsync(long accountId)
+    {
+        var account = await _uow.Accounts.Query()
+            .Include(a => a.User).FindAsync(accountId);
+
+        if (account.User.AccessLevel == AccessLevel.Farmer | !account.Permissions.HasFlag(PermissionType.Read))
+        {
+            throw new InsufficientPermissionsException(
+               accountId, $"user #{account.User.Id} with account #{accountId} cannot read Individual");
+        }
+
+        var individual = _uow.Individuals.Query().Include(i => i.AddedBy)
+                 .Where(f => _permissionsSvc
+                 .ValidatePermissionsAsync(accountId, f.AddedBy.Id, PermissionType.Read).Result.Id == accountId);
+
+        if (individual == null)
+        {
+            throw new InsufficientPermissionsException(
+              accountId, $"user #{account.User.Id} with account #{accountId} cannot read individuals");
+        }
+
+        return individual;
+    }
+
+    ///<inheritdoc/>
+    public async Task<IQueryBuilder<Individual>> GetIndvidualAsync(long accountId, long individualId)
+    {
+        var individual = await _uow.Individuals.Query()
+            .Include(i => i.AddedBy)
+            .FindAsync(individualId);
+
+        await _permissionsSvc
+            .ValidatePermissionsAsync(accountId, individual.AddedBy.Id, PermissionType.Read);
+
+        var account = await _uow.Accounts.Query().FindAsync(accountId);
+
+        if (account.User.AccessLevel == AccessLevel.Farmer)
+            throw new InsufficientPermissionsException(
+                accountId, $"farmer #{account.User.Id} with account #{accountId} cannot read individual");
+
+        return _uow.Individuals.Query().Where(i => i.Id == individualId);
     }
 
     ///<inheritdoc/>
