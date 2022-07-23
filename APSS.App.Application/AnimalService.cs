@@ -217,14 +217,24 @@ public class AnimalService : IAnimalService
         {
             Price = price,
             Type = type,
+            SpentOn = product
         };
 
         _uow.ProductExpenses.Add(expenseproduct);
         await _uow.CommitAsync();
 
-        await UpdateAnimalProductAsync(accountId, productId, A => A.Expenses.Add(expenseproduct));
-
         return expenseproduct;
+    }
+
+    public async Task<ProductExpense> UpdateProductExpensesAsync(long accountId, long productExpenseId, Action<ProductExpense> updater)
+    {
+        var account = await _uow.Accounts.Query().FindWithAccessLevelValidationAsync(accountId, AccessLevel.Farmer, PermissionType.Update);
+        var expense = await _uow.ProductExpenses.Query().FindWithOwnershipValidationAync(productExpenseId, u => u.Id, account);
+        updater(expense);
+
+        _uow.ProductExpenses.Update(expense);
+        await _uow.CommitAsync();
+        return expense;
     }
 
     public async Task<AnimalProduct> ConfirmAnimalProduct(long accountId, long animalProductId, bool isConfirm)
@@ -238,11 +248,6 @@ public class AnimalService : IAnimalService
 
         if (isConfirm) return _uow.AnimalProducts.Confirm(animalProduct);
         else return _uow.AnimalProducts.Decline(animalProduct);
-    }
-
-    public Task<ProductExpense> UpdateProductExpensesAsync(long accountId, long productExpenseId, Action<ProductExpense> updater)
-    {
-        throw new NotImplementedException();
     }
 
     public async Task<AnimalGroup> ConfirmAnimalGroup(long accountId, long animalGroupId, bool isConfirm)
