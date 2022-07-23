@@ -216,7 +216,7 @@ public sealed class PopulationService : IPopulationService
 
         if (account.User.AccessLevel == AccessLevel.Farmer)
             throw new InsufficientPermissionsException(
-                accountId, $"farmer #{account.User.Id} with account #{accountId} cannot add surveys");
+                accountId, $"farmer #{account.User.Id} with account #{accountId} cannot read family");
 
         return _uow.FamilyIndividuals.Query().Where(f => f.Family.Id == familyId);
     }
@@ -235,7 +235,7 @@ public sealed class PopulationService : IPopulationService
 
         if (account.User.AccessLevel == AccessLevel.Farmer)
             throw new InsufficientPermissionsException(
-                accountId, $"farmer #{account.User.Id} with account #{accountId} cannot add surveys");
+                accountId, $"farmer #{account.User.Id} with account #{accountId} cannot Read Skill of individual");
 
         return _uow.Skills.Query().Where(s => s.BelongsTo.Id == individualId);
     }
