@@ -12,7 +12,7 @@ namespace APSS.Web.Dtos
     {
         public string Name { get; set; } = null!;
 
-        public AnimalProductUnit Unit { get; set; } = null!;
+        public AnimalProductUnitDto Unit { get; set; } = null!;
 
         public double Quantity { get; set; }
 
